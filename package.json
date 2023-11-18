@@ -39,7 +39,8 @@
     "test:e2e:run": "cross-env CI=true playwright test",
     "test:e2e:install": "npx playwright install --with-deps chromium",
     "typecheck": "tsc",
-    "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
+    "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run",
+    "prepare": "husky install"
   },
   "eslintIgnore": [
     "/node_modules",
@@ -151,6 +152,7 @@
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "fs-extra": "^11.1.1",
+    "husky": "^8.0.3",
     "jsdom": "^22.1.0",
     "msw": "0.0.0-fetch.rc-20",
     "node-html-parser": "^6.1.10",
