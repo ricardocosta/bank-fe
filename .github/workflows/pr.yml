@@ -1,0 +1,87 @@
+name: 🔀 PR
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+env:
+  node_version: 20
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  title:
+    name: Check title
+    runs-on: ubuntu-22.04
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node_version }}
+          cache: 'npm'
+
+      - name: 📥 Install commitlint
+        run: npm install commitlint@latest
+
+      - name: ✓ Validate PR title
+        run: |
+          echo "${{ github.event.pull_request.title}}" | npx commitlint --verbose
+
+  references:
+    name: Check reference
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 📥 Get linked issues
+        env:
+          GH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          PR_ID: ${{ github.event.pull_request.node_id }}
+        run: |
+          linked_issue_id="$( gh api graphql -f query='
+          query($pr:ID!) {
+            node(id: $pr) {
+              ... on PullRequest {
+                closingIssuesReferences(first:1, userLinkedOnly:false) {
+                  nodes {
+                    number
+                  }
+                }
+              }
+            }
+          }' -f pr=$PR_ID --jq '.data.node.closingIssuesReferences.nodes[0].number')"
+          echo "LINKED_ISSUE_ID=$linked_issue_id" >> $GITHUB_ENV
+
+      - name: 💬 Comment if absent
+        if: ${{ env.LINKED_ISSUE_ID == '' }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: '🚨 This Pull Request is missing a Closes reference!'
+          comment_tag: reference_check
+
+      - name: ❌ Mark as failed
+        if: ${{ env.LINKED_ISSUE_ID == '' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setFailed('🚨 This Pull Request is missing a Closes reference!')
+
+      - name: 💬 Comment if fixed
+        if: ${{ env.LINKED_ISSUE_ID != '' }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: '✅ Closes reference is now present!'
+          comment_tag: reference_check
+          create_if_not_exists: false

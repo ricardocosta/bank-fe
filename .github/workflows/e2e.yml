@@ -34,7 +34,7 @@ jobs:
       - name: ⎔ Setup node
         uses: actions/setup-node@v4
         with:
-          node_version: ${{ env.node_version }}
+          node-version: ${{ env.node_version }}
           cache: 'npm'
 
       # This won't work with pnpm
