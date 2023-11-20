@@ -27,6 +27,7 @@
     "predev": "pnpm run build:icons --silent",
     "dev": "remix dev -c \"node ./server/dev-server.js\" --manual",
     "prisma:studio": "prisma studio",
+    "prisma:generate": "prisma generate",
     "format": "prettier --write .",
     "lint": "eslint .",
     "setup": "pnpm run build && prisma generate && prisma migrate deploy && prisma db seed && playwright install",
@@ -44,7 +45,8 @@
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "commitlint:ci": "commitlint"
   },
   "eslintIgnore": [
     "/node_modules",
