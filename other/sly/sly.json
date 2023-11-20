@@ -4,7 +4,7 @@
     {
       "name": "@radix-ui/icons",
       "directory": "./other/svg-icons",
-      "postinstall": ["npm", "run", "build:icons"],
+      "postinstall": ["pnpm", "run", "build:icons"],
       "transformers": ["transform-icon.ts"]
     }
   ]
