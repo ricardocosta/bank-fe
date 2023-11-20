@@ -177,5 +177,10 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "^0.19.3"
+    }
   }
 }
