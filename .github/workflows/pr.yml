@@ -4,7 +4,16 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, edited, reopened, synchronize, ready_for_review]
+    types:
+      [
+        opened,
+        edited,
+        reopened,
+        synchronize,
+        ready_for_review,
+        labeled,
+        unlabeled,
+      ]
 
 env:
   node_version: 20
@@ -45,6 +54,7 @@ jobs:
 
   references:
     name: Check reference
+    if: ${{!contains( github.event.pull_request.labels.*.name, 'dependencies')}}
     runs-on: ubuntu-22.04
     steps:
       - name: 📥 Get linked issues
