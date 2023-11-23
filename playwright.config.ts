@@ -29,7 +29,7 @@ export default defineConfig({
 	],
 
 	webServer: {
-		command: process.env.CI ? 'npm run start:mocks' : 'npm run dev',
+		command: process.env.CI ? 'pnpm run start:mocks' : 'pnpm run dev',
 		port: Number(PORT),
 		reuseExistingServer: !process.env.CI,
 		stdout: 'pipe',
