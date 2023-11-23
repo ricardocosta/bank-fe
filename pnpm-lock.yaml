@@ -347,8 +347,8 @@ devDependencies:
     specifier: ^0.5.11
     version: 0.5.12(@remix-run/dev@2.3.0)
   tsx:
-    specifier: ^3.14.0
-    version: 3.14.0
+    specifier: ^4.4.0
+    version: 4.4.0
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
@@ -10154,13 +10154,13 @@ packages:
       tslib: 1.14.1
       typescript: 5.2.2
 
-  /tsx@3.14.0:
-    resolution: {integrity: sha512-xHtFaKtHxM9LOklMmJdI3BEnQq/D5F73Of2E1GDrITi9sgoVkvIsrQUTY1G8FlmGtA+awCI4EBlTRRYxkL2sRg==}
+  /tsx@4.4.0:
+    resolution: {integrity: sha512-4fwcEjRUxW20ciSaMB8zkpGwCPxuRGnadDuj/pBk5S9uT29zvWz15PK36GrKJo45mSJomDxVejZ73c6lr3811Q==}
+    engines: {node: '>=18.0.0'}
     hasBin: true
     dependencies:
       esbuild: 0.19.6
       get-tsconfig: 4.7.2
-      source-map-support: 0.5.21
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
