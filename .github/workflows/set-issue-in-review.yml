@@ -62,6 +62,7 @@ jobs:
           echo 'LINKED_ISSUE_ID='$(jq '.data.node.closingIssuesReferences.nodes[0].projectItems.nodes[0].id' project_data.json) >> $GITHUB_ENV
 
       - name: Move to 👀 In review
+        if: ${{ env.LINKED_ISSUE_ID != 'null' }}
         env:
           GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
         run: |
