@@ -123,8 +123,8 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.4.2",
-    "@commitlint/config-conventional": "^18.4.2",
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "@faker-js/faker": "^8.1.0",
     "@playwright/test": "^1.38.1",
     "@remix-run/dev": "^2.1.0",
