@@ -1,4 +1,5 @@
 {
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "typescript.preferences.autoImportFileExcludePatterns": [
     "@remix-run/server-runtime",
     "@remix-run/router",

@@ -1,12 +1,15 @@
-import { json } from '@remix-run/node'
-import { type DataFunctionArgs } from '@remix-run/server-runtime'
-import { requireUserId } from '#app/utils/auth.server.ts'
-import { NoteEditor, action } from './__note-editor.tsx'
+import { json } from "@remix-run/node";
+
+import { requireUserId } from "#app/utils/auth.server.ts";
+
+import { action, NoteEditor } from "./__note-editor.tsx";
+
+import type { DataFunctionArgs } from "@remix-run/server-runtime";
 
 export async function loader({ request }: DataFunctionArgs) {
-	await requireUserId(request)
-	return json({})
+  await requireUserId(request);
+  return json({});
 }
 
-export { action }
-export default NoteEditor
+export { action };
+export default NoteEditor;

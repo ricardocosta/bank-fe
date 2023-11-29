@@ -1,22 +1,25 @@
-import { faker } from '@faker-js/faker'
-import { HttpResponse, http, type HttpHandler } from 'msw'
-import { requireHeader, writeEmail } from './utils.ts'
+import { faker } from "@faker-js/faker";
+import { http, HttpResponse } from "msw";
 
-const { json } = HttpResponse
+import { requireHeader, writeEmail } from "./utils.ts";
+
+import type { HttpHandler } from "msw";
+
+const { json } = HttpResponse;
 
 export const handlers: Array<HttpHandler> = [
-	http.post(`https://api.resend.com/emails`, async ({ request }) => {
-		requireHeader(request.headers, 'Authorization')
-		const body = await request.json()
-		console.info('🔶 mocked email contents:', body)
+  http.post(`https://api.resend.com/emails`, async ({ request }) => {
+    requireHeader(request.headers, "Authorization");
+    const body = await request.json();
+    console.info("🔶 mocked email contents:", body);
 
-		const email = await writeEmail(body)
+    const email = await writeEmail(body);
 
-		return json({
-			id: faker.string.uuid(),
-			from: email.from,
-			to: email.to,
-			created_at: new Date().toISOString(),
-		})
-	}),
-]
+    return json({
+      id: faker.string.uuid(),
+      from: email.from,
+      to: email.to,
+      created_at: new Date().toISOString(),
+    });
+  }),
+];

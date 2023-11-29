@@ -80,7 +80,7 @@ jobs:
         if: ${{ env.LINKED_ISSUE_ID == '' }}
         uses: thollander/actions-comment-pull-request@v2
         with:
-          message: '🚨 This Pull Request is missing a Closes reference!'
+          message: "🚨 This Pull Request is missing a Closes reference!"
           comment_tag: reference_check
 
       - name: ❌ Mark as failed
@@ -94,6 +94,6 @@ jobs:
         if: ${{ env.LINKED_ISSUE_ID != '' }}
         uses: thollander/actions-comment-pull-request@v2
         with:
-          message: '✅ Closes reference is now present!'
+          message: "✅ Closes reference is now present!"
           comment_tag: reference_check
           create_if_not_exists: false
