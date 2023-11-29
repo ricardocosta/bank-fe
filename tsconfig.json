@@ -1,18 +1,16 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
     "jsx": "react-jsx",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "resolveJsonModule": true,
-    "target": "ES2022",
-    "strict": true,
+    "noEmit": true,
     "noImplicitAny": true,
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
     "paths": {
       "#*": ["./*"],
       "@/icon-name": [
@@ -20,8 +18,10 @@
         "./types/icon-name.d.ts"
       ]
     },
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
+    "strict": true,
+    "target": "ES2022"
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
 }
