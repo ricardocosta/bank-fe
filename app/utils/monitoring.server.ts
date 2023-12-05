@@ -25,7 +25,9 @@ export function init() {
     ],
     beforeSendTransaction(event) {
       // ignore all healthcheck related transactions
-      if (event.request?.headers?.["X-Healthcheck"] === "true") return null;
+      if (event.request?.headers?.["X-Healthcheck"] === "true") {
+        return null;
+      }
 
       return event;
     },

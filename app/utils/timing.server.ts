@@ -52,7 +52,9 @@ export async function time<ReturnType>(
 ): Promise<ReturnType> {
   const timer = createTimer(type, desc);
   const promise = typeof fn === "function" ? fn() : fn;
-  if (!timings) return promise;
+  if (!timings) {
+    return promise;
+  }
 
   const result = await promise;
 
@@ -61,7 +63,9 @@ export async function time<ReturnType>(
 }
 
 export function getServerTimeHeader(timings?: Timings) {
-  if (!timings) return "";
+  if (!timings) {
+    return "";
+  }
   return Object.entries(timings)
     .map(([key, timingInfos]) => {
       const dur = timingInfos
@@ -94,7 +98,9 @@ export function combineServerTimings(headers1: Headers, headers2: Headers) {
 export function cachifiedTimingReporter<Value>(
   timings?: Timings,
 ): undefined | CreateReporter<Value> {
-  if (!timings) return;
+  if (!timings) {
+    return;
+  }
 
   return ({ key }) => {
     const cacheRetrievalTimer = createTimer(

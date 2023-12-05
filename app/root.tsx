@@ -160,7 +160,7 @@ export async function loader({ request }: DataFunctionArgs) {
     },
     {
       headers: combineHeaders(
-        { "Server-Timing": timings.toString() },
+        { "Server-Timing": JSON.stringify(timings) },
         toastHeaders,
         confettiHeaders,
         csrfCookieHeader ? { "set-cookie": csrfCookieHeader } : null,
@@ -211,21 +211,21 @@ function Document({
   env?: Record<string, string>;
 }) {
   return (
-    <html lang="en" className={`${theme} h-full overflow-x-hidden`}>
+    <html className={`${theme} h-full overflow-x-hidden`} lang="en">
       <head>
         <ClientHintCheck nonce={nonce} />
         <Meta />
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta content="width=device-width,initial-scale=1" name="viewport" />
         <Links />
       </head>
       <body className="bg-background text-foreground">
         {children}
         <script
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify(env)}`,
           }}
+          nonce={nonce}
         />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
@@ -245,7 +245,7 @@ function App() {
   const searchBar = isOnSearchPage ? null : <SearchBar status="idle" />;
 
   return (
-    <Document nonce={nonce} theme={theme} env={data.ENV}>
+    <Document env={data.ENV} nonce={nonce} theme={theme}>
       <div className="flex h-screen flex-col justify-between">
         <header className="container py-6">
           <nav>
@@ -261,7 +261,7 @@ function App() {
                 {user ? (
                   <UserDropdown />
                 ) : (
-                  <Button asChild variant="default" size="sm">
+                  <Button asChild size="sm" variant="default">
                     <Link to="/login">Log In</Link>
                   </Button>
                 )}
@@ -312,14 +312,14 @@ function UserDropdown() {
       <DropdownMenuTrigger asChild>
         <Button asChild variant="secondary">
           <Link
+            className="flex items-center gap-2"
             to={`/users/${user.username}`}
             // this is for progressive enhancement
             onClick={(e) => e.preventDefault()}
-            className="flex items-center gap-2"
           >
             <img
-              className="h-8 w-8 rounded-full object-cover"
               alt={user.name ?? user.username}
+              className="h-8 w-8 rounded-full object-cover"
               src={getUserImgSrc(user.image?.id)}
             />
             <span className="text-body-sm font-bold">
@@ -329,7 +329,7 @@ function UserDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuContent sideOffset={8} align="start">
+        <DropdownMenuContent align="start" sideOffset={8}>
           <DropdownMenuItem asChild>
             <Link prefetch="intent" to={`/users/${user.username}`}>
               <Icon className="text-body-md" name="avatar">
@@ -352,7 +352,7 @@ function UserDropdown() {
               submit(formRef.current);
             }}
           >
-            <Form action="/logout" method="POST" ref={formRef}>
+            <Form ref={formRef} action="/logout" method="POST">
               <Icon className="text-body-md" name="exit">
                 <button type="submit">Logout</button>
               </Icon>
@@ -426,11 +426,11 @@ function ThemeSwitch({ userPreference }: { userPreference?: Theme | null }) {
 
   return (
     <fetcher.Form method="POST" {...form.props}>
-      <input type="hidden" name="theme" value={nextMode} />
+      <input name="theme" type="hidden" value={nextMode} />
       <div className="flex gap-2">
         <button
-          type="submit"
           className="flex h-8 w-8 cursor-pointer items-center justify-center"
+          type="submit"
         >
           {modeLabel[mode]}
         </button>

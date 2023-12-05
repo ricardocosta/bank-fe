@@ -1,14 +1,16 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import fsExtra from "fs-extra";
+import { ensureDir, readJSON, writeJSON } from "fs-extra/esm";
 import { z } from "zod";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDirPath = path.join(__dirname, "..", "fixtures");
 
-export async function readFixture(subdir: string, name: string) {
-  return fsExtra.readJSON(path.join(fixturesDirPath, subdir, `${name}.json`));
+export async function readFixture<T>(subdir: string, name: string) {
+  return readJSON(
+    path.join(fixturesDirPath, subdir, `${name}.json`),
+  ) as Promise<T>;
 }
 
 export async function createFixture(
@@ -17,8 +19,8 @@ export async function createFixture(
   data: unknown,
 ) {
   const dir = path.join(fixturesDirPath, subdir);
-  await fsExtra.ensureDir(dir);
-  return fsExtra.writeJSON(path.join(dir, `./${name}.json`), data);
+  await ensureDir(dir);
+  return writeJSON(path.join(dir, `./${name}.json`), data);
 }
 
 export const EmailSchema = z.object({
@@ -28,6 +30,7 @@ export const EmailSchema = z.object({
   text: z.string(),
   html: z.string(),
 });
+type Email = z.infer<typeof EmailSchema>;
 
 export async function writeEmail(rawEmail: unknown) {
   const email = EmailSchema.parse(rawEmail);
@@ -37,13 +40,15 @@ export async function writeEmail(rawEmail: unknown) {
 
 export async function requireEmail(recipient: string) {
   const email = await readEmail(recipient);
-  if (!email) throw new Error(`Email to ${recipient} not found`);
+  if (!email) {
+    throw new Error(`Email to ${recipient} not found`);
+  }
   return email;
 }
 
 export async function readEmail(recipient: string) {
   try {
-    const email = await readFixture("email", recipient);
+    const email = await readFixture<Email>("email", recipient);
     return EmailSchema.parse(email);
   } catch (error) {
     console.error(`Error reading email`, error);

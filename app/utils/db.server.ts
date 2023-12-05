@@ -16,8 +16,12 @@ export const prisma = remember("prisma", () => {
       { level: "warn", emit: "stdout" },
     ],
   });
-  client.$on("query", async (e) => {
-    if (e.duration < logThreshold) return;
+
+  // TOOD: Refactor this color calculation
+  client.$on("query", (e) => {
+    if (e.duration < logThreshold) {
+      return;
+    }
     const color =
       e.duration < logThreshold * 1.1
         ? "green"
@@ -28,9 +32,11 @@ export const prisma = remember("prisma", () => {
             : e.duration < logThreshold * 1.4
               ? "redBright"
               : "red";
+
     const dur = chalk[color](`${e.duration}ms`);
     console.info(`prisma:query - ${dur} - ${e.query}`);
   });
-  client.$connect();
+
+  void client.$connect();
   return client;
 });

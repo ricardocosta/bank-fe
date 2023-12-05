@@ -9,11 +9,11 @@ import { ip as ipAddress } from "address";
 import chalk from "chalk";
 import closeWithGrace from "close-with-grace";
 import compression from "compression";
-import express from "express";
-import rateLimit from "express-rate-limit";
+import express, { static as express_static } from "express";
+import { rateLimit } from "express-rate-limit";
 import getPort, { portNumbers } from "get-port";
 import helmet from "helmet";
-import morgan from "morgan";
+import morgan, { token } from "morgan";
 
 import type { RequestHandler } from "@remix-run/express";
 import type { ServerBuild } from "@remix-run/node";
@@ -29,11 +29,7 @@ const createRequestHandler = Sentry.wrapExpressCreateRequestHandler(
 const BUILD_PATH = "../build/index.js";
 const WATCH_PATH = "../build/version.txt";
 
-/**
- * Initial build
- * @type {ServerBuild}
- */
-const build = await import(BUILD_PATH);
+const build = (await import(BUILD_PATH)) as ServerBuild;
 let devBuild = build;
 
 const app = express();
@@ -79,18 +75,18 @@ app.use(Sentry.Handlers.tracingHandler());
 // Remix fingerprints its assets so we can cache forever.
 app.use(
   "/build",
-  express.static("public/build", { immutable: true, maxAge: "1y" }),
+  express_static("public/build", { immutable: true, maxAge: "1y" }),
 );
 
 // Aggressively cache fonts for a year
 app.use(
   "/fonts",
-  express.static("public/fonts", { immutable: true, maxAge: "1y" }),
+  express_static("public/fonts", { immutable: true, maxAge: "1y" }),
 );
 
 // Everything else (like favicon.ico) is cached for an hour. You may want to be
 // more aggressive with this caching.
-app.use(express.static("public", { maxAge: "1h" }));
+app.use(express_static("public", { maxAge: "1h" }));
 
 app.get(["/build/*", "/img/*", "/fonts/*", "/favicons/*"], (req, res) => {
   // if we made it past the express.static for these, then we're missing something.
@@ -98,7 +94,7 @@ app.get(["/build/*", "/img/*", "/fonts/*", "/favicons/*"], (req, res) => {
   return res.status(404).send("Not found");
 });
 
-morgan.token("url", (req, res) => decodeURIComponent(req.url ?? ""));
+token("url", (req, _res) => decodeURIComponent(req.url ?? ""));
 app.use(
   morgan("tiny", {
     skip: (req, res) =>
@@ -133,11 +129,13 @@ app.use(
         "script-src": [
           "'strict-dynamic'",
           "'self'",
-          // @ts-expect-error
+          // @ts-expect-error ServerResponse doesn't have .locals
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           (_, res) => `'nonce-${res.locals.cspNonce}'`,
         ],
         "script-src-attr": [
-          // @ts-expect-error
+          // @ts-expect-error ServerResponse doesn't have .locals
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           (_, res) => `'nonce-${res.locals.cspNonce}'`,
         ],
         "upgrade-insecure-requests": null,
@@ -203,7 +201,10 @@ app.use((req, res, next) => {
 });
 
 function getRequestHandler(build: ServerBuild): RequestHandler {
-  function getLoadContext(_: any, res: any) {
+  function getLoadContext(
+    _req: express.Request,
+    res: express.Response<unknown, { cspNonce: string }>,
+  ) {
     return { cspNonce: res.locals.cspNonce };
   }
   return createRequestHandler({ build, mode: MODE, getLoadContext });
@@ -216,7 +217,7 @@ app.all(
     : getRequestHandler(build),
 );
 
-const desiredPort = Number(process.env.PORT || 3000);
+const desiredPort = Number(process.env.PORT ?? 3000);
 const portToUse = await getPort({
   port: portNumbers(desiredPort, desiredPort + 100),
 });
@@ -257,7 +258,7 @@ ${chalk.bold("Press Ctrl+C to stop")}
   );
 
   if (MODE === "development") {
-    broadcastDevReady(build);
+    void broadcastDevReady(build);
   }
 });
 
@@ -267,13 +268,15 @@ closeWithGrace(async () => {
   });
 });
 
+async function reloadBuild() {
+  devBuild = (await import(
+    `${BUILD_PATH}?update=${Date.now()}`
+  )) as ServerBuild;
+  void broadcastDevReady(devBuild);
+}
+
 // during dev, we'll keep the build module up to date with the changes
 if (MODE === "development") {
-  async function reloadBuild() {
-    devBuild = await import(`${BUILD_PATH}?update=${Date.now()}`);
-    broadcastDevReady(devBuild);
-  }
-
   // We'll import chokidar here so doesn't get bundled in production.
   const chokidar = await import("chokidar");
 

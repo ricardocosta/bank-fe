@@ -1,7 +1,7 @@
 import path from "node:path";
 
 import { execaCommand } from "execa";
-import fsExtra from "fs-extra";
+import { pathExists } from "fs-extra";
 
 export const BASE_DATABASE_PATH = path.join(
   process.cwd(),
@@ -9,8 +9,10 @@ export const BASE_DATABASE_PATH = path.join(
 );
 
 export async function setup() {
-  const databaseExists = await fsExtra.pathExists(BASE_DATABASE_PATH);
-  if (databaseExists) return;
+  const databaseExists = await pathExists(BASE_DATABASE_PATH);
+  if (databaseExists) {
+    return;
+  }
 
   await execaCommand("prisma migrate reset --force --skip-generate", {
     stdio: "inherit",

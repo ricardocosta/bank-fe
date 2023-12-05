@@ -66,7 +66,7 @@ export default function UsersRoute() {
     <div className="container mb-48 mt-36 flex flex-col items-center justify-center gap-6">
       <h1 className="text-h1">Epic Notes Users</h1>
       <div className="w-full max-w-[700px] ">
-        <SearchBar status={data.status} autoFocus autoSubmit />
+        <SearchBar autoSubmit status={data.status} />
       </div>
       <main>
         {data.status === "idle" ? (
@@ -80,16 +80,16 @@ export default function UsersRoute() {
               {data.users.map((user) => (
                 <li key={user.id}>
                   <Link
-                    to={user.username}
                     className="flex h-36 w-44 flex-col items-center justify-center rounded-lg bg-muted px-5 py-3"
+                    to={user.username}
                   >
                     <img
                       alt={user.name ?? user.username}
-                      src={getUserImgSrc(user.imageId)}
                       className="h-16 w-16 rounded-full"
+                      src={getUserImgSrc(user.imageId)}
                     />
                     {user.name ? (
-                      <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-body-md">
+                      <span className="w-full truncate text-center text-body-md">
                         {user.name}
                       </span>
                     ) : null}

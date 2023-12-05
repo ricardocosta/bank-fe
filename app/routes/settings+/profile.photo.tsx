@@ -84,8 +84,12 @@ export async function action({ request }: DataFunctionArgs) {
 
   const submission = await parse(formData, {
     schema: PhotoFormSchema.transform(async (data) => {
-      if (data.intent === "delete") return { intent: "delete" };
-      if (data.photoFile.size <= 0) return z.NEVER;
+      if (data.intent === "delete") {
+        return { intent: "delete" };
+      }
+      if (data.photoFile.size <= 0) {
+        return z.NEVER;
+      }
       return {
         intent: data.intent,
         image: {
@@ -154,19 +158,19 @@ export default function PhotoRoute() {
   return (
     <div>
       <Form
-        method="POST"
-        encType="multipart/form-data"
         className="flex flex-col items-center justify-center gap-10"
+        encType="multipart/form-data"
+        method="POST"
         onReset={() => setNewImageSrc(null)}
         {...form.props}
       >
         <AuthenticityTokenInput />
         <img
+          alt={data.user?.name ?? data.user?.username}
+          className="h-52 w-52 rounded-full object-cover"
           src={
             newImageSrc ?? (data.user ? getUserImgSrc(data.user.image?.id) : "")
           }
-          className="h-52 w-52 rounded-full object-cover"
-          alt={data.user?.name ?? data.user?.username}
         />
         <ErrorList errors={fields.photoFile.errors} id={fields.photoFile.id} />
         <div className="flex gap-4">
@@ -202,10 +206,8 @@ export default function PhotoRoute() {
             </label>
           </Button>
           <StatusButton
-            name="intent"
-            value="submit"
-            type="submit"
             className="peer-invalid:hidden"
+            name="intent"
             status={
               pendingIntent === "submit"
                 ? "pending"
@@ -213,13 +215,15 @@ export default function PhotoRoute() {
                   ? actionData?.status ?? "idle"
                   : "idle"
             }
+            type="submit"
+            value="submit"
           >
             Save Photo
           </StatusButton>
           <Button
+            className="peer-invalid:hidden"
             type="reset"
             variant="destructive"
-            className="peer-invalid:hidden"
           >
             <Icon name="trash">Reset</Icon>
           </Button>

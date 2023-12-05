@@ -122,9 +122,9 @@ export default function NoteRoute() {
             <li key={image.id}>
               <a href={getNoteImgSrc(image.id)}>
                 <img
-                  src={getNoteImgSrc(image.id)}
                   alt={image.altText ?? ""}
                   className="h-32 w-32 rounded-lg object-cover"
+                  src={getNoteImgSrc(image.id)}
                 />
               </a>
             </li>
@@ -137,7 +137,7 @@ export default function NoteRoute() {
       {displayBar ? (
         <div className={floatingToolbarClassName}>
           <span className="text-sm text-foreground/90 max-[524px]:hidden">
-            <Icon name="clock" className="scale-125">
+            <Icon className="scale-125" name="clock">
               {data.timeAgo} ago
             </Icon>
           </span>
@@ -148,7 +148,7 @@ export default function NoteRoute() {
               className="min-[525px]:max-md:aspect-square min-[525px]:max-md:px-0"
             >
               <Link to="edit">
-                <Icon name="pencil-1" className="scale-125 max-md:scale-150">
+                <Icon className="scale-125 max-md:scale-150" name="pencil-1">
                   <span className="max-md:hidden">Edit</span>
                 </Icon>
               </Link>
@@ -171,17 +171,17 @@ export function DeleteNote({ id }: { id: string }) {
   return (
     <Form method="POST" {...form.props}>
       <AuthenticityTokenInput />
-      <input type="hidden" name="noteId" value={id} />
+      <input name="noteId" type="hidden" value={id} />
       <StatusButton
-        type="submit"
+        className="w-full max-md:aspect-square max-md:px-0"
+        disabled={isPending}
         name="intent"
+        status={isPending ? "pending" : actionData?.status ?? "idle"}
+        type="submit"
         value="delete-note"
         variant="destructive"
-        status={isPending ? "pending" : actionData?.status ?? "idle"}
-        disabled={isPending}
-        className="w-full max-md:aspect-square max-md:px-0"
       >
-        <Icon name="trash" className="scale-125 max-md:scale-150">
+        <Icon className="scale-125 max-md:scale-150" name="trash">
           <span className="max-md:hidden">Delete</span>
         </Icon>
       </StatusButton>
@@ -218,7 +218,7 @@ export function ErrorBoundary() {
       statusHandlers={{
         403: () => <p>You are not allowed to do that</p>,
         404: ({ params }) => (
-          <p>No note with the id "{params.noteId}" exists</p>
+          <p>{`No note with the id "${params.noteId}" exists`}</p>
         ),
       }}
     />

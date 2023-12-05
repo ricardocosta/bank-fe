@@ -20,6 +20,7 @@ const schema = z.object({
 
 declare global {
   namespace NodeJS {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions, @typescript-eslint/no-empty-interface
     interface ProcessEnv extends z.infer<typeof schema> {}
   }
 }
@@ -56,7 +57,9 @@ export function getEnv() {
 type ENV = ReturnType<typeof getEnv>;
 
 declare global {
+  // eslint-disable-next-line no-var
   var ENV: ENV;
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     ENV: ENV;
   }

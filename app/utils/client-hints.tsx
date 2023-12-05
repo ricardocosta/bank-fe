@@ -3,7 +3,7 @@
  * are needed by the server, but are only known by the browser.
  */
 import { useRevalidator } from "@remix-run/react";
-import * as React from "react";
+import { useEffect } from "react";
 
 import { useRequestInfo } from "./request-info.ts";
 
@@ -68,7 +68,7 @@ export function getHints(request?: Request) {
     },
     {} as {
       [name in ClientHintNames]: (typeof clientHints)[name] extends {
-        transform: (value: any) => infer ReturnValue;
+        transform: (value: string) => infer ReturnValue;
       }
         ? ReturnValue
         : (typeof clientHints)[name]["fallback"];
@@ -91,7 +91,8 @@ export function useHints() {
  */
 export function ClientHintCheck({ nonce }: { nonce: string }) {
   const { revalidate } = useRevalidator();
-  React.useEffect(() => {
+
+  useEffect(() => {
     const themeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     function handleThemeChange() {
       document.cookie = `${clientHints.theme.cookieName}=${
@@ -107,7 +108,6 @@ export function ClientHintCheck({ nonce }: { nonce: string }) {
 
   return (
     <script
-      nonce={nonce}
       dangerouslySetInnerHTML={{
         __html: `
 const cookies = document.cookie.split(';').map(c => c.trim()).reduce((acc, cur) => {
@@ -137,6 +137,7 @@ if (cookieChanged && navigator.cookieEnabled) {
 }
 			`,
       }}
+      nonce={nonce}
     />
   );
 }

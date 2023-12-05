@@ -38,7 +38,7 @@ export async function loader({ request, params }: DataFunctionArgs) {
     .authenticate(providerName, request, { throwOnError: true })
     .then(
       (data) => ({ success: true, data }) as const,
-      (error) => ({ success: false, error }) as const,
+      (error: unknown) => ({ success: false, error }) as const,
     );
 
   if (!authResult.success) {

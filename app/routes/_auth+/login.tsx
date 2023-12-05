@@ -41,9 +41,9 @@ import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
 
 import type { VerifyFunctionArgs } from "./verify.tsx";
 
-const verifiedTimeKey = "verified-time";
-const unverifiedSessionIdKey = "unverified-session-id";
-const rememberKey = "remember";
+export const verifiedTimeKey = "verified-time";
+export const unverifiedSessionIdKey = "unverified-session-id";
+export const rememberKey = "remember";
 
 export async function handleNewSession(
   {
@@ -78,7 +78,7 @@ export async function handleNewSession(
       redirectTo,
     });
     return redirect(
-      `${redirectUrl.pathname}?${redirectUrl.searchParams}`,
+      `${redirectUrl.pathname}${redirectUrl.search}`,
       combineResponseInits(
         {
           headers: {
@@ -171,16 +171,22 @@ export async function shouldRequestTwoFA(request: Request) {
   const verifySession = await verifySessionStorage.getSession(
     request.headers.get("cookie"),
   );
-  if (verifySession.has(unverifiedSessionIdKey)) return true;
+  if (verifySession.has(unverifiedSessionIdKey)) {
+    return true;
+  }
   const userId = await getUserId(request);
-  if (!userId) return false;
+  if (!userId) {
+    return false;
+  }
   // if it's over two hours since they last verified, we should request 2FA again
   const userHasTwoFA = await prisma.verification.findUnique({
     select: { id: true },
     where: { target_type: { target: userId, type: twoFAVerificationType } },
   });
-  if (!userHasTwoFA) return false;
-  const verifiedTime = authSession.get(verifiedTimeKey) ?? new Date(0);
+  if (!userHasTwoFA) {
+    return false;
+  }
+  const verifiedTime = authSession.get(verifiedTimeKey) ?? Date.now();
   const twoHours = 1000 * 60 * 2;
   return Date.now() - verifiedTime > twoHours;
 }
@@ -189,7 +195,7 @@ const LoginFormSchema = z.object({
   username: UsernameSchema,
   password: PasswordSchema,
   redirectTo: z.string().optional(),
-  remember: z.boolean().optional(),
+  remember: z.boolean().default(false),
 });
 
 export async function loader({ request }: DataFunctionArgs) {
@@ -205,7 +211,9 @@ export async function action({ request }: DataFunctionArgs) {
   const submission = await parse(formData, {
     schema: (intent) =>
       LoginFormSchema.transform(async (data, ctx) => {
-        if (intent !== "submit") return { ...data, session: null };
+        if (intent !== "submit") {
+          return { ...data, session: null };
+        }
 
         const session = await login(data);
         if (!session) {
@@ -276,38 +284,39 @@ export default function LoginPage() {
               <AuthenticityTokenInput />
               <HoneypotInputs />
               <Field
-                labelProps={{ children: "Username" }}
+                errors={fields.username.errors}
                 inputProps={{
                   ...conform.input(fields.username),
                   autoFocus: true,
                   className: "lowercase",
                 }}
-                errors={fields.username.errors}
+                labelProps={{ children: "Username" }}
               />
 
               <Field
-                labelProps={{ children: "Password" }}
+                errors={fields.password.errors}
                 inputProps={conform.input(fields.password, {
                   type: "password",
                 })}
-                errors={fields.password.errors}
+                labelProps={{ children: "Password" }}
               />
 
               <div className="flex justify-between">
                 <CheckboxField
-                  labelProps={{
-                    htmlFor: fields.remember.id,
-                    children: "Remember me",
-                  }}
+                  // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
                   buttonProps={conform.input(fields.remember, {
                     type: "checkbox",
                   })}
                   errors={fields.remember.errors}
+                  labelProps={{
+                    htmlFor: fields.remember.id,
+                    children: "Remember me",
+                  }}
                 />
                 <div>
                   <Link
-                    to="/forgot-password"
                     className="text-body-xs font-semibold"
+                    to="/forgot-password"
                   >
                     Forgot password?
                   </Link>
@@ -322,21 +331,21 @@ export default function LoginPage() {
               <div className="flex items-center justify-between gap-6 pt-3">
                 <StatusButton
                   className="w-full"
+                  disabled={isPending}
                   status={isPending ? "pending" : actionData?.status ?? "idle"}
                   type="submit"
-                  disabled={isPending}
                 >
                   Log in
                 </StatusButton>
               </div>
             </Form>
-            <ul className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
+            <ul className="mt-5 flex flex-col gap-5 border-y-2 border-border py-3">
               {providerNames.map((providerName) => (
                 <li key={providerName}>
                   <ProviderConnectionForm
-                    type="Login"
                     providerName={providerName}
                     redirectTo={redirectTo}
+                    type="Login"
                   />
                 </li>
               ))}

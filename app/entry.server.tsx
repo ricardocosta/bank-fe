@@ -22,7 +22,7 @@ init();
 global.ENV = getEnv();
 
 if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
-  import("./utils/monitoring.server.ts").then(({ init }) => init());
+  void import("./utils/monitoring.server.ts").then(({ init }) => init());
 }
 
 type DocRequestArgs = Parameters<HandleDocumentRequestFunction>;
@@ -46,7 +46,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
     : "onShellReady";
 
   const nonce = String(loadContext.cspNonce) ?? undefined;
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let didError = false;
     // NOTE: this timing will only include things that are rendered in the shell
     // and will not include suspended components and deferred loaders
@@ -60,7 +60,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
         [callbackName]: () => {
           const body = new PassThrough();
           responseHeaders.set("Content-Type", "text/html");
-          responseHeaders.append("Server-Timing", timings.toString());
+          responseHeaders.append("Server-Timing", JSON.stringify(timings));
           resolve(
             new Response(createReadableStreamFromReadable(body), {
               headers: responseHeaders,
@@ -100,7 +100,7 @@ export function handleError(
   { request }: DataFunctionArgs,
 ): void {
   if (error instanceof Error) {
-    Sentry.captureRemixServerException(error, "remix.server", request);
+    void Sentry.captureRemixServerException(error, "remix.server", request);
   } else {
     Sentry.captureException(error);
   }

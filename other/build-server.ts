@@ -1,14 +1,16 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import esbuild from "esbuild";
-import fsExtra from "fs-extra";
+import { build } from "esbuild";
+import { copySync, ensureDirSync, readJsonSync } from "fs-extra/esm";
 import { globSync } from "glob";
 
-const pkg = fsExtra.readJsonSync(path.join(process.cwd(), "package.json"));
+const pkg = readJsonSync(path.join(process.cwd(), "package.json")) as {
+  engines: { node: string };
+};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const here = (...s: Array<string>) => path.join(__dirname, ...s);
+const here = (...s: string[]) => path.join(__dirname, ...s);
 const globsafe = (s: string) => s.replace(/\\/g, "/");
 
 const allFiles = globSync(globsafe(here("../server/**/*.*")), {
@@ -26,8 +28,8 @@ for (const file of allFiles) {
     entries.push(file);
   } else {
     const dest = file.replace(here("../server"), here("../server-build"));
-    fsExtra.ensureDirSync(path.parse(dest).dir);
-    fsExtra.copySync(file, dest);
+    ensureDirSync(path.parse(dest).dir);
+    copySync(file, dest);
     console.log(`copied: ${file.replace(`${here("../server")}/`, "")}`);
   }
 }
@@ -35,17 +37,15 @@ for (const file of allFiles) {
 console.log();
 console.log("building...");
 
-esbuild
-  .build({
-    entryPoints: entries,
-    outdir: here("../server-build"),
-    target: [`node${pkg.engines.node}`],
-    platform: "node",
-    sourcemap: true,
-    format: "esm",
-    logLevel: "info",
-  })
-  .catch((error: unknown) => {
-    console.error(error);
-    process.exit(1);
-  });
+build({
+  entryPoints: entries,
+  outdir: here("../server-build"),
+  target: [`node${pkg.engines.node}`],
+  platform: "node",
+  sourcemap: true,
+  format: "esm",
+  logLevel: "info",
+}).catch((error: unknown) => {
+  console.error(error);
+  throw error;
+});

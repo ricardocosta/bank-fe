@@ -89,10 +89,21 @@ export const test = base.extend<{
       authSession.set(sessionKey, session.id);
       const cookieConfig = setCookieParser.parseString(
         await authSessionStorage.commitSession(authSession),
-      ) as any;
-      await page
-        .context()
-        .addCookies([{ ...cookieConfig, domain: "localhost" }]);
+      );
+      await page.context().addCookies([
+        {
+          ...cookieConfig,
+          sameSite: cookieConfig.sameSite as
+            | "Strict"
+            | "Lax"
+            | "None"
+            | undefined,
+          expires: cookieConfig.expires
+            ? parseInt((cookieConfig.expires?.getTime() / 1000).toFixed(0))
+            : undefined,
+          domain: "localhost",
+        },
+      ]);
       return user;
     });
     await prisma.user.deleteMany({ where: { id: userId } });
@@ -119,7 +130,9 @@ export async function waitFor<ReturnValue>(
   while (Date.now() < endTime) {
     try {
       const response = await cb();
-      if (response) return response;
+      if (response) {
+        return response;
+      }
     } catch (e: unknown) {
       lastError = e;
     }

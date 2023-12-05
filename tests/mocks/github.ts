@@ -1,27 +1,32 @@
+import { readFile } from "fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { faker } from "@faker-js/faker";
-import fsExtra from "fs-extra";
+import {
+  ensureDir,
+  pathExists,
+  readJson,
+  remove,
+  writeJson,
+} from "fs-extra/esm";
 import { http, HttpResponse, passthrough } from "msw";
 
 import type { HttpHandler } from "msw";
 
-const { json } = HttpResponse;
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const here = (...s: Array<string>) => path.join(__dirname, ...s);
+const here = (...s: string[]) => path.join(__dirname, ...s);
 
 const githubUserFixturePath = path.join(
   here(
     "..",
     "fixtures",
     "github",
-    `users.${process.env.VITEST_POOL_ID || 0}.local.json`,
+    `users.${process.env.VITEST_POOL_ID ?? 0}.local.json`,
   ),
 );
 
-await fsExtra.ensureDir(path.dirname(githubUserFixturePath));
+await ensureDir(path.dirname(githubUserFixturePath));
 
 function createGitHubUser(code?: string | null) {
   const createEmail = () => ({
@@ -72,9 +77,9 @@ type GitHubUser = ReturnType<typeof createGitHubUser>;
 
 async function getGitHubUsers() {
   try {
-    if (await fsExtra.pathExists(githubUserFixturePath)) {
-      const json = await fsExtra.readJson(githubUserFixturePath);
-      return json as Array<GitHubUser>;
+    if (await pathExists(githubUserFixturePath)) {
+      const json = (await readJson(githubUserFixturePath)) as GitHubUser[];
+      return json;
     }
     return [];
   } catch (error) {
@@ -84,11 +89,11 @@ async function getGitHubUsers() {
 }
 
 export async function deleteGitHubUsers() {
-  await fsExtra.remove(githubUserFixturePath);
+  await remove(githubUserFixturePath);
 }
 
-async function setGitHubUsers(users: Array<GitHubUser>) {
-  await fsExtra.writeJson(githubUserFixturePath, users, { spaces: 2 });
+async function setGitHubUsers(users: GitHubUser[]) {
+  await writeJson(githubUserFixturePath, users, { spaces: 2 });
 }
 
 export async function insertGitHubUser(code?: string | null) {
@@ -124,11 +129,14 @@ async function getUser(request: Request) {
 
 const passthroughGitHub =
   !process.env.GITHUB_CLIENT_ID.startsWith("MOCK_") && !process.env.TESTING;
-export const handlers: Array<HttpHandler> = [
+
+export const handlers: HttpHandler[] = [
   http.post(
     "https://github.com/login/oauth/access_token",
     async ({ request }) => {
-      if (passthroughGitHub) return passthrough();
+      if (passthroughGitHub) {
+        return passthrough();
+      }
       const params = new URLSearchParams(await request.text());
 
       const code = params.get("code");
@@ -148,35 +156,49 @@ export const handlers: Array<HttpHandler> = [
     },
   ),
   http.get("https://api.github.com/user/emails", async ({ request }) => {
-    if (passthroughGitHub) return passthrough();
+    if (passthroughGitHub) {
+      return passthrough();
+    }
 
     const user = await getUser(request);
-    if (user instanceof Response) return user;
+    if (user instanceof Response) {
+      return user;
+    }
 
-    return json(user.emails);
+    return HttpResponse.json(user.emails);
   }),
   http.get("https://api.github.com/user/:id", async ({ params }) => {
-    if (passthroughGitHub) return passthrough();
+    if (passthroughGitHub) {
+      return passthrough();
+    }
 
     const mockUser = (await getGitHubUsers()).find(
       (u) => u.profile.id === params.id,
     );
-    if (mockUser) return json(mockUser.profile);
+    if (mockUser) {
+      return HttpResponse.json(mockUser.profile);
+    }
 
     return new Response("Not Found", { status: 404 });
   }),
   http.get("https://api.github.com/user", async ({ request }) => {
-    if (passthroughGitHub) return passthrough();
+    if (passthroughGitHub) {
+      return passthrough();
+    }
 
     const user = await getUser(request);
-    if (user instanceof Response) return user;
+    if (user instanceof Response) {
+      return user;
+    }
 
-    return json(user.profile);
+    return HttpResponse.json(user.profile);
   }),
   http.get("https://github.com/ghost.png", async () => {
-    if (passthroughGitHub) return passthrough();
+    if (passthroughGitHub) {
+      return passthrough();
+    }
 
-    const buffer = await fsExtra.readFile("./tests/fixtures/github/ghost.jpg");
+    const buffer = await readFile("./tests/fixtures/github/ghost.jpg");
     return new Response(buffer, {
       // the .png is not a mistake even though it looks like it... It's really a jpg
       // but the ghost image URL really has a png extension 😅

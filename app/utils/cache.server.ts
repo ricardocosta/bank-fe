@@ -1,7 +1,7 @@
 import fs from "fs";
 
 import { remember } from "@epic-web/remember";
-import Database from "better-sqlite3";
+import { default as Database } from "better-sqlite3";
 import {
   cachified as baseCachified,
   lruCacheAdapter,
@@ -31,7 +31,9 @@ const cacheDb = remember("cacheDb", createDatabase);
 function createDatabase(tryAgain = true): Database.Database {
   const db = new Database(CACHE_DATABASE_PATH);
   const { currentIsPrimary } = getInstanceInfoSync();
-  if (!currentIsPrimary) return db;
+  if (!currentIsPrimary) {
+    return db;
+  }
 
   try {
     // create cache table with metadata JSON column and value JSON column if it does not exist already
@@ -82,15 +84,21 @@ export const cache: CachifiedCache = {
       .prepare("SELECT value, metadata FROM cache WHERE key = ?")
       .get(key);
     const parseResult = cacheQueryResultSchema.safeParse(result);
-    if (!parseResult.success) return null;
+    if (!parseResult.success) {
+      return null;
+    }
 
     const parsedEntry = cacheEntrySchema.safeParse({
       metadata: JSON.parse(parseResult.data.metadata),
       value: JSON.parse(parseResult.data.value),
     });
-    if (!parsedEntry.success) return null;
+    if (!parsedEntry.success) {
+      return null;
+    }
     const { metadata, value } = parsedEntry.data;
-    if (!value) return null;
+    if (!value) {
+      return null;
+    }
     return { metadata, value };
   },
   async set(key, entry) {
@@ -141,7 +149,7 @@ export const cache: CachifiedCache = {
   },
 };
 
-export async function getAllCacheKeys(limit: number) {
+export function getAllCacheKeys(limit: number) {
   return {
     sqlite: cacheDb
       .prepare("SELECT key FROM cache LIMIT ?")
@@ -151,7 +159,7 @@ export async function getAllCacheKeys(limit: number) {
   };
 }
 
-export async function searchCacheKeys(search: string, limit: number) {
+export function searchCacheKeys(search: string, limit: number) {
   return {
     sqlite: cacheDb
       .prepare("SELECT key FROM cache WHERE key LIKE ? LIMIT ?")

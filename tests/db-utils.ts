@@ -1,7 +1,7 @@
 import fs from "node:fs";
 
 import { faker } from "@faker-js/faker";
-import bcrypt from "bcryptjs";
+import { default as bcrypt } from "bcryptjs";
 import { UniqueEnforcer } from "enforce-unique";
 
 import type { PrismaClient } from "@prisma/client";
@@ -41,7 +41,9 @@ export function createPassword(password: string = faker.internet.password()) {
 
 let noteImages: Array<Awaited<ReturnType<typeof img>>> | undefined;
 export async function getNoteImages() {
-  if (noteImages) return noteImages;
+  if (noteImages) {
+    return noteImages;
+  }
 
   noteImages = await Promise.all([
     img({
@@ -92,7 +94,9 @@ export async function getNoteImages() {
 
 let userImages: Array<Awaited<ReturnType<typeof img>>> | undefined;
 export async function getUserImages() {
-  if (userImages) return userImages;
+  if (userImages) {
+    return userImages;
+  }
 
   userImages = await Promise.all(
     Array.from({ length: 10 }, (_, index) =>
@@ -119,7 +123,7 @@ export async function img({
 
 export async function cleanupDb(prisma: PrismaClient) {
   const tables = await prisma.$queryRaw<
-    { name: string }[]
+    Array<{ name: string }>
   >`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_prisma_migrations';`;
 
   await prisma.$transaction([

@@ -7,6 +7,8 @@ export default defineConfig({
   plugins: [react()],
   css: { postcss: { plugins: [] } },
   test: {
+    globals: true,
+    environment: "jsdom",
     include: ["./app/**/*.test.{ts,tsx}"],
     setupFiles: ["./tests/setup/setup-test-env.ts"],
     globalSetup: ["./tests/setup/global-setup.ts"],

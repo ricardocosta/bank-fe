@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { http } from "msw";
-import { afterEach, expect, test } from "vitest";
 
 import { twoFAVerificationType } from "#app/routes/settings+/profile.two-factor.tsx";
 import {
@@ -10,7 +9,6 @@ import {
 import { connectionSessionStorage } from "#app/utils/connections.server.ts";
 import { GITHUB_PROVIDER_NAME } from "#app/utils/connections.tsx";
 import { prisma } from "#app/utils/db.server.ts";
-import { invariant } from "#app/utils/misc.tsx";
 import { authSessionStorage } from "#app/utils/session.server.ts";
 import { generateTOTP } from "#app/utils/totp.server.ts";
 
@@ -25,196 +23,187 @@ import { loader } from "./auth.$provider.callback.ts";
 const ROUTE_PATH = "/auth/github/callback";
 const PARAMS = { provider: "github" };
 
-afterEach(async () => {
-  await deleteGitHubUsers();
-});
-
-test("a new user goes to onboarding", async () => {
-  const request = await setupRequest();
-  const response = await loader({ request, params: PARAMS, context: {} }).catch(
-    (e) => e,
-  );
-  expect(response).toHaveRedirect("/onboarding/github");
-});
-
-test("when auth fails, send the user to login with a toast", async () => {
-  consoleError.mockImplementation(() => {});
-  server.use(
-    http.post("https://github.com/login/oauth/access_token", async () => {
-      return new Response("error", { status: 400 });
-    }),
-  );
-  const request = await setupRequest();
-  const response = await loader({ request, params: PARAMS, context: {} }).catch(
-    (e) => e,
-  );
-  invariant(response instanceof Response, "response should be a Response");
-  expect(response).toHaveRedirect("/login");
-  await expect(response).toSendToast(
-    expect.objectContaining({
-      title: "Auth Failed",
-      type: "error",
-    }),
-  );
-  expect(consoleError).toHaveBeenCalledTimes(1);
-});
-
-test("when a user is logged in, it creates the connection", async () => {
-  const githubUser = await insertGitHubUser();
-  const session = await setupUser();
-  const request = await setupRequest({
-    sessionId: session.id,
-    code: githubUser.code,
+describe("auth provider callback", () => {
+  afterEach(async () => {
+    await deleteGitHubUsers();
   });
-  const response = await loader({ request, params: PARAMS, context: {} });
-  expect(response).toHaveRedirect("/settings/profile/connections");
-  await expect(response).toSendToast(
-    expect.objectContaining({
+
+  it("a new user goes to onboarding", async () => {
+    const request = await setupRequest();
+    const response = await loader({ request, params: PARAMS, context: {} });
+    expect(response).toHaveRedirect("/onboarding/github");
+  });
+
+  it("when auth fails, send the user to login with a toast", async () => {
+    consoleError.mockImplementation(() => {});
+    server.use(
+      http.post("https://github.com/login/oauth/access_token", () => {
+        return new Response("error", { status: 400 });
+      }),
+    );
+    const request = await setupRequest();
+
+    const loaderRet = loader({ request, params: PARAMS, context: {} });
+
+    await expect(loaderRet).rejects.toHaveRedirect("/login");
+    await expect(loaderRet).rejects.toSendToast({
+      title: "Auth Failed",
+      description: `There was an error authenticating with GitHub.`,
+      type: "error",
+    });
+  });
+
+  it("when a user is logged in, it creates the connection", async () => {
+    const githubUser = await insertGitHubUser();
+    const session = await setupUser();
+    const request = await setupRequest({
+      sessionId: session.id,
+      code: githubUser.code,
+    });
+    const response = await loader({ request, params: PARAMS, context: {} });
+    expect(response).toHaveRedirect("/settings/profile/connections");
+    await expect(response).toSendToast({
       title: "Connected",
       type: "success",
-      description: expect.stringContaining(githubUser.profile.login),
-    }),
-  );
-  const connection = await prisma.connection.findFirst({
-    select: { id: true },
-    where: {
-      userId: session.userId,
-      providerId: githubUser.profile.id.toString(),
-    },
+      description: githubUser.profile.login,
+    });
+    const connection = await prisma.connection.findFirst({
+      select: { id: true },
+      where: {
+        userId: session.userId,
+        providerId: githubUser.profile.id.toString(),
+      },
+    });
+    expect(
+      connection,
+      "the connection was not created in the database",
+    ).toBeTruthy();
   });
-  expect(
-    connection,
-    "the connection was not created in the database",
-  ).toBeTruthy();
-});
 
-test(`when a user is logged in and has already connected, it doesn't do anything and just redirects the user back to the connections page`, async () => {
-  const session = await setupUser();
-  const githubUser = await insertGitHubUser();
-  await prisma.connection.create({
-    data: {
-      providerName: GITHUB_PROVIDER_NAME,
-      userId: session.userId,
-      providerId: githubUser.profile.id.toString(),
-    },
-  });
-  const request = await setupRequest({
-    sessionId: session.id,
-    code: githubUser.code,
-  });
-  const response = await loader({ request, params: PARAMS, context: {} });
-  expect(response).toHaveRedirect("/settings/profile/connections");
-  expect(response).toSendToast(
-    expect.objectContaining({
+  it(`when a user is logged in and has already connected, it doesn't do anything and just redirects the user back to the connections page`, async () => {
+    const session = await setupUser();
+    const githubUser = await insertGitHubUser();
+    await prisma.connection.create({
+      data: {
+        providerName: GITHUB_PROVIDER_NAME,
+        userId: session.userId,
+        providerId: githubUser.profile.id.toString(),
+      },
+    });
+    const request = await setupRequest({
+      sessionId: session.id,
+      code: githubUser.code,
+    });
+    const response = await loader({ request, params: PARAMS, context: {} });
+    expect(response).toHaveRedirect("/settings/profile/connections");
+    await expect(response).toSendToast({
       title: "Already Connected",
-      description: expect.stringContaining(githubUser.profile.login),
-    }),
-  );
-});
-
-test("when a user exists with the same email, create connection and make session", async () => {
-  const githubUser = await insertGitHubUser();
-  const email = githubUser.primaryEmail.toLowerCase();
-  const { userId } = await setupUser({ ...createUser(), email });
-  const request = await setupRequest({ code: githubUser.code });
-  const response = await loader({ request, params: PARAMS, context: {} });
-
-  expect(response).toHaveRedirect("/");
-
-  await expect(response).toSendToast(
-    expect.objectContaining({
       type: "message",
-      description: expect.stringContaining(githubUser.profile.login),
-    }),
-  );
-
-  const connection = await prisma.connection.findFirst({
-    select: { id: true },
-    where: {
-      userId: userId,
-      providerId: githubUser.profile.id.toString(),
-    },
+      description: githubUser.profile.login,
+    });
   });
-  expect(
-    connection,
-    "the connection was not created in the database",
-  ).toBeTruthy();
 
-  await expect(response).toHaveSessionForUser(userId);
-});
+  it("when a user exists with the same email, create connection and make session", async () => {
+    const githubUser = await insertGitHubUser();
+    const email = githubUser.primaryEmail.toLowerCase();
+    const { userId } = await setupUser({ ...createUser(), email });
+    const request = await setupRequest({ code: githubUser.code });
+    const response = await loader({ request, params: PARAMS, context: {} });
 
-test("gives an error if the account is already connected to another user", async () => {
-  const githubUser = await insertGitHubUser();
-  await prisma.user.create({
-    data: {
-      ...createUser(),
-      connections: {
-        create: {
-          providerName: GITHUB_PROVIDER_NAME,
-          providerId: githubUser.profile.id.toString(),
+    expect(response).toHaveRedirect("/");
+
+    await expect(response).toSendToast({
+      title: "Connected",
+      type: "message",
+      description: githubUser.profile.login,
+    });
+
+    const connection = await prisma.connection.findFirst({
+      select: { id: true },
+      where: {
+        userId: userId,
+        providerId: githubUser.profile.id.toString(),
+      },
+    });
+
+    expect(
+      connection,
+      "the connection was not created in the database",
+    ).toBeTruthy();
+
+    await expect(response).toHaveSessionForUser(userId);
+  });
+
+  it("gives an error if the account is already connected to another user", async () => {
+    const githubUser = await insertGitHubUser();
+    await prisma.user.create({
+      data: {
+        ...createUser(),
+        connections: {
+          create: {
+            providerName: GITHUB_PROVIDER_NAME,
+            providerId: githubUser.profile.id.toString(),
+          },
         },
       },
-    },
-  });
-  const session = await setupUser();
-  const request = await setupRequest({
-    sessionId: session.id,
-    code: githubUser.code,
-  });
-  const response = await loader({ request, params: PARAMS, context: {} });
-  expect(response).toHaveRedirect("/settings/profile/connections");
-  await expect(response).toSendToast(
-    expect.objectContaining({
+    });
+    const session = await setupUser();
+    const request = await setupRequest({
+      sessionId: session.id,
+      code: githubUser.code,
+    });
+    const response = await loader({ request, params: PARAMS, context: {} });
+    expect(response).toHaveRedirect("/settings/profile/connections");
+    await expect(response).toSendToast({
       title: "Already Connected",
-      description: expect.stringContaining(
-        "already connected to another account",
-      ),
-    }),
-  );
-});
-
-test("if a user is not logged in, but the connection exists, make a session", async () => {
-  const githubUser = await insertGitHubUser();
-  const { userId } = await setupUser();
-  await prisma.connection.create({
-    data: {
-      providerName: GITHUB_PROVIDER_NAME,
-      providerId: githubUser.profile.id.toString(),
-      userId,
-    },
+      type: "message",
+      description: "already connected to another account",
+    });
   });
-  const request = await setupRequest({ code: githubUser.code });
-  const response = await loader({ request, params: PARAMS, context: {} });
-  expect(response).toHaveRedirect("/");
-  await expect(response).toHaveSessionForUser(userId);
-});
 
-test("if a user is not logged in, but the connection exists and they have enabled 2FA, send them to verify their 2FA and do not make a session", async () => {
-  const githubUser = await insertGitHubUser();
-  const { userId } = await setupUser();
-  await prisma.connection.create({
-    data: {
-      providerName: GITHUB_PROVIDER_NAME,
-      providerId: githubUser.profile.id.toString(),
-      userId,
-    },
+  it("if a user is not logged in, but the connection exists, make a session", async () => {
+    const githubUser = await insertGitHubUser();
+    const { userId } = await setupUser();
+    await prisma.connection.create({
+      data: {
+        providerName: GITHUB_PROVIDER_NAME,
+        providerId: githubUser.profile.id.toString(),
+        userId,
+      },
+    });
+    const request = await setupRequest({ code: githubUser.code });
+    const response = await loader({ request, params: PARAMS, context: {} });
+    expect(response).toHaveRedirect("/");
+    await expect(response).toHaveSessionForUser(userId);
   });
-  const { otp: _otp, ...config } = generateTOTP();
-  await prisma.verification.create({
-    data: {
+
+  it("if a user is not logged in, but the connection exists and they have enabled 2FA, send them to verify their 2FA and do not make a session", async () => {
+    const githubUser = await insertGitHubUser();
+    const { userId } = await setupUser();
+    await prisma.connection.create({
+      data: {
+        providerName: GITHUB_PROVIDER_NAME,
+        providerId: githubUser.profile.id.toString(),
+        userId,
+      },
+    });
+    const { otp: _otp, ...config } = generateTOTP();
+    await prisma.verification.create({
+      data: {
+        type: twoFAVerificationType,
+        target: userId,
+        ...config,
+      },
+    });
+    const request = await setupRequest({ code: githubUser.code });
+    const response = await loader({ request, params: PARAMS, context: {} });
+    const searchParams = new URLSearchParams({
       type: twoFAVerificationType,
       target: userId,
-      ...config,
-    },
+      redirectTo: "/",
+    });
+    expect(response).toHaveRedirect(`/verify?${searchParams.toString()}`);
   });
-  const request = await setupRequest({ code: githubUser.code });
-  const response = await loader({ request, params: PARAMS, context: {} });
-  const searchParams = new URLSearchParams({
-    type: twoFAVerificationType,
-    target: userId,
-    redirectTo: "/",
-  });
-  expect(response).toHaveRedirect(`/verify?${searchParams}`);
 });
 
 async function setupRequest({
@@ -228,7 +217,9 @@ async function setupRequest({
   const connectionSession = await connectionSessionStorage.getSession();
   connectionSession.set("oauth2:state", state);
   const authSession = await authSessionStorage.getSession();
-  if (sessionId) authSession.set(sessionKey, sessionId);
+  if (sessionId) {
+    authSession.set(sessionKey, sessionId);
+  }
   const setSessionCookieHeader =
     await authSessionStorage.commitSession(authSession);
   const setConnectionSessionCookieHeader =

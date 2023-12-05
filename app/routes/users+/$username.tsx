@@ -47,9 +47,9 @@ export default function ProfileRoute() {
           <div className="absolute -top-40">
             <div className="relative">
               <img
-                src={getUserImgSrc(data.user.image?.id)}
                 alt={userDisplayName}
                 className="h-52 w-52 rounded-full object-cover"
+                src={getUserImgSrc(data.user.image?.id)}
               />
             </div>
           </div>
@@ -65,9 +65,9 @@ export default function ProfileRoute() {
             Joined {data.userJoinedDisplay}
           </p>
           {isLoggedInUser ? (
-            <Form action="/logout" method="POST" className="mt-3">
-              <Button type="submit" variant="link" size="pill">
-                <Icon name="exit" className="scale-125 max-md:scale-150">
+            <Form action="/logout" className="mt-3" method="POST">
+              <Button size="pill" type="submit" variant="link">
+                <Icon className="scale-125 max-md:scale-150" name="exit">
                   Logout
                 </Icon>
               </Button>
@@ -77,20 +77,20 @@ export default function ProfileRoute() {
             {isLoggedInUser ? (
               <>
                 <Button asChild>
-                  <Link to="notes" prefetch="intent">
+                  <Link prefetch="intent" to="notes">
                     My notes
                   </Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/settings/profile" prefetch="intent">
+                  <Link prefetch="intent" to="/settings/profile">
                     Edit profile
                   </Link>
                 </Button>
               </>
             ) : (
               <Button asChild>
-                <Link to="notes" prefetch="intent">
-                  {userDisplayName}'s notes
+                <Link prefetch="intent" to="notes">
+                  {`${userDisplayName}'s notes`}
                 </Link>
               </Button>
             )}
@@ -117,7 +117,7 @@ export function ErrorBoundary() {
     <GeneralErrorBoundary
       statusHandlers={{
         404: ({ params }) => (
-          <p>No user with the username "{params.username}" exists</p>
+          <p>{`No user with the username "${params.username}" exists`}</p>
         ),
       }}
     />

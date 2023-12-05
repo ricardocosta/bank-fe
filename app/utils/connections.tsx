@@ -35,17 +35,17 @@ export function ProviderConnectionForm({
   const isPending = useIsPending({ formAction });
   return (
     <Form
-      className="flex items-center justify-center gap-2"
       action={formAction}
+      className="flex items-center justify-center gap-2"
       method="POST"
     >
       {redirectTo ? (
-        <input type="hidden" name="redirectTo" value={redirectTo} />
+        <input name="redirectTo" type="hidden" value={redirectTo} />
       ) : null}
       <StatusButton
-        type="submit"
         className="w-full"
         status={isPending ? "pending" : "idle"}
+        type="submit"
       >
         <span className="inline-flex items-center gap-1.5">
           {providerIcons[providerName]}

@@ -152,12 +152,16 @@ export async function isCodeValid({
     },
     select: { algorithm: true, secret: true, period: true, charSet: true },
   });
-  if (!verification) return false;
+  if (!verification) {
+    return false;
+  }
   const result = verifyTOTP({
     otp: code,
     ...verification,
   });
-  if (!result) return false;
+  if (!result) {
+    return false;
+  }
 
   return true;
 }
@@ -241,7 +245,7 @@ export default function VerifyRoute() {
     <>
       <h1 className="text-h1">Check your email</h1>
       <p className="mt-3 text-body-md text-muted-foreground">
-        We've sent you a code to verify your email address.
+        {`We've sent you a code to verify your email address.`}
       </p>
     </>
   );
@@ -292,12 +296,12 @@ export default function VerifyRoute() {
             <AuthenticityTokenInput />
             <HoneypotInputs />
             <Field
+              errors={fields[codeQueryParam].errors}
+              inputProps={conform.input(fields[codeQueryParam])}
               labelProps={{
                 htmlFor: fields[codeQueryParam].id,
                 children: "Code",
               }}
-              inputProps={conform.input(fields[codeQueryParam])}
-              errors={fields[codeQueryParam].errors}
             />
             <input
               {...conform.input(fields[typeQueryParam], { type: "hidden" })}
@@ -312,9 +316,9 @@ export default function VerifyRoute() {
             />
             <StatusButton
               className="w-full"
+              disabled={isPending}
               status={isPending ? "pending" : actionData?.status ?? "idle"}
               type="submit"
-              disabled={isPending}
             >
               Submit
             </StatusButton>

@@ -89,7 +89,9 @@ export async function action({ request }: DataFunctionArgs) {
           return;
         }
       }).transform(async (data) => {
-        if (intent !== "submit") return { ...data, session: null };
+        if (intent !== "submit") {
+          return { ...data, session: null };
+        }
 
         const session = await signup({ ...data, email });
         return { ...data, session };
@@ -170,69 +172,71 @@ export default function SignupRoute() {
         </div>
         <Spacer size="xs" />
         <Form
-          method="POST"
           className="mx-auto min-w-[368px] max-w-sm"
+          method="POST"
           {...form.props}
         >
           <AuthenticityTokenInput />
           <HoneypotInputs />
           <Field
-            labelProps={{ htmlFor: fields.username.id, children: "Username" }}
+            errors={fields.username.errors}
             inputProps={{
               ...conform.input(fields.username),
               autoComplete: "username",
               className: "lowercase",
             }}
-            errors={fields.username.errors}
+            labelProps={{ htmlFor: fields.username.id, children: "Username" }}
           />
           <Field
-            labelProps={{ htmlFor: fields.name.id, children: "Name" }}
+            errors={fields.name.errors}
             inputProps={{
               ...conform.input(fields.name),
               autoComplete: "name",
             }}
-            errors={fields.name.errors}
+            labelProps={{ htmlFor: fields.name.id, children: "Name" }}
           />
           <Field
-            labelProps={{ htmlFor: fields.password.id, children: "Password" }}
+            errors={fields.password.errors}
             inputProps={{
               ...conform.input(fields.password, { type: "password" }),
               autoComplete: "new-password",
             }}
-            errors={fields.password.errors}
+            labelProps={{ htmlFor: fields.password.id, children: "Password" }}
           />
 
           <Field
-            labelProps={{
-              htmlFor: fields.confirmPassword.id,
-              children: "Confirm Password",
-            }}
+            errors={fields.confirmPassword.errors}
             inputProps={{
               ...conform.input(fields.confirmPassword, { type: "password" }),
               autoComplete: "new-password",
             }}
-            errors={fields.confirmPassword.errors}
+            labelProps={{
+              htmlFor: fields.confirmPassword.id,
+              children: "Confirm Password",
+            }}
           />
 
           <CheckboxField
-            labelProps={{
-              htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
-              children:
-                "Do you agree to our Terms of Service and Privacy Policy?",
-            }}
+            // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
             buttonProps={conform.input(
               fields.agreeToTermsOfServiceAndPrivacyPolicy,
               { type: "checkbox" },
             )}
             errors={fields.agreeToTermsOfServiceAndPrivacyPolicy.errors}
+            labelProps={{
+              htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
+              children:
+                "Do you agree to our Terms of Service and Privacy Policy?",
+            }}
           />
           <CheckboxField
+            // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
+            buttonProps={conform.input(fields.remember, { type: "checkbox" })}
+            errors={fields.remember.errors}
             labelProps={{
               htmlFor: fields.remember.id,
               children: "Remember me",
             }}
-            buttonProps={conform.input(fields.remember, { type: "checkbox" })}
-            errors={fields.remember.errors}
           />
 
           <input {...conform.input(fields.redirectTo, { type: "hidden" })} />
@@ -241,9 +245,9 @@ export default function SignupRoute() {
           <div className="flex items-center justify-between gap-6">
             <StatusButton
               className="w-full"
+              disabled={isPending}
               status={isPending ? "pending" : actionData?.status ?? "idle"}
               type="submit"
-              disabled={isPending}
             >
               Create an account
             </StatusButton>

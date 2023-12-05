@@ -8,6 +8,8 @@ import { getRedirectCookieHeader } from "#app/utils/redirect-cookie.server.ts";
 
 import type { DataFunctionArgs } from "@remix-run/node";
 
+// Redirect does not return a Promise
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function loader() {
   return redirect("/login");
 }

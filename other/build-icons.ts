@@ -1,7 +1,8 @@
+import { readFile, writeFile } from "fs/promises";
 import * as path from "node:path";
 
 import { $ } from "execa";
-import fsExtra from "fs-extra";
+import { ensureDir } from "fs-extra/esm";
 import { glob } from "glob";
 import { parse } from "node-html-parser";
 
@@ -9,7 +10,7 @@ const cwd = process.cwd();
 const inputDir = path.join(cwd, "other", "svg-icons");
 const inputDirRelative = path.relative(cwd, inputDir);
 const outputDir = path.join(cwd, "app", "components", "ui", "icons");
-await fsExtra.ensureDir(outputDir);
+await ensureDir(outputDir);
 
 const files = glob
   .sync("**/*.svg", {
@@ -29,12 +30,10 @@ if (files.length === 0) {
 async function generateIconFiles() {
   const spriteFilepath = path.join(outputDir, "sprite.svg");
   const typeOutputFilepath = path.join(outputDir, "name.d.ts");
-  const currentSprite = await fsExtra
-    .readFile(spriteFilepath, "utf8")
-    .catch(() => "");
-  const currentTypes = await fsExtra
-    .readFile(typeOutputFilepath, "utf8")
-    .catch(() => "");
+  const currentSprite = await readFile(spriteFilepath, "utf8").catch(() => "");
+  const currentTypes = await readFile(typeOutputFilepath, "utf8").catch(
+    () => "",
+  );
 
   const iconNames = files.map((file) => iconName(file));
 
@@ -111,11 +110,13 @@ async function generateSvgSprite({
   // Each SVG becomes a symbol and we wrap them all in a single SVG
   const symbols = await Promise.all(
     files.map(async (file) => {
-      const input = await fsExtra.readFile(path.join(inputDir, file), "utf8");
+      const input = await readFile(path.join(inputDir, file), "utf8");
       const root = parse(input);
 
       const svg = root.querySelector("svg");
-      if (!svg) throw new Error("No SVG element found");
+      if (!svg) {
+        throw new Error("No SVG element found");
+      }
 
       svg.tagName = "symbol";
       svg.setAttribute("id", iconName(file));
@@ -144,11 +145,11 @@ async function generateSvgSprite({
 }
 
 async function writeIfChanged(filepath: string, newContent: string) {
-  const currentContent = await fsExtra
-    .readFile(filepath, "utf8")
-    .catch(() => "");
-  if (currentContent === newContent) return false;
-  await fsExtra.writeFile(filepath, newContent, "utf8");
+  const currentContent = await readFile(filepath, "utf8").catch(() => "");
+  if (currentContent === newContent) {
+    return false;
+  }
+  await writeFile(filepath, newContent, "utf8");
   await $`prettier --write ${filepath} --ignore-unknown`;
   return true;
 }

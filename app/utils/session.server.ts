@@ -1,6 +1,13 @@
 import { createCookieSessionStorage } from "@remix-run/node";
 
-export const authSessionStorage = createCookieSessionStorage({
+import type { verifiedTimeKey } from "#app/routes/_auth+/login.tsx";
+import type { sessionKey } from "#app/utils/auth.server.ts";
+
+type AuthSessionData = {
+  [key in string]: string;
+} & { expires?: Date; [sessionKey]: string; [verifiedTimeKey]: number };
+
+export const authSessionStorage = createCookieSessionStorage<AuthSessionData>({
   cookie: {
     name: "en_session",
     sameSite: "lax",
@@ -26,9 +33,7 @@ Object.defineProperty(authSessionStorage, "commitSession", {
     if (options?.maxAge) {
       session.set("expires", new Date(Date.now() + options.maxAge * 1000));
     }
-    const expires = session.has("expires")
-      ? new Date(session.get("expires"))
-      : undefined;
+    const expires = session.has("expires") ? session.get("expires") : undefined;
     const setCookieHeader = await originalCommitSession(session, {
       ...options,
       expires,

@@ -141,30 +141,30 @@ export default function ChangePasswordRoute() {
     <Form method="POST" {...form.props} className="mx-auto max-w-md">
       <AuthenticityTokenInput />
       <Field
-        labelProps={{ children: "Current Password" }}
-        inputProps={conform.input(fields.currentPassword, { type: "password" })}
         errors={fields.currentPassword.errors}
+        inputProps={conform.input(fields.currentPassword, { type: "password" })}
+        labelProps={{ children: "Current Password" }}
       />
       <Field
-        labelProps={{ children: "New Password" }}
-        inputProps={conform.input(fields.newPassword, { type: "password" })}
         errors={fields.newPassword.errors}
+        inputProps={conform.input(fields.newPassword, { type: "password" })}
+        labelProps={{ children: "New Password" }}
       />
       <Field
-        labelProps={{ children: "Confirm New Password" }}
+        errors={fields.confirmNewPassword.errors}
         inputProps={conform.input(fields.confirmNewPassword, {
           type: "password",
         })}
-        errors={fields.confirmNewPassword.errors}
+        labelProps={{ children: "Confirm New Password" }}
       />
-      <ErrorList id={form.errorId} errors={form.errors} />
+      <ErrorList errors={form.errors} id={form.errorId} />
       <div className="grid w-full grid-cols-2 gap-6">
-        <Button variant="secondary" asChild>
+        <Button asChild variant="secondary">
           <Link to="..">Cancel</Link>
         </Button>
         <StatusButton
-          type="submit"
           status={isPending ? "pending" : actionData?.status ?? "idle"}
+          type="submit"
         >
           Change Password
         </StatusButton>

@@ -6,7 +6,7 @@ import type { IconName } from "@/icon-name";
 import type { SVGProps } from "react";
 
 export { href };
-export { IconName };
+export type { IconName };
 
 const sizeClassName = {
   font: "w-[1em] h-[1em]",
@@ -51,7 +51,7 @@ export function Icon({
       <span
         className={`inline-flex items-center ${childrenSizeClassName[size]}`}
       >
-        <Icon name={name} size={size} className={className} {...props} />
+        <Icon className={className} name={name} size={size} {...props} />
         {children}
       </span>
     );

@@ -85,7 +85,9 @@ export async function action({ request }: DataFunctionArgs) {
 
   const submission = await parse(formData, {
     schema: NoteEditorSchema.superRefine(async (data, ctx) => {
-      if (!data.id) return;
+      if (!data.id) {
+        return;
+      }
 
       const note = await prisma.note.findUnique({
         select: { id: true },
@@ -208,8 +210,8 @@ export function NoteEditor({
   return (
     <div className="absolute inset-0">
       <Form
-        method="POST"
         className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+        method="POST"
         {...form.props}
         encType="multipart/form-data"
       >
@@ -219,23 +221,23 @@ export function NoteEditor({
 					"enter" on an input field, the primary form function is submitted
 					rather than the first button in the form (which is delete/add image).
 				*/}
-        <button type="submit" className="hidden" />
-        {note ? <input type="hidden" name="id" value={note.id} /> : null}
+        <button className="hidden" type="submit" />
+        {note ? <input name="id" type="hidden" value={note.id} /> : null}
         <div className="flex flex-col gap-1">
           <Field
-            labelProps={{ children: "Title" }}
+            errors={fields.title.errors}
             inputProps={{
               autoFocus: true,
               ...conform.input(fields.title, { ariaAttributes: true }),
             }}
-            errors={fields.title.errors}
+            labelProps={{ children: "Title" }}
           />
           <TextareaField
+            errors={fields.content.errors}
             labelProps={{ children: "Content" }}
             textareaProps={{
               ...conform.textarea(fields.content, { ariaAttributes: true }),
             }}
-            errors={fields.content.errors}
           />
           <div>
             <Label>Images</Label>
@@ -269,17 +271,17 @@ export function NoteEditor({
             <span className="sr-only">Add image</span>
           </Button>
         </div>
-        <ErrorList id={form.errorId} errors={form.errors} />
+        <ErrorList errors={form.errors} id={form.errorId} />
       </Form>
       <div className={floatingToolbarClassName}>
-        <Button form={form.id} variant="destructive" type="reset">
+        <Button form={form.id} type="reset" variant="destructive">
           Reset
         </Button>
         <StatusButton
-          form={form.id}
-          type="submit"
           disabled={isPending}
+          form={form.id}
           status={isPending ? "pending" : "idle"}
+          type="submit"
         >
           Submit
         </StatusButton>
@@ -304,26 +306,26 @@ function ImageChooser({
   return (
     <fieldset
       ref={ref}
-      aria-invalid={Boolean(config.errors?.length) || undefined}
       aria-describedby={config.errors?.length ? config.errorId : undefined}
+      aria-invalid={Boolean(config.errors?.length) || undefined}
     >
       <div className="flex gap-3">
         <div className="w-32">
           <div className="relative h-32 w-32">
             <label
-              htmlFor={fields.file.id}
               className={cn("group absolute h-32 w-32 rounded-lg", {
                 "bg-accent opacity-40 focus-within:opacity-100 hover:opacity-100":
                   !previewImage,
                 "cursor-pointer focus-within:ring-4": !existingImage,
               })}
+              htmlFor={fields.file.id}
             >
               {previewImage ? (
                 <div className="relative">
                   <img
-                    src={previewImage}
                     alt={altText ?? ""}
                     className="h-32 w-32 rounded-lg object-cover"
+                    src={previewImage}
                   />
                   {existingImage ? null : (
                     <div className="pointer-events-none absolute -right-0.5 -top-0.5 rotate-12 rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-foreground shadow-md">
@@ -345,6 +347,7 @@ function ImageChooser({
                 />
               ) : null}
               <input
+                accept="image/*"
                 aria-label="Image"
                 className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
                 onChange={(event) => {
@@ -360,7 +363,6 @@ function ImageChooser({
                     setPreviewImage(null);
                   }
                 }}
-                accept="image/*"
                 {...conform.input(fields.file, {
                   type: "file",
                   ariaAttributes: true,
@@ -369,7 +371,7 @@ function ImageChooser({
             </label>
           </div>
           <div className="min-h-[32px] px-4 pb-3 pt-1">
-            <ErrorList id={fields.file.errorId} errors={fields.file.errors} />
+            <ErrorList errors={fields.file.errors} id={fields.file.errorId} />
           </div>
         </div>
         <div className="flex-1">
@@ -380,14 +382,14 @@ function ImageChooser({
           />
           <div className="min-h-[32px] px-4 pb-3 pt-1">
             <ErrorList
-              id={fields.altText.errorId}
               errors={fields.altText.errors}
+              id={fields.altText.errorId}
             />
           </div>
         </div>
       </div>
       <div className="min-h-[32px] px-4 pb-3 pt-1">
-        <ErrorList id={config.errorId} errors={config.errors} />
+        <ErrorList errors={config.errors} id={config.errorId} />
       </div>
     </fieldset>
   );
@@ -398,7 +400,7 @@ export function ErrorBoundary() {
     <GeneralErrorBoundary
       statusHandlers={{
         404: ({ params }) => (
-          <p>No note with the id "{params.noteId}" exists</p>
+          <p>{`No note with the id "${params.noteId}" exists`}</p>
         ),
       }}
     />

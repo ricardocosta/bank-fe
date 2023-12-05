@@ -3,16 +3,14 @@ import * as React from "react";
 
 import { cn } from "#app/utils/misc.tsx";
 
-export type CheckboxProps = Omit<
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
-  "type"
-> & {
-  type?: string;
-};
+// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export interface CheckboxProps
+  extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {}
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+  CheckboxProps
 >(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}
@@ -28,9 +26,9 @@ const Checkbox = React.forwardRef<
       <svg viewBox="0 0 8 8">
         <path
           d="M1,4 L3,6 L7,2"
+          fill="none"
           stroke="currentcolor"
           strokeWidth="1"
-          fill="none"
         />
       </svg>
     </CheckboxPrimitive.Indicator>

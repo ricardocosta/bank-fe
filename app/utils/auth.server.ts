@@ -1,5 +1,5 @@
 import { redirect } from "@remix-run/node";
-import bcrypt from "bcryptjs";
+import { default as bcrypt } from "bcryptjs";
 import { Authenticator } from "remix-auth";
 import { safeRedirect } from "remix-utils/safe-redirect";
 
@@ -31,7 +31,9 @@ export async function getUserId(request: Request) {
     request.headers.get("cookie"),
   );
   const sessionId = authSession.get(sessionKey);
-  if (!sessionId) return null;
+  if (!sessionId) {
+    return null;
+  }
   const session = await prisma.session.findUnique({
     select: { user: { select: { id: true } } },
     where: { id: sessionId, expirationDate: { gt: new Date() } },
@@ -81,7 +83,9 @@ export async function login({
   password: string;
 }) {
   const user = await verifyUserPassword({ username }, password);
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
   const session = await prisma.session.create({
     select: { id: true, expirationDate: true, userId: true },
     data: {
@@ -201,7 +205,9 @@ export async function logout(
   const sessionId = authSession.get(sessionKey);
   // if this fails, we still need to delete the session from the user's browser
   // and it doesn't do any harm staying in the db anyway.
-  if (sessionId) void prisma.session.deleteMany({ where: { id: sessionId } });
+  if (sessionId) {
+    void prisma.session.deleteMany({ where: { id: sessionId } });
+  }
   throw redirect(safeRedirect(redirectTo), {
     ...responseInit,
     headers: combineHeaders(
@@ -212,8 +218,8 @@ export async function logout(
 }
 
 export async function getPasswordHash(password: string) {
-  const hash = await bcrypt.hash(password, 10);
-  return hash;
+  const passwordHash = await bcrypt.hash(password, 10);
+  return passwordHash;
 }
 
 export async function verifyUserPassword(
@@ -225,7 +231,7 @@ export async function verifyUserPassword(
     select: { id: true, password: { select: { hash: true } } },
   });
 
-  if (!userWithPassword || !userWithPassword.password) {
+  if (!userWithPassword?.password) {
     return null;
   }
 
