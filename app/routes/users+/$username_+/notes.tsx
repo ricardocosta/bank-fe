@@ -39,26 +39,26 @@ export default function NotesRoute() {
         <div className="relative col-span-1">
           <div className="absolute inset-0 flex flex-col">
             <Link
-              to={`/users/${data.owner.username}`}
               className="flex flex-col items-center justify-center gap-2 bg-muted pb-4 pl-8 pr-4 pt-12 lg:flex-row lg:justify-start lg:gap-4"
+              to={`/users/${data.owner.username}`}
             >
               <img
-                src={getUserImgSrc(data.owner.image?.id)}
                 alt={ownerDisplayName}
                 className="h-16 w-16 rounded-full object-cover lg:h-24 lg:w-24"
+                src={getUserImgSrc(data.owner.image?.id)}
               />
               <h1 className="text-center text-base font-bold md:text-lg lg:text-left lg:text-2xl">
-                {ownerDisplayName}'s Notes
+                {`${ownerDisplayName}'s Notes`}
               </h1>
             </Link>
             <ul className="overflow-y-auto overflow-x-hidden pb-12">
               {isOwner ? (
                 <li className="p-1 pr-0">
                   <NavLink
-                    to="new"
                     className={({ isActive }) =>
                       cn(navLinkDefaultClassName, isActive && "bg-accent")
                     }
+                    to="new"
                   >
                     <Icon name="plus">New Note</Icon>
                   </NavLink>
@@ -67,12 +67,12 @@ export default function NotesRoute() {
               {data.owner.notes.map((note) => (
                 <li key={note.id} className="p-1 pr-0">
                   <NavLink
-                    to={note.id}
-                    preventScrollReset
-                    prefetch="intent"
                     className={({ isActive }) =>
                       cn(navLinkDefaultClassName, isActive && "bg-accent")
                     }
+                    prefetch="intent"
+                    preventScrollReset
+                    to={note.id}
                   >
                     {note.title}
                   </NavLink>
@@ -94,7 +94,7 @@ export function ErrorBoundary() {
     <GeneralErrorBoundary
       statusHandlers={{
         404: ({ params }) => (
-          <p>No user with the username "{params.username}" exists</p>
+          <p>{`No user with the username "${params.username}" exists`}</p>
         ),
       }}
     />

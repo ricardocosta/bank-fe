@@ -37,7 +37,7 @@ export async function updatePrimaryCacheValue({
   cacheValue,
 }: {
   key: string;
-  cacheValue: any;
+  cacheValue: unknown;
 }) {
   const { currentIsPrimary, primaryInstance } = await getInstanceInfo();
   if (currentIsPrimary) {

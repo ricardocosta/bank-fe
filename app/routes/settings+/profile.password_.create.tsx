@@ -93,25 +93,25 @@ export default function CreatePasswordRoute() {
   return (
     <Form method="POST" {...form.props} className="mx-auto max-w-md">
       <Field
-        labelProps={{ children: "New Password" }}
-        inputProps={conform.input(fields.password, { type: "password" })}
         errors={fields.password.errors}
+        inputProps={conform.input(fields.password, { type: "password" })}
+        labelProps={{ children: "New Password" }}
       />
       <Field
-        labelProps={{ children: "Confirm New Password" }}
+        errors={fields.confirmPassword.errors}
         inputProps={conform.input(fields.confirmPassword, {
           type: "password",
         })}
-        errors={fields.confirmPassword.errors}
+        labelProps={{ children: "Confirm New Password" }}
       />
-      <ErrorList id={form.errorId} errors={form.errors} />
+      <ErrorList errors={form.errors} id={form.errorId} />
       <div className="grid w-full grid-cols-2 gap-6">
-        <Button variant="secondary" asChild>
+        <Button asChild variant="secondary">
           <Link to="..">Cancel</Link>
         </Button>
         <StatusButton
-          type="submit"
           status={isPending ? "pending" : actionData?.status ?? "idle"}
+          type="submit"
         >
           Create Password
         </StatusButton>

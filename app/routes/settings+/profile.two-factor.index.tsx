@@ -83,11 +83,11 @@ export default function TwoFactorRoute() {
           <enable2FAFetcher.Form method="POST">
             <AuthenticityTokenInput />
             <StatusButton
-              type="submit"
-              name="intent"
-              value="enable"
-              status={enable2FAFetcher.state === "loading" ? "pending" : "idle"}
               className="mx-auto"
+              name="intent"
+              status={enable2FAFetcher.state === "loading" ? "pending" : "idle"}
+              type="submit"
+              value="enable"
             >
               Enable 2FA
             </StatusButton>

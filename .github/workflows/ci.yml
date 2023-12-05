@@ -59,6 +59,9 @@ jobs:
       - name: 🖼 Build icons
         run: pnpm run build:icons
 
+      - name: 🔄 Generate Prisma client
+        run: pnpm run prisma:generate
+
       - name: 🔬 Lint
         run: pnpm run lint
 

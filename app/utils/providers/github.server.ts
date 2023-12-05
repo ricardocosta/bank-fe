@@ -35,13 +35,13 @@ export class GitHubProvider implements AuthProvider {
         const email = profile.emails[0].value.trim().toLowerCase();
         const username = profile.displayName;
         const imageUrl = profile.photos[0].value;
-        return {
+        return Promise.resolve({
           email,
           id: profile.id,
           username,
           name: profile.name.givenName,
           imageUrl,
-        };
+        });
       },
     );
   }
@@ -80,7 +80,9 @@ export class GitHubProvider implements AuthProvider {
   }
 
   async handleMockAction(request: Request) {
-    if (!shouldMock) return;
+    if (!shouldMock) {
+      return;
+    }
 
     const connectionSession = await connectionSessionStorage.getSession(
       request.headers.get("cookie"),
@@ -89,7 +91,7 @@ export class GitHubProvider implements AuthProvider {
     connectionSession.set("oauth2:state", state);
     const code = "MOCK_CODE_GITHUB_KODY";
     const searchParams = new URLSearchParams({ code, state });
-    throw redirect(`/auth/github/callback?${searchParams}`, {
+    throw redirect(`/auth/github/callback?${searchParams.toString()}`, {
       headers: {
         "set-cookie":
           await connectionSessionStorage.commitSession(connectionSession),

@@ -17,7 +17,9 @@ export function getNoteImgSrc(imageId: string) {
 }
 
 export function getErrorMessage(error: unknown) {
-  if (typeof error === "string") return error;
+  if (typeof error === "string") {
+    return error;
+  }
   if (
     error &&
     typeof error === "object" &&
@@ -102,7 +104,9 @@ export function mergeHeaders(
 ) {
   const merged = new Headers();
   for (const header of headers) {
-    if (!header) continue;
+    if (!header) {
+      continue;
+    }
     for (const [key, value] of new Headers(header).entries()) {
       merged.set(key, value);
     }
@@ -118,7 +122,9 @@ export function combineHeaders(
 ) {
   const combined = new Headers();
   for (const header of headers) {
-    if (!header) continue;
+    if (!header) {
+      continue;
+    }
     for (const [key, value] of new Headers(header).entries()) {
       combined.append(key, value);
     }
@@ -154,12 +160,11 @@ export function combineResponseInits(
  *
  * @param condition The condition to check
  * @param message The message to throw (or a callback to generate the message)
- * @param responseInit Additional response init options if a response is thrown
  *
  * @throws {Error} if condition is falsey
  */
 export function invariant(
-  condition: any,
+  condition: unknown,
   message: string | (() => string),
 ): asserts condition {
   if (!condition) {
@@ -183,7 +188,7 @@ export function invariant(
  * @throws {Response} if condition is falsey
  */
 export function invariantResponse(
-  condition: any,
+  condition: unknown,
   message: string | (() => string),
   responseInit?: ResponseInit,
 ): asserts condition {
@@ -250,7 +255,7 @@ export function useDelayedIsPending({
   return delayedIsPending;
 }
 
-function callAll<Args extends Array<unknown>>(
+function callAll<Args extends unknown[]>(
   ...fns: Array<((...args: Args) => unknown) | undefined>
 ) {
   return (...args: Args) => fns.forEach((fn) => fn?.(...args));
@@ -307,7 +312,9 @@ function debounce<Callback extends (...args: Parameters<Callback>) => void>(
 ) {
   let timer: ReturnType<typeof setTimeout> | null = null;
   return (...args: Parameters<Callback>) => {
-    if (timer) clearTimeout(timer);
+    if (timer) {
+      clearTimeout(timer);
+    }
     timer = setTimeout(() => {
       fn(...args);
     }, delay);
@@ -334,7 +341,7 @@ export function useDebounce<
   );
 }
 
-export async function downloadFile(url: string, retries: number = 0) {
+export async function downloadFile(url: string, retries = 0) {
   const MAX_RETRIES = 3;
   try {
     const response = await fetch(url);
@@ -345,7 +352,9 @@ export async function downloadFile(url: string, retries: number = 0) {
     const blob = Buffer.from(await response.arrayBuffer());
     return { contentType, blob };
   } catch (e) {
-    if (retries > MAX_RETRIES) throw e;
+    if (retries > MAX_RETRIES) {
+      throw e;
+    }
     return downloadFile(url, retries + 1);
   }
 }

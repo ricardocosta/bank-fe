@@ -16,7 +16,9 @@ export async function loader({ request }: DataFunctionArgs) {
         method: "HEAD",
         headers: { "X-Healthcheck": "true" },
       }).then((r) => {
-        if (!r.ok) return Promise.reject(r);
+        if (!r.ok) {
+          return Promise.reject(r);
+        }
       }),
     ]);
     return new Response("OK");

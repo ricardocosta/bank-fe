@@ -47,7 +47,9 @@ async function userCanDeleteConnections(userId: string) {
     where: { id: userId },
   });
   // user can delete their connections if they have a password
-  if (user?.password) return true;
+  if (user?.password) {
+    return true;
+  }
   // users have to have more than one remaining connection to delete one
   return Boolean(user?._count.connections && user?._count.connections > 1);
 }
@@ -68,7 +70,9 @@ export async function loader({ request }: DataFunctionArgs) {
   }> = [];
   for (const connection of rawConnections) {
     const r = ProviderNameSchema.safeParse(connection.providerName);
-    if (!r.success) continue;
+    if (!r.success) {
+      continue;
+    }
     const providerName = r.data;
     const connectionData = await resolveConnectionData(
       providerName,
@@ -88,7 +92,7 @@ export async function loader({ request }: DataFunctionArgs) {
       connections,
       canDeleteConnections: await userCanDeleteConnections(userId),
     },
-    { headers: { "Server-Timing": timings.toString() } },
+    { headers: { "Server-Timing": JSON.stringify(timings) } },
   );
 }
 
@@ -137,22 +141,22 @@ export default function Connections() {
             {data.connections.map((c) => (
               <li key={c.id}>
                 <Connection
-                  connection={c}
                   canDelete={data.canDeleteConnections}
+                  connection={c}
                 />
               </li>
             ))}
           </ul>
         </div>
       ) : (
-        <p>You don't have any connections yet.</p>
+        <p>{`You don't have any connections yet.`}</p>
       )}
-      <div className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
+      <div className="mt-5 flex flex-col gap-5 border-y-2 border-border py-3">
         {providerNames.map((providerName) => (
           <ProviderConnectionForm
             key={providerName}
-            type="Connect"
             providerName={providerName}
+            type="Connect"
           />
         ))}
       </div>
@@ -176,7 +180,7 @@ function Connection({
         {icon}
         <span>
           {connection.link ? (
-            <a href={connection.link} className="underline">
+            <a className="underline" href={connection.link}>
               {connection.displayName}
             </a>
           ) : (
@@ -187,20 +191,20 @@ function Connection({
       </span>
       {canDelete ? (
         <deleteFetcher.Form method="POST">
-          <input name="connectionId" value={connection.id} type="hidden" />
+          <input name="connectionId" type="hidden" value={connection.id} />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <StatusButton
                   name="intent"
-                  value="delete-connection"
-                  variant="destructive"
                   size="sm"
                   status={
                     deleteFetcher.state !== "idle"
                       ? "pending"
                       : deleteFetcher.data?.status ?? "idle"
                   }
+                  value="delete-connection"
+                  variant="destructive"
                 >
                   <Icon name="cross-1" />
                 </StatusButton>
@@ -213,7 +217,7 @@ function Connection({
         <TooltipProvider>
           <Tooltip open={infoOpen} onOpenChange={setInfoOpen}>
             <TooltipTrigger onClick={() => setInfoOpen(true)}>
-              <Icon name="question-mark-circled"></Icon>
+              <Icon name="question-mark-circled" />
             </TooltipTrigger>
             <TooltipContent>
               You cannot delete your last connection unless you have a password.

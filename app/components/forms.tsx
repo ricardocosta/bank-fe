@@ -1,10 +1,12 @@
 import { useInputEvent } from "@conform-to/react";
-import React, { useId, useRef } from "react";
+import { useId, useRef } from "react";
 
 import { Checkbox } from "./ui/checkbox.tsx";
 import { Input } from "./ui/input.tsx";
 import { Label } from "./ui/label.tsx";
 import { Textarea } from "./ui/textarea.tsx";
+
+import type React from "react";
 
 import type { CheckboxProps } from "./ui/checkbox.tsx";
 
@@ -18,9 +20,11 @@ export function ErrorList({
   id?: string;
 }) {
   const errorsToRender = errors?.filter(Boolean);
-  if (!errorsToRender?.length) return null;
+  if (!errorsToRender?.length) {
+    return null;
+  }
   return (
-    <ul id={id} className="flex flex-col gap-1">
+    <ul className="flex flex-col gap-1" id={id}>
       {errorsToRender.map((e) => (
         <li key={e} className="text-[10px] text-foreground-destructive">
           {e}
@@ -48,13 +52,13 @@ export function Field({
     <div className={className}>
       <Label htmlFor={id} {...labelProps} />
       <Input
-        id={id}
-        aria-invalid={errorId ? true : undefined}
         aria-describedby={errorId}
+        aria-invalid={errorId ? true : undefined}
+        id={id}
         {...inputProps}
       />
       <div className="min-h-[32px] px-4 pb-3 pt-1">
-        {errorId ? <ErrorList id={errorId} errors={errors} /> : null}
+        {errorId ? <ErrorList errors={errors} id={errorId} /> : null}
       </div>
     </div>
   );
@@ -78,13 +82,13 @@ export function TextareaField({
     <div className={className}>
       <Label htmlFor={id} {...labelProps} />
       <Textarea
-        id={id}
-        aria-invalid={errorId ? true : undefined}
         aria-describedby={errorId}
+        aria-invalid={errorId ? true : undefined}
+        id={id}
         {...textareaProps}
       />
       <div className="min-h-[32px] px-4 pb-3 pt-1">
-        {errorId ? <ErrorList id={errorId} errors={errors} /> : null}
+        {errorId ? <ErrorList errors={errors} id={errorId} /> : null}
       </div>
     </div>
   );
@@ -118,11 +122,16 @@ export function CheckboxField({
     <div className={className}>
       <div className="flex gap-2">
         <Checkbox
-          id={id}
           ref={buttonRef}
-          aria-invalid={errorId ? true : undefined}
           aria-describedby={errorId}
+          aria-invalid={errorId ? true : undefined}
+          id={id}
           {...buttonProps}
+          type="button"
+          onBlur={(event) => {
+            control.blur();
+            buttonProps.onBlur?.(event);
+          }}
           onCheckedChange={(state) => {
             control.change(Boolean(state.valueOf()));
             buttonProps.onCheckedChange?.(state);
@@ -131,11 +140,6 @@ export function CheckboxField({
             control.focus();
             buttonProps.onFocus?.(event);
           }}
-          onBlur={(event) => {
-            control.blur();
-            buttonProps.onBlur?.(event);
-          }}
-          type="button"
         />
         <label
           htmlFor={id}
@@ -144,7 +148,7 @@ export function CheckboxField({
         />
       </div>
       <div className="px-4 pb-3 pt-1">
-        {errorId ? <ErrorList id={errorId} errors={errors} /> : null}
+        {errorId ? <ErrorList errors={errors} id={errorId} /> : null}
       </div>
     </div>
   );

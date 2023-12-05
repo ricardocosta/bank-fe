@@ -101,7 +101,9 @@ export async function action({ request }: DataFunctionArgs) {
       return deleteDataAction({ request, userId, formData });
     }
     default: {
-      throw new Response(`Invalid intent "${intent}"`, { status: 400 });
+      throw new Response(`Invalid intent "${intent?.toString()}"`, {
+        status: 400,
+      });
     }
   }
 }
@@ -114,22 +116,22 @@ export default function EditUserProfile() {
       <div className="flex justify-center">
         <div className="relative h-52 w-52">
           <img
-            src={getUserImgSrc(data.user.image?.id)}
             alt={data.user.username}
             className="h-full w-full rounded-full object-cover"
+            src={getUserImgSrc(data.user.image?.id)}
           />
           <Button
             asChild
-            variant="outline"
             className="absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
+            variant="outline"
           >
             <Link
-              preventScrollReset
-              to="photo"
-              title="Change profile photo"
               aria-label="Change profile photo"
+              preventScrollReset
+              title="Change profile photo"
+              to="photo"
             >
-              <Icon name="camera" className="h-4 w-4" />
+              <Icon className="h-4 w-4" name="camera" />
             </Link>
           </Button>
         </div>
@@ -168,8 +170,8 @@ export default function EditUserProfile() {
         </div>
         <div>
           <Link
-            reloadDocument
             download="my-epic-notes-data.json"
+            reloadDocument
             to="/resources/download-user-data"
           >
             <Icon name="download">Download your data</Icon>
@@ -245,18 +247,18 @@ function UpdateProfile() {
       <div className="grid grid-cols-6 gap-x-10">
         <Field
           className="col-span-3"
+          errors={fields.username.errors}
+          inputProps={conform.input(fields.username)}
           labelProps={{
             htmlFor: fields.username.id,
             children: "Username",
           }}
-          inputProps={conform.input(fields.username)}
-          errors={fields.username.errors}
         />
         <Field
           className="col-span-3"
-          labelProps={{ htmlFor: fields.name.id, children: "Name" }}
-          inputProps={conform.input(fields.name)}
           errors={fields.name.errors}
+          inputProps={conform.input(fields.name)}
+          labelProps={{ htmlFor: fields.name.id, children: "Name" }}
         />
       </div>
 
@@ -264,15 +266,15 @@ function UpdateProfile() {
 
       <div className="mt-8 flex justify-center">
         <StatusButton
-          type="submit"
-          size="wide"
           name="intent"
-          value={profileUpdateActionIntent}
+          size="wide"
           status={
             fetcher.state !== "idle"
               ? "pending"
               : fetcher.data?.status ?? "idle"
           }
+          type="submit"
+          value={profileUpdateActionIntent}
         >
           Save changes
         </StatusButton>
@@ -316,12 +318,12 @@ function SignOutOfSessions() {
               name: "intent",
               value: signOutOfSessionsActionIntent,
             })}
-            variant={dc.doubleCheck ? "destructive" : "default"}
             status={
               fetcher.state !== "idle"
                 ? "pending"
                 : fetcher.data?.status ?? "idle"
             }
+            variant={dc.doubleCheck ? "destructive" : "default"}
           >
             <Icon name="avatar">
               {dc.doubleCheck
@@ -360,8 +362,8 @@ function DeleteData() {
             name: "intent",
             value: deleteDataActionIntent,
           })}
-          variant={dc.doubleCheck ? "destructive" : "default"}
           status={fetcher.state !== "idle" ? "pending" : "idle"}
+          variant={dc.doubleCheck ? "destructive" : "default"}
         >
           <Icon name="trash">
             {dc.doubleCheck ? `Are you sure?` : `Delete all your data`}

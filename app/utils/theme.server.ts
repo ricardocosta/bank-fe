@@ -8,7 +8,9 @@ export function getTheme(request: Request): Theme | null {
   const parsed = cookieHeader
     ? cookie.parse(cookieHeader)[cookieName]
     : "light";
-  if (parsed === "light" || parsed === "dark") return parsed;
+  if (parsed === "light" || parsed === "dark") {
+    return parsed;
+  }
   return null;
 }
 

@@ -33,7 +33,7 @@ export const handle: BreadcrumbHandle & SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-const newEmailAddressSessionKey = "new-email-address";
+export const newEmailAddressSessionKey = "new-email-address";
 
 export async function handleVerification({
   request,
@@ -96,7 +96,7 @@ export async function loader({ request }: DataFunctionArgs) {
   });
   if (!user) {
     const params = new URLSearchParams({ redirectTo: request.url });
-    throw redirect(`/login?${params}`);
+    throw redirect(`/login?${params.toString()}`);
   }
   return json({ user });
 }
@@ -137,7 +137,7 @@ export async function action({ request }: DataFunctionArgs) {
   const response = await sendEmail({
     to: submission.value.email,
     subject: `Epic Notes Email Change Verification`,
-    react: <EmailChangeEmail verifyUrl={verifyUrl.toString()} otp={otp} />,
+    react: <EmailChangeEmail otp={otp} verifyUrl={verifyUrl.toString()} />,
   });
 
   if (response.status === "success") {
@@ -162,14 +162,14 @@ export function EmailChangeEmail({
   otp: string;
 }) {
   return (
-    <E.Html lang="en" dir="ltr">
+    <E.Html dir="ltr" lang="en">
       <E.Container>
         <h1>
           <E.Text>Epic Notes Email Change</E.Text>
         </h1>
         <p>
           <E.Text>
-            Here's your verification code: <strong>{otp}</strong>
+            {`Here's your verification code:`} <strong>{otp}</strong>
           </E.Text>
         </p>
         <p>
@@ -183,15 +183,15 @@ export function EmailChangeEmail({
 
 export function EmailChangeNoticeEmail({ userId }: { userId: string }) {
   return (
-    <E.Html lang="en" dir="ltr">
+    <E.Html dir="ltr" lang="en">
       <E.Container>
         <h1>
           <E.Text>Your Epic Notes email has been changed</E.Text>
         </h1>
         <p>
           <E.Text>
-            We're writing to let you know that your Epic Notes email has been
-            changed.
+            {`We're writing to let you know that your Epic Notes email has been
+            changed.`}
           </E.Text>
         </p>
         <p>
@@ -234,11 +234,11 @@ export default function ChangeEmailIndex() {
         <Form method="POST" {...form.props}>
           <AuthenticityTokenInput />
           <Field
-            labelProps={{ children: "New Email" }}
-            inputProps={conform.input(fields.email)}
             errors={fields.email.errors}
+            inputProps={conform.input(fields.email)}
+            labelProps={{ children: "New Email" }}
           />
-          <ErrorList id={form.errorId} errors={form.errors} />
+          <ErrorList errors={form.errors} id={form.errorId} />
           <div>
             <StatusButton
               status={isPending ? "pending" : actionData?.status ?? "idle"}

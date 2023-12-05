@@ -20,16 +20,22 @@ export type OptionalToast = Omit<Toast, "id" | "type"> & {
   type?: z.infer<typeof TypeSchema>;
 };
 
-export const toastSessionStorage = createCookieSessionStorage({
-  cookie: {
-    name: "en_toast",
-    sameSite: "lax",
-    path: "/",
-    httpOnly: true,
-    secrets: process.env.SESSION_SECRET.split(","),
-    secure: process.env.NODE_ENV === "production",
+type ToastSessionData = {
+  [toastKey]: Toast;
+};
+
+export const toastSessionStorage = createCookieSessionStorage<ToastSessionData>(
+  {
+    cookie: {
+      name: "en_toast",
+      sameSite: "lax",
+      path: "/",
+      httpOnly: true,
+      secrets: process.env.SESSION_SECRET.split(","),
+      secure: process.env.NODE_ENV === "production",
+    },
   },
-});
+);
 
 export async function redirectWithToast(
   url: string,

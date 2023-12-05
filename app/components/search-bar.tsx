@@ -31,31 +31,34 @@ export function SearchBar({
 
   return (
     <Form
-      method="GET"
       action="/users"
       className="flex flex-wrap items-center justify-center gap-2"
+      method="GET"
       onChange={(e) => autoSubmit && handleFormChange(e.currentTarget)}
     >
       <div className="flex-1">
-        <Label htmlFor={id} className="sr-only">
+        <Label className="sr-only" htmlFor={id}>
           Search
         </Label>
         <Input
-          type="search"
-          name="search"
-          id={id}
-          defaultValue={searchParams.get("search") ?? ""}
-          placeholder="Search"
-          className="w-full"
+          // Autofocus will be handled by the consumers
+          // By default, it's disabled, so no a11y issues here
+          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus={autoFocus}
+          className="w-full"
+          defaultValue={searchParams.get("search") ?? ""}
+          id={id}
+          name="search"
+          placeholder="Search"
+          type="search"
         />
       </div>
       <div>
         <StatusButton
-          type="submit"
-          status={isSubmitting ? "pending" : status}
           className="flex w-full items-center justify-center"
           size="sm"
+          status={isSubmitting ? "pending" : status}
+          type="submit"
         >
           <Icon name="magnifying-glass" size="sm" />
           <span className="sr-only">Search</span>

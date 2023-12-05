@@ -74,7 +74,7 @@ function parsePermissionString(permissionString: PermissionString) {
   return {
     action,
     entity,
-    access: access ? (access.split(",") as Array<Access>) : undefined,
+    access: access ? (access.split(",") as Access[]) : undefined,
   };
 }
 
@@ -82,7 +82,9 @@ export function userHasPermission(
   user: Pick<ReturnType<typeof useUser>, "roles"> | null | undefined,
   permission: PermissionString,
 ) {
-  if (!user) return false;
+  if (!user) {
+    return false;
+  }
   const { action, entity, access } = parsePermissionString(permission);
   return user.roles.some((role) =>
     role.permissions.some(
@@ -98,6 +100,8 @@ export function userHasRole(
   user: Pick<ReturnType<typeof useUser>, "roles"> | null,
   role: string,
 ) {
-  if (!user) return false;
+  if (!user) {
+    return false;
+  }
   return user.roles.some((r) => r.name === role);
 }

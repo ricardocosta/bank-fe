@@ -88,14 +88,14 @@ export function SignupEmail({
   otp: string;
 }) {
   return (
-    <E.Html lang="en" dir="ltr">
+    <E.Html dir="ltr" lang="en">
       <E.Container>
         <h1>
           <E.Text>Welcome to Epic Notes!</E.Text>
         </h1>
         <p>
           <E.Text>
-            Here's your verification code: <strong>{otp}</strong>
+            {`Here's your verification code:`} <strong>{otp}</strong>
           </E.Text>
         </p>
         <p>
@@ -131,7 +131,7 @@ export default function SignupRoute() {
   return (
     <div className="container flex flex-col justify-center pb-32 pt-20">
       <div className="text-center">
-        <h1 className="text-h1">Let's start your journey!</h1>
+        <h1 className="text-h1">{`Let's start your journey!`}</h1>
         <p className="mt-3 text-body-md text-muted-foreground">
           Please enter your email.
         </p>
@@ -141,30 +141,30 @@ export default function SignupRoute() {
           <AuthenticityTokenInput />
           <HoneypotInputs />
           <Field
+            errors={fields.email.errors}
+            inputProps={{ ...conform.input(fields.email), autoFocus: true }}
             labelProps={{
               htmlFor: fields.email.id,
               children: "Email",
             }}
-            inputProps={{ ...conform.input(fields.email), autoFocus: true }}
-            errors={fields.email.errors}
           />
           <ErrorList errors={form.errors} id={form.errorId} />
           <StatusButton
             className="w-full"
+            disabled={isPending}
             status={isPending ? "pending" : actionData?.status ?? "idle"}
             type="submit"
-            disabled={isPending}
           >
             Submit
           </StatusButton>
         </Form>
-        <ul className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
+        <ul className="mt-5 flex flex-col gap-5 border-y-2 border-border py-3">
           {providerNames.map((providerName) => (
             <li key={providerName}>
               <ProviderConnectionForm
-                type="Signup"
                 providerName={providerName}
                 redirectTo={redirectTo}
+                type="Signup"
               />
             </li>
           ))}

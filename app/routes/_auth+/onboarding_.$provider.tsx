@@ -207,16 +207,16 @@ export default function SignupRoute() {
         </div>
         <Spacer size="xs" />
         <Form
-          method="POST"
           className="mx-auto min-w-[368px] max-w-sm"
+          method="POST"
           {...form.props}
         >
           {fields.imageUrl.defaultValue ? (
             <div className="mb-4 flex flex-col items-center justify-center gap-4">
               <img
-                src={fields.imageUrl.defaultValue}
                 alt="Profile"
                 className="h-24 w-24 rounded-full"
+                src={fields.imageUrl.defaultValue}
               />
               <p className="text-body-sm text-muted-foreground">
                 You can change your photo later
@@ -225,46 +225,48 @@ export default function SignupRoute() {
             </div>
           ) : null}
           <Field
-            labelProps={{ htmlFor: fields.username.id, children: "Username" }}
+            errors={fields.username.errors}
             inputProps={{
               ...conform.input(fields.username),
               autoComplete: "username",
               className: "lowercase",
             }}
-            errors={fields.username.errors}
+            labelProps={{ htmlFor: fields.username.id, children: "Username" }}
           />
           <Field
-            labelProps={{ htmlFor: fields.name.id, children: "Name" }}
+            errors={fields.name.errors}
             inputProps={{
               ...conform.input(fields.name),
               autoComplete: "name",
             }}
-            errors={fields.name.errors}
+            labelProps={{ htmlFor: fields.name.id, children: "Name" }}
           />
 
           <CheckboxField
-            labelProps={{
-              htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
-              children:
-                "Do you agree to our Terms of Service and Privacy Policy?",
-            }}
+            // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
             buttonProps={conform.input(
               fields.agreeToTermsOfServiceAndPrivacyPolicy,
               { type: "checkbox" },
             )}
             errors={fields.agreeToTermsOfServiceAndPrivacyPolicy.errors}
+            labelProps={{
+              htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
+              children:
+                "Do you agree to our Terms of Service and Privacy Policy?",
+            }}
           />
           <CheckboxField
+            // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
+            buttonProps={conform.input(fields.remember, { type: "checkbox" })}
+            errors={fields.remember.errors}
             labelProps={{
               htmlFor: fields.remember.id,
               children: "Remember me",
             }}
-            buttonProps={conform.input(fields.remember, { type: "checkbox" })}
-            errors={fields.remember.errors}
           />
 
           {redirectTo ? (
-            <input type="hidden" name="redirectTo" value={redirectTo} />
+            <input name="redirectTo" type="hidden" value={redirectTo} />
           ) : null}
 
           <ErrorList errors={form.errors} id={form.errorId} />
@@ -272,9 +274,9 @@ export default function SignupRoute() {
           <div className="flex items-center justify-between gap-6">
             <StatusButton
               className="w-full"
+              disabled={isPending}
               status={isPending ? "pending" : actionData?.status ?? "idle"}
               type="submit"
-              disabled={isPending}
             >
               Create an account
             </StatusButton>

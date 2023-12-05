@@ -7,7 +7,7 @@ import { cn } from "#app/utils/misc.tsx";
 import type { VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors outline-none focus-visible:ring-4 focus-within:ring-4 ring-ring ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center rounded-md text-sm font-medium outline-none ring-ring ring-offset-2 ring-offset-background transition-colors focus-within:ring-4 focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -37,6 +37,8 @@ const buttonVariants = cva(
   },
 );
 
+// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
@@ -48,8 +50,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        className={cn(buttonVariants({ variant, size, className }))}
         {...props}
       />
     );

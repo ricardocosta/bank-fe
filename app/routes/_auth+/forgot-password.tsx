@@ -94,14 +94,14 @@ function ForgotPasswordEmail({
   otp: string;
 }) {
   return (
-    <E.Html lang="en" dir="ltr">
+    <E.Html dir="ltr" lang="en">
       <E.Container>
         <h1>
           <E.Text>Epic Notes Password Reset</E.Text>
         </h1>
         <p>
           <E.Text>
-            Here's your verification code: <strong>{otp}</strong>
+            {`Here's your verification code:`} <strong>{otp}</strong>
           </E.Text>
         </p>
         <p>
@@ -136,7 +136,7 @@ export default function ForgotPasswordRoute() {
         <div className="text-center">
           <h1 className="text-h1">Forgot Password</h1>
           <p className="mt-3 text-body-md text-muted-foreground">
-            No worries, we'll send you reset instructions.
+            {`No worries, we'll send you reset instructions.`}
           </p>
         </div>
         <div className="mx-auto mt-16 min-w-[368px] max-w-sm">
@@ -145,15 +145,15 @@ export default function ForgotPasswordRoute() {
             <HoneypotInputs />
             <div>
               <Field
-                labelProps={{
-                  htmlFor: fields.usernameOrEmail.id,
-                  children: "Username or Email",
-                }}
+                errors={fields.usernameOrEmail.errors}
                 inputProps={{
                   autoFocus: true,
                   ...conform.input(fields.usernameOrEmail),
                 }}
-                errors={fields.usernameOrEmail.errors}
+                labelProps={{
+                  htmlFor: fields.usernameOrEmail.id,
+                  children: "Username or Email",
+                }}
               />
             </div>
             <ErrorList errors={form.errors} id={form.errorId} />
@@ -161,21 +161,21 @@ export default function ForgotPasswordRoute() {
             <div className="mt-6">
               <StatusButton
                 className="w-full"
+                disabled={forgotPassword.state !== "idle"}
                 status={
                   forgotPassword.state === "submitting"
                     ? "pending"
                     : forgotPassword.data?.status ?? "idle"
                 }
                 type="submit"
-                disabled={forgotPassword.state !== "idle"}
               >
                 Recover password
               </StatusButton>
             </div>
           </forgotPassword.Form>
           <Link
-            to="/login"
             className="mt-11 text-center text-body-sm font-bold"
+            to="/login"
           >
             Back to Login
           </Link>

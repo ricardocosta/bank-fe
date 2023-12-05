@@ -52,11 +52,11 @@ export async function loader({ request }: DataFunctionArgs) {
   const instances = await getAllInstances();
   await ensureInstance(instance);
 
-  let cacheKeys: { sqlite: Array<string>; lru: Array<string> };
+  let cacheKeys: { sqlite: string[]; lru: string[] };
   if (typeof query === "string") {
-    cacheKeys = await searchCacheKeys(query, limit);
+    cacheKeys = searchCacheKeys(query, limit);
   } else {
-    cacheKeys = await getAllCacheKeys(limit);
+    cacheKeys = getAllCacheKeys(limit);
   }
   return json({ cacheKeys, instance, instances, currentInstanceInfo });
 }
@@ -107,26 +107,26 @@ export default function CacheAdminRoute() {
       <h1 className="text-h1">Cache Admin</h1>
       <Spacer size="2xs" />
       <Form
-        method="get"
         className="flex flex-col gap-4"
+        method="get"
         onChange={(e) => handleFormChange(e.currentTarget)}
       >
         <div className="flex-1">
           <div className="flex flex-1 gap-4">
             <button
-              type="submit"
               className="flex h-16 items-center justify-center"
+              type="submit"
             >
               🔎
             </button>
             <Field
               className="flex-1"
-              labelProps={{ children: "Search" }}
               inputProps={{
                 type: "search",
                 name: "query",
                 defaultValue: query,
               }}
+              labelProps={{ children: "Search" }}
             />
             <div className="flex h-16 w-14 items-center text-lg font-medium text-muted-foreground">
               <span title="Total results shown">
@@ -137,9 +137,6 @@ export default function CacheAdminRoute() {
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <Field
-            labelProps={{
-              children: "Limit",
-            }}
             inputProps={{
               name: "limit",
               defaultValue: limit,
@@ -149,8 +146,11 @@ export default function CacheAdminRoute() {
               max: "10000",
               placeholder: "results limit",
             }}
+            labelProps={{
+              children: "Limit",
+            }}
           />
-          <select name="instance" defaultValue={instance}>
+          <select defaultValue={instance} name="instance">
             {Object.entries(data.instances).map(([inst, region]) => (
               <option key={inst} value={inst}>
                 {[
@@ -214,9 +214,9 @@ function CacheKeyRow({
   return (
     <div className="flex items-center gap-2 font-mono">
       <fetcher.Form method="POST">
-        <input type="hidden" name="cacheKey" value={cacheKey} />
-        <input type="hidden" name="instance" value={instance} />
-        <input type="hidden" name="type" value={type} />
+        <input name="cacheKey" type="hidden" value={cacheKey} />
+        <input name="instance" type="hidden" value={instance} />
+        <input name="type" type="hidden" value={type} />
         <Button
           size="sm"
           variant="secondary"

@@ -1,5 +1,4 @@
 import * as setCookieParser from "set-cookie-parser";
-import { expect } from "vitest";
 
 import { sessionKey } from "#app/utils/auth.server.ts";
 import { prisma } from "#app/utils/db.server.ts";
@@ -141,7 +140,19 @@ expect.extend({
       };
     }
 
-    const pass = this.equals(toastValue, toast);
+    const expectedToast = (toast: OptionalToast) =>
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      expect.objectContaining<OptionalToast>({
+        type: toast.type,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        id: toast.id ?? expect.any(String),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        description: expect.stringContaining(toast.description),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        title: toast.title,
+      });
+
+    const pass = this.equals(toastValue, expectedToast(toast));
 
     const diff = pass ? null : `\n${this.utils.diff(toastValue, toast)}`;
 
@@ -149,20 +160,22 @@ expect.extend({
       pass,
       message: () =>
         `toast in the response ${
-          this.isNot ? "does not match" : "matches"
+          this.isNot ? "matches" : "does not match"
         } the expected toast${diff}`,
     };
   },
 });
 
-interface CustomMatchers<R = unknown> {
+type CustomMatchers<R = unknown> = {
   toHaveRedirect(redirectTo: string | null): R;
   toHaveSessionForUser(userId: string): Promise<R>;
   toSendToast(toast: OptionalToast): Promise<R>;
-}
+};
 
 declare module "vitest" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface, @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-definitions
   interface Assertion<T = any> extends CustomMatchers<T> {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface, @typescript-eslint/consistent-type-definitions
   interface AsymmetricMatchersContaining extends CustomMatchers {}
 }
 
@@ -171,5 +184,6 @@ function getSetCookie(headers: Headers) {
   // https://github.com/microsoft/TypeScript/issues/55270
   // https://github.com/remix-run/remix/issues/7067
   // @ts-expect-error see the two issues above
-  return headers.getAll("set-cookie") as Array<string>;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  return headers.getAll("set-cookie") as string[];
 }

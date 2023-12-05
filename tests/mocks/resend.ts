@@ -5,9 +5,7 @@ import { requireHeader, writeEmail } from "./utils.ts";
 
 import type { HttpHandler } from "msw";
 
-const { json } = HttpResponse;
-
-export const handlers: Array<HttpHandler> = [
+export const handlers: HttpHandler[] = [
   http.post(`https://api.resend.com/emails`, async ({ request }) => {
     requireHeader(request.headers, "Authorization");
     const body = await request.json();
@@ -15,7 +13,7 @@ export const handlers: Array<HttpHandler> = [
 
     const email = await writeEmail(body);
 
-    return json({
+    return HttpResponse.json({
       id: faker.string.uuid(),
       from: email.from,
       to: email.to,

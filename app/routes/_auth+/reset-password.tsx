@@ -16,7 +16,7 @@ import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
 
 import type { VerifyFunctionArgs } from "./verify.tsx";
 
-const resetPasswordUsernameSessionKey = "resetPasswordUsername";
+export const resetPasswordUsernameSessionKey = "resetPasswordUsername";
 
 export async function handleVerification({ submission }: VerifyFunctionArgs) {
   invariant(submission.value, "submission.value should be defined by now");
@@ -115,36 +115,36 @@ export default function ResetPasswordPage() {
       <div className="mx-auto mt-16 min-w-[368px] max-w-sm">
         <Form method="POST" {...form.props}>
           <Field
-            labelProps={{
-              htmlFor: fields.password.id,
-              children: "New Password",
-            }}
+            errors={fields.password.errors}
             inputProps={{
               ...conform.input(fields.password, { type: "password" }),
               autoComplete: "new-password",
               autoFocus: true,
             }}
-            errors={fields.password.errors}
+            labelProps={{
+              htmlFor: fields.password.id,
+              children: "New Password",
+            }}
           />
           <Field
-            labelProps={{
-              htmlFor: fields.confirmPassword.id,
-              children: "Confirm Password",
-            }}
+            errors={fields.confirmPassword.errors}
             inputProps={{
               ...conform.input(fields.confirmPassword, { type: "password" }),
               autoComplete: "new-password",
             }}
-            errors={fields.confirmPassword.errors}
+            labelProps={{
+              htmlFor: fields.confirmPassword.id,
+              children: "Confirm Password",
+            }}
           />
 
           <ErrorList errors={form.errors} id={form.errorId} />
 
           <StatusButton
             className="w-full"
+            disabled={isPending}
             status={isPending ? "pending" : actionData?.status ?? "idle"}
             type="submit"
-            disabled={isPending}
           >
             Reset password
           </StatusButton>

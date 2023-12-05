@@ -11,8 +11,8 @@ export type ProviderUser = {
   imageUrl?: string;
 };
 
-export interface AuthProvider {
-  getAuthStrategy(): Strategy<ProviderUser, any>;
+export type AuthProvider = {
+  getAuthStrategy(): Strategy<ProviderUser, never>;
   handleMockAction(request: Request): Promise<void>;
   resolveConnectionData(
     providerId: string,
@@ -21,4 +21,4 @@ export interface AuthProvider {
     displayName: string;
     link?: string | null;
   }>;
-}
+};
