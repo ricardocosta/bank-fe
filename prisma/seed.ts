@@ -105,7 +105,7 @@ async function seed() {
   }
   console.timeEnd(`👤 Created ${totalUsers} users...`);
 
-  console.time(`🐨 Created admin user "kody"`);
+  console.time(`🐨 Created admin user "${process.env.ADMIN_NAME}"`);
 
   const kodyImages = await promiseHash({
     kodyUser: img({ filepath: "./tests/fixtures/images/user/kody.png" }),
@@ -145,11 +145,11 @@ async function seed() {
   await prisma.user.create({
     select: { id: true },
     data: {
-      email: "kody@kcd.dev",
-      username: "kody",
-      name: "Kody",
+      email: process.env.ADMIN_EMAIL,
+      username: process.env.ADMIN_USERNAME,
+      name: process.env.ADMIN_NAME,
       image: { create: kodyImages.kodyUser },
-      password: { create: createPassword("kodylovesyou") },
+      password: { create: createPassword(process.env.ADMIN_PASSWORD) },
       connections: {
         create: { providerName: "github", providerId: githubUser.profile.id },
       },
@@ -255,7 +255,7 @@ async function seed() {
       },
     },
   });
-  console.timeEnd(`🐨 Created admin user "kody"`);
+  console.timeEnd(`🐨 Created admin user "${process.env.ADMIN_NAME}"`);
 
   console.timeEnd(`🌱 Database has been seeded`);
 }
