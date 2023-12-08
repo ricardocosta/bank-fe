@@ -11,7 +11,6 @@ import {
   getUserImages,
   img,
 } from "#tests/db-utils.ts";
-import { insertGitHubUser } from "#tests/mocks/github.ts";
 
 async function seed() {
   console.log("🌱 Seeding...");
@@ -140,8 +139,6 @@ async function seed() {
     }),
   });
 
-  const githubUser = await insertGitHubUser("MOCK_CODE_GITHUB_KODY");
-
   await prisma.user.create({
     select: { id: true },
     data: {
@@ -150,9 +147,6 @@ async function seed() {
       name: process.env.ADMIN_NAME,
       image: { create: kodyImages.kodyUser },
       password: { create: createPassword(process.env.ADMIN_PASSWORD) },
-      connections: {
-        create: { providerName: "github", providerId: githubUser.profile.id },
-      },
       roles: { connect: [{ name: "admin" }, { name: "user" }] },
       notes: {
         create: [

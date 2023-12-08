@@ -37,7 +37,7 @@ import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
 
 import type { VerifyFunctionArgs } from "./verify.tsx";
 
-const onboardingEmailSessionKey = "onboardingEmail";
+export const onboardingEmailSessionKey = "onboardingEmail";
 
 const SignupFormSchema = z
   .object({

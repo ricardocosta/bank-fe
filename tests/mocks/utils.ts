@@ -23,7 +23,7 @@ export async function createFixture(
   return writeJSON(path.join(dir, `./${name}.json`), data);
 }
 
-export const EmailSchema = z.object({
+const EmailSchema = z.object({
   to: z.string(),
   from: z.string(),
   subject: z.string(),
