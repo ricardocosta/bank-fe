@@ -14,7 +14,6 @@ import {
   useFetcher,
   useFetchers,
   useLoaderData,
-  useMatches,
   useSubmit,
 } from "@remix-run/react";
 import { withSentry } from "@sentry/remix";
@@ -26,7 +25,6 @@ import { z } from "zod";
 import { GeneralErrorBoundary } from "./components/error-boundary.tsx";
 import { ErrorList } from "./components/forms.tsx";
 import { EpicProgress } from "./components/progress-bar.tsx";
-import { SearchBar } from "./components/search-bar.tsx";
 import { EpicToaster } from "./components/toaster.tsx";
 import { Button } from "./components/ui/button.tsx";
 import {
@@ -235,9 +233,6 @@ function App() {
   const nonce = useNonce();
   const user = useOptionalUser();
   const theme = useTheme();
-  const matches = useMatches();
-  const isOnSearchPage = matches.find((m) => m.id === "routes/users+/index");
-  const searchBar = isOnSearchPage ? null : <SearchBar status="idle" />;
 
   return (
     <Document env={data.ENV} nonce={nonce} theme={theme}>
@@ -246,13 +241,12 @@ function App() {
           <nav>
             <div className="flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
               <Link to="/">
-                <div className="font-light">epic</div>
-                <div className="font-bold">notes</div>
+                <p>Logo</p>
               </Link>
-              <div className="ml-auto hidden max-w-sm flex-1 sm:block">
-                {searchBar}
-              </div>
               <div className="flex items-center gap-10">
+                <ThemeSwitch
+                  userPreference={data.requestInfo.userPrefs.theme}
+                />
                 {user ? (
                   <UserDropdown />
                 ) : (
@@ -261,21 +255,12 @@ function App() {
                   </Button>
                 )}
               </div>
-              <div className="block w-full sm:hidden">{searchBar}</div>
             </div>
           </nav>
         </header>
 
-        <div className="flex-1">
+        <div className="flex flex-1">
           <Outlet />
-        </div>
-
-        <div className="container flex justify-between pb-5">
-          <Link to="/">
-            <div className="font-light">epic</div>
-            <div className="font-bold">notes</div>
-          </Link>
-          <ThemeSwitch userPreference={data.requestInfo.userPrefs.theme} />
         </div>
       </div>
       <EpicToaster toast={data.toast} />
