@@ -2,9 +2,8 @@ import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { createRequestHandler as _createRequestHandler } from "@remix-run/express";
+import { createRequestHandler } from "@remix-run/express";
 import { broadcastDevReady, installGlobals } from "@remix-run/node";
-import * as Sentry from "@sentry/remix";
 import { ip as ipAddress } from "address";
 import chalk from "chalk";
 import closeWithGrace from "close-with-grace";
@@ -16,16 +15,11 @@ import helmet from "helmet";
 import morgan, { token } from "morgan";
 
 import type { RequestHandler } from "@remix-run/express";
-import type { ServerBuild } from "@remix-run/node";
+import type { AppLoadContext, ServerBuild } from "@remix-run/node";
 
 installGlobals();
 
 const MODE = process.env.NODE_ENV;
-
-const createRequestHandler = Sentry.wrapExpressCreateRequestHandler(
-  _createRequestHandler,
-);
-
 const BUILD_PATH = "../build/index.js";
 const WATCH_PATH = "../build/version.txt";
 
@@ -68,9 +62,6 @@ app.use(compression());
 
 // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
 app.disable("x-powered-by");
-
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.tracingHandler());
 
 // Remix fingerprints its assets so we can cache forever.
 app.use(
@@ -118,11 +109,9 @@ app.use(
       // NOTE: Remove reportOnly when you're ready to enforce this CSP
       reportOnly: true,
       directives: {
-        "connect-src": [
-          MODE === "development" ? "ws:" : null,
-          process.env.SENTRY_DSN ? "*.ingest.sentry.io" : null,
-          "'self'",
-        ].filter(Boolean),
+        "connect-src": [MODE === "development" ? "ws:" : null, "'self'"].filter(
+          Boolean,
+        ),
         "font-src": ["'self'"],
         "frame-src": ["'self'"],
         "img-src": ["'self'", "data:"],
@@ -201,11 +190,8 @@ app.use((req, res, next) => {
 });
 
 function getRequestHandler(build: ServerBuild): RequestHandler {
-  function getLoadContext(
-    _req: express.Request,
-    res: express.Response<unknown, { cspNonce: string }>,
-  ) {
-    return { cspNonce: res.locals.cspNonce };
+  function getLoadContext(_req: express.Request, res: express.Response) {
+    return { cspNonce: res.locals.cspNonce } satisfies AppLoadContext;
   }
   return createRequestHandler({ build, mode: MODE, getLoadContext });
 }
