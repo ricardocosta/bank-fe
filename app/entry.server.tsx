@@ -2,7 +2,6 @@ import { PassThrough } from "stream";
 
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
 import isbot from "isbot";
 import { getInstanceInfo } from "litefs-js";
 import { renderToPipeableStream } from "react-dom/server";
@@ -20,10 +19,6 @@ const ABORT_DELAY = 5000;
 
 init();
 global.ENV = getEnv();
-
-if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
-  void import("./utils/monitoring.server.ts").then(({ init }) => init());
-}
 
 type DocRequestArgs = Parameters<HandleDocumentRequestFunction>;
 
@@ -99,9 +94,5 @@ export function handleError(
   error: unknown,
   { request }: DataFunctionArgs,
 ): void {
-  if (error instanceof Error) {
-    void Sentry.captureRemixServerException(error, "remix.server", request);
-  } else {
-    Sentry.captureException(error);
-  }
+  console.error(error, request);
 }

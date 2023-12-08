@@ -3,7 +3,6 @@ import {
   useParams,
   useRouteError,
 } from "@remix-run/react";
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
 
 import { getErrorMessage } from "#app/utils/misc.tsx";
 
@@ -28,7 +27,6 @@ export function GeneralErrorBoundary({
   unexpectedErrorHandler?: (error: unknown) => JSX.Element | null;
 }) {
   const error = useRouteError();
-  captureRemixErrorBoundaryError(error);
   const params = useParams();
 
   if (typeof document !== "undefined") {

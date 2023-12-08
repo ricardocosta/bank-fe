@@ -7,7 +7,6 @@ const TOP_LEVEL_AWAIT_FILES = [
   "index.js",
   "dev-server.js",
   "other/setup-swap.js",
-  "other/sentry-create-release.js",
 ];
 
 /** @type {import('@types/eslint').Linter.BaseConfig} */

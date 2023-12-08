@@ -69,8 +69,6 @@
     "@remix-run/node": "^2.3.1",
     "@remix-run/react": "^2.3.1",
     "@remix-run/server-runtime": "^2.3.1",
-    "@sentry/profiling-node": "^1.2.6",
-    "@sentry/remix": "^7.81.1",
     "address": "^2.0.1",
     "autoprefixer": "^10.4.16",
     "bcryptjs": "^2.4.3",
