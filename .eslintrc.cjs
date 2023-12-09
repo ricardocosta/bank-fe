@@ -3,11 +3,7 @@ const JSX_FILES = ["*.jsx", "*.tsx"];
 const VITEST_FILES = ["app/**/__tests__/**/*", "app/**/*.test.*"];
 const APP_FILES = ["app/**"];
 const TEST_FILES = ["**/tests/**", ...VITEST_FILES];
-const TOP_LEVEL_AWAIT_FILES = [
-  "index.js",
-  "dev-server.js",
-  "other/setup-swap.js",
-];
+const TOP_LEVEL_AWAIT_FILES = ["index.js", "dev-server.js"];
 
 /** @type {import('@types/eslint').Linter.BaseConfig} */
 module.exports = {

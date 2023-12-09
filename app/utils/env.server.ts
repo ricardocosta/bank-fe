@@ -2,18 +2,17 @@ import { z } from "zod";
 
 const schema = z.object({
   NODE_ENV: z.enum(["production", "development", "test"] as const),
-  DATABASE_PATH: z.string(),
   DATABASE_URL: z.string(),
+  CACHE_DATABASE_PATH: z.string(),
   SESSION_SECRET: z.string(),
   INTERNAL_COMMAND_TOKEN: z.string(),
   HONEYPOT_SECRET: z.string(),
-  CACHE_DATABASE_PATH: z.string(),
   // If you plan to use Resend, uncomment this line
   // RESEND_API_KEY: z.string(),
-  ADMIN_EMAIL: z.string(),
-  ADMIN_NAME: z.string(),
-  ADMIN_PASSWORD: z.string(),
-  ADMIN_USERNAME: z.string(),
+  ADMIN_EMAIL: z.string().optional(),
+  ADMIN_NAME: z.string().optional(),
+  ADMIN_PASSWORD: z.string().optional(),
+  ADMIN_USERNAME: z.string().optional(),
 });
 
 declare global {
