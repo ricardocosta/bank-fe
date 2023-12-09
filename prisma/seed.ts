@@ -142,8 +142,8 @@ async function seed() {
   await prisma.user.create({
     select: { id: true },
     data: {
-      email: process.env.ADMIN_EMAIL,
-      username: process.env.ADMIN_USERNAME,
+      email: process.env.ADMIN_EMAIL ?? "admin@localhost",
+      username: process.env.ADMIN_USERNAME ?? "admin",
       name: process.env.ADMIN_NAME,
       image: { create: kodyImages.kodyUser },
       password: { create: createPassword(process.env.ADMIN_PASSWORD) },

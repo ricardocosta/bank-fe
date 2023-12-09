@@ -11,9 +11,6 @@ import {
 import { LRUCache } from "lru-cache";
 import { z } from "zod";
 
-import { updatePrimaryCacheValue } from "#app/routes/admin+/cache_.sqlite.tsx";
-
-import { getInstanceInfo, getInstanceInfoSync } from "./litefs.server.ts";
 import { cachifiedTimingReporter } from "./timing.server.ts";
 
 import type {
@@ -30,10 +27,6 @@ const cacheDb = remember("cacheDb", createDatabase);
 
 function createDatabase(tryAgain = true): Database.Database {
   const db = new Database(CACHE_DATABASE_PATH);
-  const { currentIsPrimary } = getInstanceInfoSync();
-  if (!currentIsPrimary) {
-    return db;
-  }
 
   try {
     // create cache table with metadata JSON column and value JSON column if it does not exist already
@@ -101,51 +94,19 @@ export const cache: CachifiedCache = {
     }
     return { metadata, value };
   },
-  async set(key, entry) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    const { currentIsPrimary, primaryInstance } = await getInstanceInfo();
-    if (currentIsPrimary) {
-      cacheDb
-        .prepare(
-          "INSERT OR REPLACE INTO cache (key, value, metadata) VALUES (@key, @value, @metadata)",
-        )
-        .run({
-          key,
-          value: JSON.stringify(entry.value),
-          metadata: JSON.stringify(entry.metadata),
-        });
-    } else {
-      // fire-and-forget cache update
-      void updatePrimaryCacheValue({
+  set(key, entry) {
+    cacheDb
+      .prepare(
+        "INSERT OR REPLACE INTO cache (key, value, metadata) VALUES (@key, @value, @metadata)",
+      )
+      .run({
         key,
-        cacheValue: entry,
-      }).then((response) => {
-        if (!response.ok) {
-          console.error(
-            `Error updating cache value for key "${key}" on primary instance (${primaryInstance}): ${response.status} ${response.statusText}`,
-            { entry },
-          );
-        }
+        value: JSON.stringify(entry.value),
+        metadata: JSON.stringify(entry.metadata),
       });
-    }
   },
-  async delete(key) {
-    const { currentIsPrimary, primaryInstance } = await getInstanceInfo();
-    if (currentIsPrimary) {
-      cacheDb.prepare("DELETE FROM cache WHERE key = ?").run(key);
-    } else {
-      // fire-and-forget cache update
-      void updatePrimaryCacheValue({
-        key,
-        cacheValue: undefined,
-      }).then((response) => {
-        if (!response.ok) {
-          console.error(
-            `Error deleting cache value for key "${key}" on primary instance (${primaryInstance}): ${response.status} ${response.statusText}`,
-          );
-        }
-      });
-    }
+  delete(key) {
+    cacheDb.prepare("DELETE FROM cache WHERE key = ?").run(key);
   },
 };
 
