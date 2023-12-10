@@ -335,8 +335,8 @@ devDependencies:
     specifier: ^0.3.10
     version: 0.3.10(@typescript-eslint/eslint-plugin@6.13.1)(eslint@8.54.0)(typescript@5.2.2)(vitest@0.34.6)
   fs-extra:
-    specifier: ^11.1.1
-    version: 11.1.1
+    specifier: ^11.2.0
+    version: 11.2.0
   husky:
     specifier: ^8.0.3
     version: 8.0.3
@@ -903,7 +903,7 @@ packages:
     dependencies:
       '@commitlint/top-level': 18.4.3
       '@commitlint/types': 18.4.3
-      fs-extra: 11.1.1
+      fs-extra: 11.2.0
       git-raw-commits: 2.0.11
       minimist: 1.2.8
     dev: true
@@ -5675,8 +5675,8 @@ packages:
       universalify: 2.0.1
     dev: true
 
-  /fs-extra@11.1.1:
-    resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
+  /fs-extra@11.2.0:
+    resolution: {integrity: sha512-PmDi3uwK5nFuXh7XDTlVnS17xJS7vW36is2+w3xcv8SVxiB4NyATf4ctkVY5bkSjX0Y4nbvZCq1/EjtEyr9ktw==}
     engines: {node: '>=14.14'}
     dependencies:
       graceful-fs: 4.2.11
@@ -9154,7 +9154,7 @@ packages:
     dependencies:
       '@remix-run/dev': 2.3.1(@remix-run/serve@2.3.1)(@types/node@20.9.2)(typescript@5.2.2)(vite@5.0.5)
       '@remix-run/v1-route-convention': 0.1.4(@remix-run/dev@2.3.1)
-      fs-extra: 11.1.1
+      fs-extra: 11.2.0
       minimatch: 5.1.6
     dev: true
 
