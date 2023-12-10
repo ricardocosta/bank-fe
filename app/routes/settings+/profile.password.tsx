@@ -20,14 +20,12 @@ import { useIsPending } from "#app/utils/misc.tsx";
 import { redirectWithToast } from "#app/utils/toast.server.ts";
 import { PasswordSchema } from "#app/utils/user-validation.ts";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle & SEOHandle = {
+export const handle: BreadcrumbHandle = {
   breadcrumb: <Icon name="dots-horizontal">Password</Icon>,
-  getSitemapEntries: () => null,
 };
 
 const ChangePasswordForm = z

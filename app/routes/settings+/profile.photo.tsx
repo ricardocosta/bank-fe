@@ -30,14 +30,12 @@ import {
   useIsPending,
 } from "#app/utils/misc.tsx";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle & SEOHandle = {
+export const handle: BreadcrumbHandle = {
   breadcrumb: <Icon name="avatar">Photo</Icon>,
-  getSitemapEntries: () => null,
 };
 
 const MAX_SIZE = 1024 * 1024 * 3; // 3MB
