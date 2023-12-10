@@ -1,13 +1,13 @@
 import fs from "fs";
 
-import { remember } from "@epic-web/remember";
-import { default as Database } from "better-sqlite3";
 import {
   cachified as baseCachified,
   lruCacheAdapter,
   mergeReporters,
   verboseReporter,
-} from "cachified";
+} from "@epic-web/cachified";
+import { remember } from "@epic-web/remember";
+import { default as Database } from "better-sqlite3";
 import { LRUCache } from "lru-cache";
 import { z } from "zod";
 
@@ -17,7 +17,7 @@ import type {
   CacheEntry,
   Cache as CachifiedCache,
   CachifiedOptions,
-} from "cachified";
+} from "@epic-web/cachified";
 
 import type { Timings } from "./timing.server.ts";
 
