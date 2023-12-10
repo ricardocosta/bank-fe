@@ -12,14 +12,12 @@ import { prisma } from "#app/utils/db.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
 import { PasswordAndConfirmPasswordSchema } from "#app/utils/user-validation.ts";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle & SEOHandle = {
+export const handle: BreadcrumbHandle = {
   breadcrumb: <Icon name="dots-horizontal">Password</Icon>,
-  getSitemapEntries: () => null,
 };
 
 const CreatePasswordForm = PasswordAndConfirmPasswordSchema;

@@ -24,12 +24,7 @@ import {
 } from "#app/utils/misc.tsx";
 import { requireUserWithRole } from "#app/utils/permissions.ts";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
-
-export const handle: SEOHandle = {
-  getSitemapEntries: () => null,
-};
 
 export async function loader({ request }: DataFunctionArgs) {
   await requireUserWithRole(request, "admin");

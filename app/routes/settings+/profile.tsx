@@ -9,15 +9,13 @@ import { prisma } from "#app/utils/db.server.ts";
 import { cn, invariantResponse } from "#app/utils/misc.tsx";
 import { useUser } from "#app/utils/user.ts";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
 
 export const BreadcrumbHandle = z.object({ breadcrumb: z.any() });
 export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>;
 
-export const handle: BreadcrumbHandle & SEOHandle = {
+export const handle: BreadcrumbHandle = {
   breadcrumb: <Icon name="file-text">Edit Profile</Icon>,
-  getSitemapEntries: () => null,
 };
 
 export async function loader({ request }: DataFunctionArgs) {

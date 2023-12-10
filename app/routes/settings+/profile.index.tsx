@@ -23,12 +23,7 @@ import { NameSchema, UsernameSchema } from "#app/utils/user-validation.ts";
 
 import { twoFAVerificationType } from "./profile.two-factor.tsx";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
-
-export const handle: SEOHandle = {
-  getSitemapEntries: () => null,
-};
 
 const ProfileFormSchema = z.object({
   name: NameSchema.optional(),

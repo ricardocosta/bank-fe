@@ -22,15 +22,13 @@ import { redirectWithToast } from "#app/utils/toast.server.ts";
 import { EmailSchema } from "#app/utils/user-validation.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
 import type { VerifyFunctionArgs } from "#app/routes/_auth+/verify.tsx";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle & SEOHandle = {
+export const handle: BreadcrumbHandle = {
   breadcrumb: <Icon name="envelope-closed">Change Email</Icon>,
-  getSitemapEntries: () => null,
 };
 
 export const newEmailAddressSessionKey = "new-email-address";

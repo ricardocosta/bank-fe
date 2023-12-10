@@ -12,12 +12,7 @@ import { generateTOTP } from "#app/utils/totp.server.ts";
 import { twoFAVerificationType } from "./profile.two-factor.tsx";
 import { twoFAVerifyVerificationType } from "./profile.two-factor.verify.tsx";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
-
-export const handle: SEOHandle = {
-  getSitemapEntries: () => null,
-};
 
 export async function loader({ request }: DataFunctionArgs) {
   const userId = await requireUserId(request);

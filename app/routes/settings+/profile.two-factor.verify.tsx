@@ -24,14 +24,12 @@ import { getTOTPAuthUri } from "#app/utils/totp.server.ts";
 
 import { twoFAVerificationType } from "./profile.two-factor.tsx";
 
-import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import type { DataFunctionArgs } from "@remix-run/node";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle & SEOHandle = {
+export const handle: BreadcrumbHandle = {
   breadcrumb: <Icon name="check">Verify</Icon>,
-  getSitemapEntries: () => null,
 };
 
 const CancelSchema = z.object({ intent: z.literal("cancel") });
