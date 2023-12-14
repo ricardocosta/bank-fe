@@ -1,10 +1,11 @@
+import { invariantResponse } from "@epic-web/invariant";
 import { json } from "@remix-run/node";
 import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { prisma } from "#app/utils/db.server.ts";
-import { cn, getUserImgSrc, invariantResponse } from "#app/utils/misc.tsx";
+import { cn, getUserImgSrc } from "#app/utils/misc.tsx";
 import { useOptionalUser } from "#app/utils/user.ts";
 
 import type { DataFunctionArgs } from "@remix-run/node";
