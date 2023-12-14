@@ -1,5 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { invariant } from "@epic-web/invariant";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 
@@ -8,7 +9,7 @@ import { ErrorList, Field } from "#app/components/forms.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { requireAnonymous, resetUserPassword } from "#app/utils/auth.server.ts";
 import { prisma } from "#app/utils/db.server.ts";
-import { invariant, useIsPending } from "#app/utils/misc.tsx";
+import { useIsPending } from "#app/utils/misc.tsx";
 import { PasswordAndConfirmPasswordSchema } from "#app/utils/user-validation.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
 

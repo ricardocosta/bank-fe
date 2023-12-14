@@ -1,6 +1,5 @@
+import { invariant } from "@epic-web/invariant";
 import { useRouteLoaderData } from "@remix-run/react";
-
-import { invariant } from "./misc.tsx";
 
 import type { loader as rootLoader } from "#app/root.tsx";
 
