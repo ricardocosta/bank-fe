@@ -26,7 +26,6 @@ export const { getHints } = hintsUtils;
  */
 export function useHints() {
   const requestInfo = useRequestInfo();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return requestInfo.hints;
 }
 
