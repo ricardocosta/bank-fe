@@ -139,6 +139,7 @@ export async function loader({ request }: DataFunctionArgs) {
     {
       user,
       requestInfo: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         hints: getHints(request),
         origin: getDomainUrl(request),
         path: new URL(request.url).pathname,
@@ -231,9 +232,11 @@ function App() {
   const data = useLoaderData<typeof loader>();
   const nonce = useNonce();
   const user = useOptionalUser();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const theme = useTheme();
 
   return (
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     <Document env={data.ENV} nonce={nonce} theme={theme}>
       <div className="flex h-screen flex-col justify-between">
         <header className="container py-6">
@@ -347,12 +350,15 @@ function UserDropdown() {
  * has not set a preference.
  */
 export function useTheme() {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const hints = useHints();
   const requestInfo = useRequestInfo();
   const optimisticMode = useOptimisticThemeMode();
   if (optimisticMode) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
     return optimisticMode === "system" ? hints.theme : optimisticMode;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
   return requestInfo.userPrefs.theme ?? hints.theme;
 }
 
