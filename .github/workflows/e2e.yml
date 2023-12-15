@@ -5,7 +5,7 @@ on:
     branches:
       - main
   pull_request:
-    types: [labeled]
+    types: [opened, reopened, synchronize, ready_for_review, labeled]
 
 env:
   node_version: 20
@@ -21,7 +21,9 @@ permissions:
 jobs:
   e2e:
     name: 🎭 Playwright
-    if: ${{ github.event.label.name == 'e2e' }}
+    if:
+      ${{ github.event.label.name == 'e2e' ||
+      contains(github.event.pull_request.labels.*.name, 'e2e')  }}
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -61,14 +63,17 @@ jobs:
       - name: 📥 Install Playwright Browsers
         run: pnpm run test:e2e:install
 
+      - name: 🔄 Generate Prisma client
+        run: pnpm run prisma:generate
+
       - name: 🛠 Setup Database
-        run: pnpx prisma migrate deploy
+        run: pnpm run prisma:migrate
 
       - name: 🏦 Cache Database
         id: db-cache
         uses: actions/cache@v3
         with:
-          path: prisma/data.db
+          path: ./data/data.db
           key:
             db-cache-schema_${{ hashFiles('./prisma/schema.prisma')
             }}-migrations_${{ hashFiles('./prisma/migrations/*/migration.sql')
@@ -76,7 +81,7 @@ jobs:
 
       - name: 🌱 Seed Database
         if: steps.db-cache.outputs.cache-hit != 'true'
-        run: pnpx prisma db seed
+        run: pnpm run prisma:seed
         env:
           MINIMAL_SEED: true
 
@@ -84,7 +89,7 @@ jobs:
         run: pnpm run build
 
       - name: 🎭 Playwright tests
-        run: pnpx playwright test
+        run: pnpm run test:e2e:run
 
       - name: 📊 Upload report
         uses: actions/upload-artifact@v3
