@@ -12,7 +12,7 @@ import { prisma } from "#app/utils/db/db.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
 import { PasswordAndConfirmPasswordSchema } from "#app/utils/user-validation.ts";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
 
@@ -32,13 +32,13 @@ async function requireNoPassword(userId: string) {
   }
 }
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   await requireNoPassword(userId);
   return json({});
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   await requireNoPassword(userId);
   const formData = await request.formData();

@@ -22,7 +22,11 @@ import { redirectWithToast } from "#app/utils/toast.server.ts";
 import { PasswordSchema, UsernameSchema } from "#app/utils/user-validation.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
 
-import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 
 import type { VerifyFunctionArgs } from "./verify.tsx";
 
@@ -124,12 +128,12 @@ const LoginFormSchema = z.object({
   remember: z.boolean().default(false),
 });
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   await requireAnonymous(request);
   return json({});
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   await requireAnonymous(request);
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);

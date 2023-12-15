@@ -21,7 +21,7 @@ import { handleVerification as handleOnboardingVerification } from "./onboarding
 import { handleVerification as handleResetPasswordVerification } from "./reset-password.tsx";
 
 import type { Submission } from "@conform-to/react";
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 
 export const codeQueryParam = "code";
 export const targetQueryParam = "target";
@@ -38,7 +38,7 @@ const VerifySchema = z.object({
   [redirectToQueryParam]: z.string().optional(),
 });
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   checkHoneypot(formData);
   await validateCSRF(formData, request.headers);

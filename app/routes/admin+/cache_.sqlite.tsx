@@ -3,9 +3,9 @@ import { z } from "zod";
 
 import { cache } from "#app/utils/cache.server.ts";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const token = process.env.INTERNAL_COMMAND_TOKEN;
   const isAuthorized =
     request.headers.get("Authorization") === `Bearer ${token}`;

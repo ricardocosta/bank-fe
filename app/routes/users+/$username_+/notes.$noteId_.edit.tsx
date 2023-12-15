@@ -7,11 +7,11 @@ import { prisma } from "#app/utils/db/db.server.ts";
 
 import { action, NoteEditor } from "./__note-editor.tsx";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
 export { action };
 
-export async function loader({ params, request }: DataFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const note = await prisma.note.findFirst({
     select: {

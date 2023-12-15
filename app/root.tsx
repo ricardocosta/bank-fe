@@ -51,9 +51,10 @@ import { getToast } from "./utils/toast.server.ts";
 import { useOptionalUser, useUser } from "./utils/user.ts";
 
 import type {
-  DataFunctionArgs,
+  ActionFunctionArgs,
   HeadersFunction,
   LinksFunction,
+  LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
 
@@ -94,7 +95,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const timings = makeTimings("root loader");
   const userId = await time(() => getUserId(request), {
     timings,
@@ -172,7 +173,7 @@ const ThemeFormSchema = z.object({
   theme: z.enum(["system", "light", "dark"]),
 });
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const submission = parse(formData, {
     schema: ThemeFormSchema,

@@ -8,7 +8,7 @@ import { SearchBar } from "#app/components/search-bar.tsx";
 import { prisma } from "#app/utils/db/db.server";
 import { cn, getUserImgSrc, useDelayedIsPending } from "#app/utils/misc.tsx";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
 const UserSearchResultSchema = z.object({
   id: z.string(),
@@ -19,7 +19,7 @@ const UserSearchResultSchema = z.object({
 
 const UserSearchResultsSchema = z.array(UserSearchResultSchema);
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const searchTerm = new URL(request.url).searchParams.get("search");
   if (searchTerm === "") {
     return redirect("/users");

@@ -21,9 +21,9 @@ import {
 import { useDebounce, useDoubleCheck } from "#app/utils/misc.tsx";
 import { requireUserWithRole } from "#app/utils/permissions.ts";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   await requireUserWithRole(request, "admin");
   const searchParams = new URL(request.url).searchParams;
   const query = searchParams.get("query");
@@ -42,7 +42,7 @@ export async function loader({ request }: DataFunctionArgs) {
   return json({ cacheKeys });
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   await requireUserWithRole(request, "admin");
   const formData = await request.formData();
   const key = formData.get("cacheKey");

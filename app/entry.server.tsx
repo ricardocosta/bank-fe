@@ -10,8 +10,8 @@ import { NonceProvider } from "./utils/nonce-provider.ts";
 import { makeTimings } from "./utils/timing.server.ts";
 
 import type {
-  DataFunctionArgs,
   HandleDocumentRequestFunction,
+  LoaderFunctionArgs,
 } from "@remix-run/node";
 
 const ABORT_DELAY = 5000;
@@ -76,7 +76,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
 
 export function handleError(
   error: unknown,
-  { request }: DataFunctionArgs,
+  { request }: LoaderFunctionArgs,
 ): void {
   console.error(error, request);
 }
