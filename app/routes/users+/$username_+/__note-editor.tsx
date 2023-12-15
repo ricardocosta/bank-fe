@@ -28,7 +28,7 @@ import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { Textarea } from "#app/components/ui/textarea.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
 import { validateCSRF } from "#app/utils/csrf.server.ts";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server";
 import { cn, getNoteImgSrc } from "#app/utils/misc.tsx";
 
 import type { FieldConfig } from "@conform-to/react";

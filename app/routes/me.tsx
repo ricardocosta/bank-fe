@@ -1,7 +1,7 @@
 import { redirect } from "@remix-run/node";
 
 import { logout, requireUserId } from "#app/utils/auth.server.ts";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server";
 
 import type { DataFunctionArgs } from "@remix-run/node";
 

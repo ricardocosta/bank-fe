@@ -7,7 +7,7 @@ import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { requireRecentVerification } from "#app/routes/_auth+/verify.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
 import { validateCSRF } from "#app/utils/csrf.server.ts";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server.ts";
 import { useDoubleCheck } from "#app/utils/misc.tsx";
 import { redirectWithToast } from "#app/utils/toast.server.ts";
 

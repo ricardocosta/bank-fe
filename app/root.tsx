@@ -39,7 +39,7 @@ import tailwindStyleSheetUrl from "./styles/tailwind.css";
 import { getUserId, logout } from "./utils/auth.server.ts";
 import { ClientHintCheck, getHints, useHints } from "./utils/client-hints.tsx";
 import { csrf } from "./utils/csrf.server.ts";
-import { prisma } from "./utils/db.server.ts";
+import { prisma } from "./utils/db/db.server.ts";
 import { getEnv } from "./utils/env.server.ts";
 import { honeypot } from "./utils/honeypot.server.ts";
 import { combineHeaders, getDomainUrl, getUserImgSrc } from "./utils/misc.tsx";

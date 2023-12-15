@@ -2,7 +2,7 @@ import fs from "fs";
 
 import { faker } from "@faker-js/faker";
 
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server";
 
 import { expect, test } from "#tests/playwright-utils.ts";
 

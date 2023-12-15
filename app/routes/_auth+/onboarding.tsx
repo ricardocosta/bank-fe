@@ -22,7 +22,7 @@ import {
   signup,
 } from "#app/utils/auth.server.ts";
 import { validateCSRF } from "#app/utils/csrf.server.ts";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
 import { authSessionStorage } from "#app/utils/session.server.ts";

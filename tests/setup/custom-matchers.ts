@@ -1,7 +1,7 @@
 import * as setCookieParser from "set-cookie-parser";
 
 import { sessionKey } from "#app/utils/auth.server.ts";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server";
 import { authSessionStorage } from "#app/utils/session.server.ts";
 import { toastKey, toastSessionStorage } from "#app/utils/toast.server.ts";
 
