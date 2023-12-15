@@ -19,13 +19,13 @@ import { EmailSchema } from "#app/utils/user-validation.ts";
 
 import { prepareVerification } from "./verify.tsx";
 
-import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
+import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 
 const SignupSchema = z.object({
   email: EmailSchema,
 });
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
   await validateCSRF(formData, request.headers);

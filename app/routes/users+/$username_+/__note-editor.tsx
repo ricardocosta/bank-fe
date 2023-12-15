@@ -33,7 +33,7 @@ import { cn, getNoteImgSrc } from "#app/utils/misc.tsx";
 
 import type { FieldConfig } from "@conform-to/react";
 import type { Note, NoteImage } from "@prisma/client";
-import type { DataFunctionArgs, SerializeFrom } from "@remix-run/node";
+import type { ActionFunctionArgs, SerializeFrom } from "@remix-run/node";
 
 const titleMinLength = 1;
 const titleMaxLength = 100;
@@ -74,7 +74,7 @@ const NoteEditorSchema = z.object({
   images: z.array(ImageFieldsetSchema).max(5).optional(),
 });
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
 
   const formData = await parseMultipartFormData(

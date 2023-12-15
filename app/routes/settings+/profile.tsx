@@ -10,7 +10,7 @@ import { prisma } from "#app/utils/db/db.server";
 import { cn } from "#app/utils/misc.tsx";
 import { useUser } from "#app/utils/user.ts";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
 export const BreadcrumbHandle = z.object({ breadcrumb: z.any() });
 export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>;
@@ -19,7 +19,7 @@ export const handle: BreadcrumbHandle = {
   breadcrumb: <Icon name="file-text">Edit Profile</Icon>,
 };
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const user = await prisma.user.findUnique({
     where: { id: userId },

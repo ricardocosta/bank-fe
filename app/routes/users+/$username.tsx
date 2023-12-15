@@ -10,10 +10,10 @@ import { prisma } from "#app/utils/db/db.server";
 import { getUserImgSrc } from "#app/utils/misc.tsx";
 import { useOptionalUser } from "#app/utils/user.ts";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import type { MetaFunction } from "@remix-run/react";
 
-export async function loader({ params }: DataFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const user = await prisma.user.findFirst({
     select: {
       id: true,

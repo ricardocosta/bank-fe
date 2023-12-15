@@ -20,7 +20,7 @@ import { useIsPending } from "#app/utils/misc.tsx";
 import { redirectWithToast } from "#app/utils/toast.server.ts";
 import { PasswordSchema } from "#app/utils/user-validation.ts";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
 
@@ -54,13 +54,13 @@ async function requirePassword(userId: string) {
   }
 }
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   await requirePassword(userId);
   return json({});
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   await requirePassword(userId);
   const formData = await request.formData();

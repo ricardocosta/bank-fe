@@ -34,7 +34,11 @@ import {
 } from "#app/utils/user-validation.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
 
-import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 
 import type { VerifyFunctionArgs } from "./verify.tsx";
 
@@ -64,12 +68,12 @@ async function requireOnboardingEmail(request: Request) {
   }
   return email;
 }
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const email = await requireOnboardingEmail(request);
   return json({ email });
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const email = await requireOnboardingEmail(request);
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);

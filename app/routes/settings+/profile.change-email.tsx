@@ -20,7 +20,7 @@ import { redirectWithToast } from "#app/utils/toast.server.ts";
 import { EmailSchema } from "#app/utils/user-validation.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
 
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import type { VerifyFunctionArgs } from "#app/routes/_auth+/verify.tsx";
 
 import type { BreadcrumbHandle } from "./profile.tsx";
@@ -82,7 +82,7 @@ const ChangeEmailSchema = z.object({
   email: EmailSchema,
 });
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -95,7 +95,7 @@ export async function loader({ request }: DataFunctionArgs) {
   return json({ user });
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);
