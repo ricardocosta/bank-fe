@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Spacer } from "#app/components/spacer.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server";
 import { cn } from "#app/utils/misc.tsx";
 import { useUser } from "#app/utils/user.ts";
 

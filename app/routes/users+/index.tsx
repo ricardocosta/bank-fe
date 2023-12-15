@@ -5,7 +5,7 @@ import { z } from "zod";
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { ErrorList } from "#app/components/forms.tsx";
 import { SearchBar } from "#app/components/search-bar.tsx";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server";
 import { cn, getUserImgSrc, useDelayedIsPending } from "#app/utils/misc.tsx";
 
 import type { DataFunctionArgs } from "@remix-run/node";

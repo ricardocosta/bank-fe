@@ -15,7 +15,7 @@ import {
   verifyUserPassword,
 } from "#app/utils/auth.server.ts";
 import { validateCSRF } from "#app/utils/csrf.server.ts";
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
 import { redirectWithToast } from "#app/utils/toast.server.ts";
 import { PasswordSchema } from "#app/utils/user-validation.ts";

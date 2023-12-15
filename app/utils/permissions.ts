@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node";
 
 import { requireUserId } from "./auth.server.ts";
-import { prisma } from "./db.server.ts";
+import { prisma } from "./db/db.server.ts";
 
 import type { useUser } from "./user.ts";
 

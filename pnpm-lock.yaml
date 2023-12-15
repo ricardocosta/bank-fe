@@ -8913,7 +8913,7 @@ packages:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 6.0.0
       parse-json: 7.1.1
-      type-fest: 4.8.2
+      type-fest: 4.8.3
     dev: true
 
   /readable-stream@2.3.8:
@@ -9095,7 +9095,7 @@ packages:
       crypto-js: 4.2.0
       intl-parse-accept-language: 1.0.0
       react: 18.2.0
-      type-fest: 4.8.2
+      type-fest: 4.8.3
       zod: 3.22.4
     dev: false
 
@@ -10132,8 +10132,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /type-fest@4.8.2:
-    resolution: {integrity: sha512-mcvrCjixA5166hSrUoJgGb9gBQN4loMYyj9zxuMs/66ibHNEFd5JXMw37YVDx58L4/QID9jIzdTBB4mDwDJ6KQ==}
+  /type-fest@4.8.3:
+    resolution: {integrity: sha512-//BaTm14Q/gHBn09xlnKNqfI8t6bmdzx2DXYfPBNofN0WUybCEUDcbCWcTa0oF09lzLjZgPphXAsvRiMK0V6Bw==}
     engines: {node: '>=16'}
 
   /type-is@1.6.18:

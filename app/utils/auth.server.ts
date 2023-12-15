@@ -2,7 +2,7 @@ import { redirect } from "@remix-run/node";
 import { default as bcrypt } from "bcryptjs";
 import { safeRedirect } from "remix-utils/safe-redirect";
 
-import { prisma } from "./db.server.ts";
+import { prisma } from "./db/db.server.ts";
 import { combineHeaders } from "./misc.tsx";
 import { authSessionStorage } from "./session.server.ts";
 

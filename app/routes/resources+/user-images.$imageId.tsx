@@ -1,6 +1,6 @@
 import { invariantResponse } from "@epic-web/invariant";
 
-import { prisma } from "#app/utils/db.server.ts";
+import { prisma } from "#app/utils/db/db.server";
 
 import type { DataFunctionArgs } from "@remix-run/node";
 
