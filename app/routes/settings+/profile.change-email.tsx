@@ -10,10 +10,7 @@ import { z } from "zod";
 import { ErrorList, Field } from "#app/components/forms.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
-import {
-  prepareVerification,
-  requireRecentVerification,
-} from "#app/routes/_auth+/verify.tsx";
+import { prepareVerification } from "#app/routes/_auth+/verify.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
 import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
@@ -38,7 +35,6 @@ export async function handleVerification({
   request,
   submission,
 }: VerifyFunctionArgs) {
-  await requireRecentVerification(request);
   invariant(submission.value, "submission.value should be defined by now");
 
   const verifySession = await verifySessionStorage.getSession(
@@ -87,7 +83,6 @@ const ChangeEmailSchema = z.object({
 });
 
 export async function loader({ request }: DataFunctionArgs) {
-  await requireRecentVerification(request);
   const userId = await requireUserId(request);
   const user = await prisma.user.findUnique({
     where: { id: userId },
