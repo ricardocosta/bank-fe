@@ -176,7 +176,7 @@
     "remix-flat-routes": "^0.6.2",
     "tsx": "^4.5.0",
     "typescript": "^5.2.2",
-    "vite": "^5.0.5",
+    "vite": "^5.0.10",
     "vitest": "^0.34.6"
   },
   "prisma": {
