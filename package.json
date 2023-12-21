@@ -161,7 +161,7 @@
     "eslint-plugin-remix-react-routes": "^1.0.5",
     "eslint-plugin-tailwindcss": "^3.13.0",
     "eslint-plugin-testing-library": "^6.2.0",
-    "eslint-plugin-vitest": "^0.3.10",
+    "eslint-plugin-vitest": "^0.3.18",
     "fs-extra": "^11.2.0",
     "husky": "^8.0.3",
     "jsdom": "^23.0.1",
