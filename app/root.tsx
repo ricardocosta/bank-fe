@@ -1,28 +1,26 @@
-import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { json } from "@remix-run/node";
 import {
   Form,
   Link,
-  Links,
-  LiveReload,
-  Meta,
   Outlet,
-  Scripts,
-  ScrollRestoration,
   useFetcher,
-  useFetchers,
   useLoaderData,
   useSubmit,
 } from "@remix-run/react";
 import { useRef } from "react";
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
-import { z } from "zod";
+
+import { Flex, Inline, Stack } from "#app/components/ui/layout";
+import { Document } from "#app/layout/document.tsx";
+import { ThemeFormSchema } from "#app/theme/schema.ts";
+import { ThemeSwitch } from "#app/theme/theme-switch.tsx";
+import { getTheme, setTheme } from "#app/theme/theme.server.ts";
+import { useTheme } from "#app/theme/useTheme.ts";
 
 import { GeneralErrorBoundary } from "./components/error-boundary.tsx";
-import { ErrorList } from "./components/forms.tsx";
 import { EpicProgress } from "./components/progress-bar.tsx";
 import { EpicToaster } from "./components/toaster.tsx";
 import { Button } from "./components/ui/button.tsx";
@@ -37,15 +35,13 @@ import { Icon, href as iconsHref } from "./components/ui/icon.tsx";
 import fontStyleSheetUrl from "./styles/font.css";
 import tailwindStyleSheetUrl from "./styles/tailwind.css";
 import { getUserId, logout } from "./utils/auth.server.ts";
-import { ClientHintCheck, getHints, useHints } from "./utils/client-hints.tsx";
+import { getHints } from "./utils/client-hints.tsx";
 import { csrf } from "./utils/csrf.server.ts";
 import { prisma } from "./utils/db/db.server.ts";
 import { getEnv } from "./utils/env.server.ts";
 import { honeypot } from "./utils/honeypot.server.ts";
 import { combineHeaders, getDomainUrl, getUserImgSrc } from "./utils/misc.tsx";
 import { useNonce } from "./utils/nonce-provider.ts";
-import { useRequestInfo } from "./utils/request-info.ts";
-import { getTheme, setTheme } from "./utils/theme.server.ts";
 import { makeTimings, time } from "./utils/timing.server.ts";
 import { getToast } from "./utils/toast.server.ts";
 import { useOptionalUser, useUser } from "./utils/user.ts";
@@ -57,8 +53,6 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-
-import type { Theme } from "./utils/theme.server.ts";
 
 export const links: LinksFunction = () => {
   return [
@@ -169,10 +163,6 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
   return headers;
 };
 
-const ThemeFormSchema = z.object({
-  theme: z.enum(["system", "light", "dark"]),
-});
-
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const submission = parse(formData, {
@@ -192,77 +182,64 @@ export async function action({ request }: ActionFunctionArgs) {
   return json({ success: true, submission }, responseInit);
 }
 
-function Document({
-  children,
-  nonce,
-  theme = "light",
-  env = {},
-}: {
-  children: React.ReactNode;
-  nonce: string;
-  theme?: Theme;
-  env?: Record<string, string>;
-}) {
-  return (
-    <html className={`${theme} h-full overflow-x-hidden`} lang="en">
-      <head>
-        <ClientHintCheck nonce={nonce} />
-        <Meta />
-        <meta charSet="utf-8" />
-        <meta content="width=device-width,initial-scale=1" name="viewport" />
-        <Links />
-      </head>
-      <body className="bg-background text-foreground">
-        {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(env)}`,
-          }}
-          nonce={nonce}
-        />
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
-        <LiveReload nonce={nonce} />
-      </body>
-    </html>
-  );
-}
-
 function App() {
   const data = useLoaderData<typeof loader>();
   const nonce = useNonce();
   const user = useOptionalUser();
   const theme = useTheme();
+  const fetcher = useFetcher<typeof action>();
 
   return (
     <Document env={data.ENV} nonce={nonce} theme={theme}>
-      <div className="flex h-screen flex-col justify-between">
-        <header className="container py-6">
-          <nav>
-            <div className="flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
-              <Link to="/">
-                <p>Logo</p>
-              </Link>
-              <div className="flex items-center gap-10">
-                <ThemeSwitch
-                  userPreference={data.requestInfo.userPrefs.theme}
-                />
-                {user ? (
-                  <UserDropdown />
-                ) : (
+      <Stack className="h-screen" gap="none">
+        {user ? (
+          <Inline className="h-screen w-full" gap="none">
+            <Stack as="nav" className="h-full max-w-[224px]" justify="between">
+              <Stack as="header" className="w-full" grow={0} wrap="nowrap">
+                <Inline className="w-full" justify="between">
+                  <Link to="/">
+                    <p>Logo</p>
+                  </Link>
+                  <ThemeSwitch
+                    fetcher={fetcher}
+                    userPreference={data.requestInfo.userPrefs.theme}
+                  />
+                </Inline>
+                <Stack>
                   <Button asChild size="sm" variant="default">
-                    <Link to="/login">Log In</Link>
+                    <Link to="/dashboard">Dashboard</Link>
                   </Button>
-                )}
-              </div>
-            </div>
-          </nav>
-        </header>
+                </Stack>
+              </Stack>
+              <UserDropdown />
+            </Stack>
+            <Flex className="h-screen w-full overflow-auto" gap="none">
+              <Outlet />
+            </Flex>
+          </Inline>
+        ) : (
+          <Stack align="center" className="w-full" gap="none">
+            <header className="container py-6">
+              <Flex
+                align="center"
+                as="nav"
+                gap="xlarge"
+                justify="between"
+                wrap="wrap"
+              >
+                <Link to="/">
+                  <p>Logo</p>
+                </Link>
 
-        <div className="flex flex-1">
-          <Outlet />
-        </div>
-      </div>
+                <Button asChild size="sm" variant="default">
+                  <Link to="/login">Log In</Link>
+                </Button>
+              </Flex>
+            </header>
+            <Outlet />
+          </Stack>
+        )}
+      </Stack>
       <EpicToaster toast={data.toast} />
       <EpicProgress />
     </Document>
@@ -340,82 +317,6 @@ function UserDropdown() {
         </DropdownMenuContent>
       </DropdownMenuPortal>
     </DropdownMenu>
-  );
-}
-
-/**
- * @returns the user's theme preference, or the client hint theme if the user
- * has not set a preference.
- */
-export function useTheme() {
-  const hints = useHints();
-  const requestInfo = useRequestInfo();
-  const optimisticMode = useOptimisticThemeMode();
-  if (optimisticMode) {
-    return optimisticMode === "system" ? hints.theme : optimisticMode;
-  }
-  return requestInfo.userPrefs.theme ?? hints.theme;
-}
-
-/**
- * If the user's changing their theme mode preference, this will return the
- * value it's being changed to.
- */
-export function useOptimisticThemeMode() {
-  const fetchers = useFetchers();
-  const themeFetcher = fetchers.find((f) => f.formAction === "/");
-
-  if (themeFetcher && themeFetcher.formData) {
-    const submission = parse(themeFetcher.formData, {
-      schema: ThemeFormSchema,
-    });
-    return submission.value?.theme;
-  }
-}
-
-function ThemeSwitch({ userPreference }: { userPreference?: Theme | null }) {
-  const fetcher = useFetcher<typeof action>();
-
-  const [form] = useForm({
-    id: "theme-switch",
-    lastSubmission: fetcher.data?.submission,
-  });
-
-  const optimisticMode = useOptimisticThemeMode();
-  const mode = optimisticMode ?? userPreference ?? "system";
-  const nextMode =
-    mode === "system" ? "light" : mode === "light" ? "dark" : "system";
-  const modeLabel = {
-    light: (
-      <Icon name="sun">
-        <span className="sr-only">Light</span>
-      </Icon>
-    ),
-    dark: (
-      <Icon name="moon">
-        <span className="sr-only">Dark</span>
-      </Icon>
-    ),
-    system: (
-      <Icon name="laptop">
-        <span className="sr-only">System</span>
-      </Icon>
-    ),
-  };
-
-  return (
-    <fetcher.Form method="POST" {...form.props}>
-      <input name="theme" type="hidden" value={nextMode} />
-      <div className="flex gap-2">
-        <button
-          className="flex h-8 w-8 cursor-pointer items-center justify-center"
-          type="submit"
-        >
-          {modeLabel[mode]}
-        </button>
-      </div>
-      <ErrorList errors={form.errors} id={form.errorId} />
-    </fetcher.Form>
   );
 }
 

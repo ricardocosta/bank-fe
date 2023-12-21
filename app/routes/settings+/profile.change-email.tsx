@@ -21,6 +21,7 @@ import { EmailSchema } from "#app/utils/user-validation.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+
 import type { VerifyFunctionArgs } from "#app/routes/_auth+/verify.tsx";
 
 import type { BreadcrumbHandle } from "./profile.tsx";

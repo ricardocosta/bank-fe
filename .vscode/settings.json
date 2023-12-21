@@ -18,6 +18,7 @@
     "console",
     "node:console"
   ],
+  "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.tsdk": "node_modules/typescript/lib",
   "workbench.editorAssociations": {
     "*.db": "sqlite-viewer.view"
