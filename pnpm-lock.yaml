@@ -368,8 +368,8 @@ devDependencies:
     specifier: ^0.5.9
     version: 0.5.9(@ianvs/prettier-plugin-sort-imports@4.1.1)(prettier@3.1.0)
   remix-flat-routes:
-    specifier: ^0.6.2
-    version: 0.6.2(@remix-run/dev@2.4.0)
+    specifier: ^0.6.4
+    version: 0.6.4(@remix-run/dev@2.4.0)
   tsx:
     specifier: ^4.5.0
     version: 4.6.2
@@ -9101,8 +9101,8 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /remix-flat-routes@0.6.2(@remix-run/dev@2.4.0):
-    resolution: {integrity: sha512-TiwRSjBFcX1snHDg7wpV+/nbTf4DILBfzTiC5useN/SymKBL876hds3eZln4Y22fuqjfWCnqf2bvWUrmT2ZoFQ==}
+  /remix-flat-routes@0.6.4(@remix-run/dev@2.4.0):
+    resolution: {integrity: sha512-/0bTfaNSd2O3ak+cCLAlmHIsgm7YWiaBiu5ENUyuSWSNwF/KaHuKFhcHHhozPevQ8ROgCZG9tNbWzH6ktJoprA==}
     hasBin: true
     peerDependencies:
       '@remix-run/dev': ^1.15.0 || ^2
