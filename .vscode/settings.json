@@ -1,5 +1,9 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
   "typescript.preferences.autoImportFileExcludePatterns": [
     "@remix-run/server-runtime",
     "@remix-run/router",
@@ -14,6 +18,7 @@
     "console",
     "node:console"
   ],
+  "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.tsdk": "node_modules/typescript/lib",
   "workbench.editorAssociations": {
     "*.db": "sqlite-viewer.view"
