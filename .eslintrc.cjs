@@ -130,6 +130,9 @@ module.exports = {
         "vitest/prefer-expect-resolves": "off",
         // Don't tell me how many assertions I need
         "vitest/max-expects": "off",
+        "vitest/prefer-expect-assertions": "off",
+        // And don't force me to use something that doesn't exist
+        "vitest/prefer-called-exactly-once-with": "off",
         "testing-library/no-debugging-utils": "error",
         "testing-library/prefer-explicit-assert": "error",
         "testing-library/prefer-user-event": "error",
