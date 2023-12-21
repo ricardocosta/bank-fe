@@ -15,7 +15,6 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       include: ["app/**/*.{ts,tsx}"],
-      all: true,
       reporter: [
         // Save to a text file so that we can use it in Github action summary
         ["text", { file: "coverage.txt" }],

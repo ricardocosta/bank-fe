@@ -9,7 +9,7 @@ import { cleanup } from "@testing-library/react";
 
 import { server } from "#tests/mocks/index.ts";
 
-import type { SpyInstance } from "vitest";
+import type { MockInstance } from "vitest";
 
 import "./custom-matchers.ts";
 
@@ -18,7 +18,7 @@ installGlobals();
 afterEach(() => server.resetHandlers());
 afterEach(() => cleanup());
 
-export let consoleError: SpyInstance<Parameters<(typeof console)["error"]>>;
+export let consoleError: MockInstance<Parameters<(typeof console)["error"]>>;
 
 beforeEach(() => {
   const originalConsoleError = console.error;
