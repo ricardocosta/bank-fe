@@ -10,7 +10,7 @@
     /* prefixed with foreground because it should look good on the background */
     --foreground-destructive: 345 82.7% 40.8%;
 
-    --background: 0 0% 100%;
+    --background: theme("colors.zinc.100");
     --foreground: 222.2 84% 4.9%;
 
     --muted: 210 40% 93%;
@@ -44,7 +44,7 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: theme("colors.zinc.900");
     --foreground: 210 40% 98%;
 
     /* prefixed with foreground because it should look good on the background */

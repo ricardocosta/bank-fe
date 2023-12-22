@@ -355,6 +355,9 @@ devDependencies:
   npm-run-all2:
     specifier: ^6.1.1
     version: 6.1.1
+  postcss-color-converter:
+    specifier: ^1.1.0
+    version: 1.1.0(postcss@8.4.32)
   prettier:
     specifier: ^3.1.0
     version: 3.1.0
@@ -6584,6 +6587,11 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
+  /is-url-superb@4.0.0:
+    resolution: {integrity: sha512-GI+WjezhPPcbM+tqE9LnmsY5qqjwHzTvjJ36wxYX5ujNXefSUJ/T17r5bqDV8yLhcgB59KTPNOc9O9cmHTPWsA==}
+    engines: {node: '>=10'}
+    dev: true
+
   /is-weakmap@2.0.1:
     resolution: {integrity: sha512-NSBR4kH5oVj1Uwvv970ruUkCV7O1mzgVFO4/rev2cLRda9Tm9HrL70ZPut4rOHgY0FNrUu9BCbXA2sdQ+x0chA==}
     dev: true
@@ -8363,6 +8371,18 @@ packages:
       fsevents: 2.3.2
     dev: true
 
+  /postcss-color-converter@1.1.0(postcss@8.4.32):
+    resolution: {integrity: sha512-y6NQOg3nJgG0h0JCmh9O0HB9jYlACIqkbd9WrVB6KhsHfKZmqJHHCfN9j8SUTtqUjNut/AWA11aI91sA7IdzPw==}
+    engines: {node: '>=8.3.0'}
+    peerDependencies:
+      postcss: ^8.0.0
+    dependencies:
+      color-convert: 2.0.1
+      color-name: 1.1.4
+      postcss: 8.4.32
+      postcss-values-parser: 5.0.0(postcss@8.4.32)
+    dev: true
+
   /postcss-discard-duplicates@5.1.0(postcss@8.4.32):
     resolution: {integrity: sha512-zmX3IoSI2aoenxHV6C7plngHWWhUOV3sP1T8y2ifzxzbtnuhk1EdPwm0S1bIUNaJ2eNbWeGLEwzw8huPD67aQw==}
     engines: {node: ^10 || ^12 || >=14.0}
@@ -8483,6 +8503,18 @@ packages:
 
   /postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
+
+  /postcss-values-parser@5.0.0(postcss@8.4.32):
+    resolution: {integrity: sha512-2viDDjMMrt21W2izbeiJxl3kFuD/+asgB0CBwPEgSyhCmBnDIa/y+pLaoyX+q3I3DHH0oPPL3cgjVTQvlS1Maw==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      postcss: ^8.0.9
+    dependencies:
+      color-name: 1.1.4
+      is-url-superb: 4.0.0
+      postcss: 8.4.32
+      quote-unquote: 1.0.0
+    dev: true
 
   /postcss@8.4.32:
     resolution: {integrity: sha512-D/kj5JNu6oo2EIy+XL/26JEDTlIbB8hw85G8StOE6L74RQAVVP5rej6wxCNqyMbR4RkPfqvezVbPw81Ngd6Kcw==}
@@ -8746,6 +8778,10 @@ packages:
   /quick-lru@4.0.1:
     resolution: {integrity: sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==}
     engines: {node: '>=8'}
+    dev: true
+
+  /quote-unquote@1.0.0:
+    resolution: {integrity: sha512-twwRO/ilhlG/FIgYeKGFqyHhoEhqgnKVkcmqMKi2r524gz3ZbDTcyFt38E9xjJI2vT+KbRNHVbnJ/e0I25Azwg==}
     dev: true
 
   /range-parser@1.2.1:

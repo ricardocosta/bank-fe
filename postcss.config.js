@@ -3,5 +3,8 @@ export default {
     "tailwindcss/nesting": {},
     tailwindcss: {},
     autoprefixer: {},
+    "postcss-color-converter": {
+      outputColorFormat: "hsl",
+    },
   },
 };
