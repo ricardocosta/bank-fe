@@ -1,4 +1,5 @@
 import { useForm } from "@conform-to/react";
+import { useFetcher } from "@remix-run/react";
 
 import { useOptimisticThemeMode } from "#app/theme/useOptimisticThemeMode";
 
@@ -6,20 +7,21 @@ import { ErrorList } from "../components/forms";
 import { Icon } from "../components/ui/icon";
 
 import type { Submission } from "@conform-to/react";
-import type { FetcherWithComponents } from "@remix-run/react";
 
 import type { Theme } from "#app/theme/types";
 
 export type ThemeSwitchProps = {
-  fetcher: FetcherWithComponents<{
-    submission: Submission<{
-      theme: "system" | Theme;
-    }>;
-  }>;
   userPreference?: Theme | null;
 };
 
-export const ThemeSwitch = ({ fetcher, userPreference }: ThemeSwitchProps) => {
+type ThemeSwitchFetcher = {
+  submission: Submission<{
+    theme: "system" | Theme;
+  }>;
+};
+
+export const ThemeSwitch = ({ userPreference }: ThemeSwitchProps) => {
+  const fetcher = useFetcher<ThemeSwitchFetcher>();
   const optimisticMode = useOptimisticThemeMode();
   const [form] = useForm({
     id: "theme-switch",

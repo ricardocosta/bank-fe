@@ -10,7 +10,7 @@
     /* prefixed with foreground because it should look good on the background */
     --foreground-destructive: 345 82.7% 40.8%;
 
-    --background: theme("colors.zinc.100");
+    --background: theme("colors.neutral.50");
     --foreground: 222.2 84% 4.9%;
 
     --muted: 210 40% 93%;
@@ -21,6 +21,11 @@
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
+
+    --sidebar: theme("colors.slate.600");
+    --sidebar-foreground: theme("colors.slate.300");
+    --sidebar-item: theme("colors.slate.300");
+    --sidebar-item-foreground: theme("colors.slate.200");
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
@@ -44,7 +49,7 @@
   }
 
   .dark {
-    --background: theme("colors.zinc.900");
+    --background: theme("colors.slate.900");
     --foreground: 210 40% 98%;
 
     /* prefixed with foreground because it should look good on the background */
@@ -58,6 +63,9 @@
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
+
+    --sidebar: theme("colors.slate.700");
+    --sidebar-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;

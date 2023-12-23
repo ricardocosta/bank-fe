@@ -1,22 +1,15 @@
 import { parse } from "@conform-to/zod";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { json } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  Outlet,
-  useFetcher,
-  useLoaderData,
-  useSubmit,
-} from "@remix-run/react";
+import { Form, Link, Outlet, useLoaderData, useSubmit } from "@remix-run/react";
 import { useRef } from "react";
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 
+import { Sidebar } from "#app/components/sidebar/sidebar.tsx";
 import { Flex, Inline, Stack } from "#app/components/ui/layout";
 import { Document } from "#app/layout/document.tsx";
 import { ThemeFormSchema } from "#app/theme/schema.ts";
-import { ThemeSwitch } from "#app/theme/theme-switch.tsx";
 import { getTheme, setTheme } from "#app/theme/theme.server.ts";
 import { useTheme } from "#app/theme/useTheme.ts";
 
@@ -187,32 +180,20 @@ function App() {
   const nonce = useNonce();
   const user = useOptionalUser();
   const theme = useTheme();
-  const fetcher = useFetcher<typeof action>();
 
   return (
     <Document env={data.ENV} nonce={nonce} theme={theme}>
       <Stack className="h-screen" gap="none">
         {user ? (
           <Inline className="h-screen w-full" gap="none">
-            <Stack as="nav" className="h-full max-w-[224px]" justify="between">
-              <Stack as="header" className="w-full" grow={0} wrap="nowrap">
-                <Inline className="w-full" justify="between">
-                  <Link to="/">
-                    <p>Logo</p>
-                  </Link>
-                  <ThemeSwitch
-                    fetcher={fetcher}
-                    userPreference={data.requestInfo.userPrefs.theme}
-                  />
-                </Inline>
-                <Stack>
-                  <Button asChild size="sm" variant="default">
-                    <Link to="/dashboard">Dashboard</Link>
-                  </Button>
-                </Stack>
+            <Sidebar>
+              <Stack>
+                <Button asChild size="sm" variant="default">
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
               </Stack>
               <UserDropdown />
-            </Stack>
+            </Sidebar>
             <Flex className="h-screen w-full overflow-auto" gap="none">
               <Outlet />
             </Flex>

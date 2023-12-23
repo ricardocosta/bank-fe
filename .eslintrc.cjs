@@ -98,6 +98,7 @@ module.exports = {
         "plugin:tailwindcss/recommended",
       ],
       rules: {
+        "tailwindcss/no-custom-classname": "off",
         "react/hook-use-state": "error",
         "react/jsx-fragments": "error",
         "react/jsx-no-leaked-render": "error",
