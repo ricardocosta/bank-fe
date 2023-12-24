@@ -5,7 +5,13 @@ import { Form, Link, Outlet, useLoaderData, useSubmit } from "@remix-run/react";
 import { useRef } from "react";
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
+import { namedAction } from "remix-utils/named-action";
 
+import { SidebarStateFormSchema } from "#app/components/sidebar/schema.ts";
+import {
+  getSidebarState,
+  setSidebarState,
+} from "#app/components/sidebar/sidebar.server.ts";
 import { Sidebar } from "#app/components/sidebar/sidebar.tsx";
 import { Flex, Inline, Stack } from "#app/components/ui/layout";
 import { Document } from "#app/layout/document.tsx";
@@ -132,6 +138,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         path: new URL(request.url).pathname,
         userPrefs: {
           theme: getTheme(request),
+          sidebarState: getSidebarState(request),
         },
       },
       ENV: getEnv(),
@@ -157,22 +164,50 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 };
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const submission = parse(formData, {
-    schema: ThemeFormSchema,
-  });
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
-  }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
-  }
-  const { theme } = submission.value;
+  return namedAction(request, {
+    async switchTheme() {
+      const formData = await request.formData();
+      const submission = parse(formData, {
+        schema: ThemeFormSchema,
+      });
 
-  const responseInit = {
-    headers: { "set-cookie": setTheme(theme) },
-  };
-  return json({ success: true, submission }, responseInit);
+      if (submission.intent !== "submit") {
+        return json({ status: "idle", submission } as const);
+      }
+
+      if (!submission.value) {
+        return json({ status: "error", submission } as const, { status: 400 });
+      }
+
+      const { theme } = submission.value;
+
+      const responseInit = {
+        headers: { "set-cookie": setTheme(theme) },
+      };
+      return json({ success: true, submission }, responseInit);
+    },
+    async toggleSidebar() {
+      const formData = await request.formData();
+      const submission = parse(formData, {
+        schema: SidebarStateFormSchema,
+      });
+
+      if (submission.intent !== "submit") {
+        return json({ status: "idle", submission } as const);
+      }
+
+      if (!submission.value) {
+        return json({ status: "error", submission } as const, { status: 400 });
+      }
+
+      const { sidebarState } = submission.value;
+
+      const responseInit = {
+        headers: { "set-cookie": setSidebarState(sidebarState) },
+      };
+      return json({ success: true, submission }, responseInit);
+    },
+  });
 }
 
 function App() {
@@ -186,7 +221,7 @@ function App() {
       <Stack className="h-screen" gap="none">
         {user ? (
           <Inline className="h-screen w-full" gap="none">
-            <Sidebar>
+            <Sidebar userPreference={data.requestInfo.userPrefs.sidebarState}>
               <Stack>
                 <Button asChild size="sm" variant="default">
                   <Link to="/dashboard">Dashboard</Link>

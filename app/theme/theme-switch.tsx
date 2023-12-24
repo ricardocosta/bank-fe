@@ -67,7 +67,9 @@ export const ThemeSwitch = ({ userPreference }: ThemeSwitchProps) => {
       <div className="flex gap-2">
         <button
           className="flex h-8 w-8 cursor-pointer items-center justify-center"
+          name="intent"
           type="submit"
+          value="switchTheme"
         >
           {modeLabel[mode]}
         </button>
