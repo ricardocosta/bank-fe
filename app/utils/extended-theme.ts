@@ -37,20 +37,12 @@ export const extendedTheme = {
       foreground: "hsl(var(--accent-foreground))",
     },
     popover: {
-      DEFAULT: "hsl(var(--popover))",
+      DEFAULT: "var(--popover)",
       foreground: "hsl(var(--popover-foreground))",
     },
     card: {
       DEFAULT: "hsl(var(--card))",
       foreground: "hsl(var(--card-foreground))",
-    },
-    sidebar: {
-      DEFAULT: "var(--sidebar)",
-      foreground: "var(--sidebar-foreground)",
-      item: {
-        DEFAULT: "var(--sidebar-item)",
-        foreground: "var(--sidebar-item-foreground)",
-      },
     },
   },
   borderRadius: {

@@ -2,6 +2,7 @@ import { useForm } from "@conform-to/react";
 import { Link, useFetcher, useRouteLoaderData } from "@remix-run/react";
 import { forwardRef } from "react";
 
+import { NavMenu } from "#app/components/nav";
 import { useOptimisticSidebarState } from "#app/components/sidebar/useOptimisticSidebarState";
 import { Icon } from "#app/components/ui/icon";
 import { Inline, Stack } from "#app/components/ui/layout";
@@ -50,13 +51,10 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
     return (
       <Stack
         ref={ref}
-        as="nav"
         className={cn(
-          // eslint-disable-next-line tailwindcss/classnames-order
-          "group relative h-full bg-sidebar px-3 py-4 transition-all duration-300 animate-in",
-          mode === "expanded" ? "max-w-56" : "max-w-20",
+          "group relative h-full gap-6 bg-slate-300 px-3 py-4 transition-all duration-300 ease-in-out",
+          mode === "expanded" ? "max-w-48" : "max-w-16",
         )}
-        justify="between"
       >
         <Stack as="header" className="w-full" grow={0} wrap="nowrap">
           <Inline className="w-full" justify="between">
@@ -66,14 +64,13 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
             <fetcher.Form method="POST" {...form.props}>
               <input name="sidebarState" type="hidden" value={nextMode} />
               <button
-                // eslint-disable-next-line tailwindcss/classnames-order
-                className="ml-4 flex rounded-sm border border-sidebar-item bg-sidebar p-1 opacity-0 transition-all duration-200 group-hover:opacity-100"
+                className="ml-1 flex rounded-sm border border-slate-300 bg-slate-600 p-1 opacity-0 transition-all duration-200 group-hover:opacity-100"
                 name="intent"
                 type="submit"
                 value="toggleSidebar"
               >
                 <Icon
-                  className="text-sidebar-item"
+                  className="text-slate-300"
                   name={
                     mode === "expanded" ? "rail-right-open" : "rail-right-close"
                   }
@@ -88,6 +85,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
             </fetcher.Form>
           </Inline>
         </Stack>
+        <NavMenu mode={mode} />
         {children}
         <ThemeSwitch userPreference={data?.requestInfo.userPrefs.theme} />
       </Stack>

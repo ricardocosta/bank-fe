@@ -14,6 +14,7 @@ import {
 } from "#app/components/sidebar/sidebar.server.ts";
 import { Sidebar } from "#app/components/sidebar/sidebar.tsx";
 import { Flex, Inline, Stack } from "#app/components/ui/layout";
+import { TooltipProvider } from "#app/components/ui/tooltip.tsx";
 import { Document } from "#app/layout/document.tsx";
 import { ThemeFormSchema } from "#app/theme/schema.ts";
 import { getTheme, setTheme } from "#app/theme/theme.server.ts";
@@ -222,11 +223,7 @@ function App() {
         {user ? (
           <Inline className="h-screen w-full" gap="none">
             <Sidebar userPreference={data.requestInfo.userPrefs.sidebarState}>
-              <Stack>
-                <Button asChild size="sm" variant="default">
-                  <Link to="/dashboard">Dashboard</Link>
-                </Button>
-              </Stack>
+              {/* TODO: Remove this UserDropdown from here directly to Sidebar */}
               <UserDropdown />
             </Sidebar>
             <Flex className="h-screen w-full overflow-auto" gap="none">
@@ -267,7 +264,9 @@ function AppWithProviders() {
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
       <HoneypotProvider {...data.honeyProps}>
-        <App />
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
       </HoneypotProvider>
     </AuthenticityTokenProvider>
   );
@@ -284,19 +283,16 @@ function UserDropdown() {
       <DropdownMenuTrigger asChild>
         <Button asChild variant="secondary">
           <Link
-            className="flex items-center gap-2"
+            className="flex items-center px-1"
             to={`/users/${user.username}`}
             // this is for progressive enhancement
             onClick={(e) => e.preventDefault()}
           >
             <img
               alt={user.name ?? user.username}
-              className="h-8 w-8 rounded-full object-cover"
+              className="h-10 w-10 rounded-full object-cover"
               src={getUserImgSrc(user.image?.id)}
             />
-            <span className="text-body-sm font-bold">
-              {user.name ?? user.username}
-            </span>
           </Link>
         </Button>
       </DropdownMenuTrigger>
