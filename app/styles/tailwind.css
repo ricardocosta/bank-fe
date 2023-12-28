@@ -10,13 +10,13 @@
     /* prefixed with foreground because it should look good on the background */
     --foreground-destructive: 345 82.7% 40.8%;
 
-    --background: 0 0% 100%;
+    --background: theme("colors.neutral.50");
     --foreground: 222.2 84% 4.9%;
 
     --muted: 210 40% 93%;
     --muted-foreground: 215.4 16.3% 30%;
 
-    --popover: 0 0% 100%;
+    --popover: theme("colors.slate.50");
     --popover-foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -44,7 +44,7 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: theme("colors.slate.900");
     --foreground: 210 40% 98%;
 
     /* prefixed with foreground because it should look good on the background */

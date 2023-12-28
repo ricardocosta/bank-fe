@@ -1,0 +1,16 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  height="18"
+  viewBox="0 0 18 18"
+  width="18"
+>
+  <rect id="Canvas" fill="currentColor" opacity="0" width="18" height="18" />
+  <rect fill="currentColor" height="5" rx="0.25" width="1" x="1" y="12" />
+  <rect fill="currentColor" height="9" rx="0.25" width="1" x="3" y="8" />
+  <rect fill="currentColor" height="9" rx="0.25" width="1" x="9" y="8" />
+  <rect fill="currentColor" height="7" rx="0.25" width="1" x="13" y="10" />
+  <rect fill="currentColor" height="3" rx="0.25" width="1" x="15" y="14" />
+  <rect fill="currentColor" height="14" rx="0.25" width="1" x="5" y="3" />
+  <rect fill="currentColor" height="11" rx="0.25" width="1" x="7" y="6" />
+  <rect fill="currentColor" height="12" rx="0.25" width="1" x="11" y="5" />
+</svg>

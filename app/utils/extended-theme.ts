@@ -11,7 +11,7 @@ export const extendedTheme = {
       DEFAULT: "hsl(var(--ring))",
       invalid: "hsl(var(--foreground-destructive))",
     },
-    background: "hsl(var(--background))",
+    background: "var(--background)",
     foreground: {
       DEFAULT: "hsl(var(--foreground))",
       destructive: "hsl(var(--foreground-destructive))",
@@ -37,7 +37,7 @@ export const extendedTheme = {
       foreground: "hsl(var(--accent-foreground))",
     },
     popover: {
-      DEFAULT: "hsl(var(--popover))",
+      DEFAULT: "var(--popover)",
       foreground: "hsl(var(--popover-foreground))",
     },
     card: {

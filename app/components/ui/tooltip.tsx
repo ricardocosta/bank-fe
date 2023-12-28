@@ -9,6 +9,8 @@ const Tooltip = TooltipPrimitive.Root;
 
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
+const TooltipArrow = TooltipPrimitive.Arrow;
+
 // Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 interface TooltipContentProps
@@ -30,4 +32,10 @@ const TooltipContent = React.forwardRef<
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export {
+  Tooltip,
+  TooltipArrow,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+};

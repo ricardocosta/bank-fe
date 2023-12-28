@@ -1,22 +1,22 @@
 import { parse } from "@conform-to/zod";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { json } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  Outlet,
-  useFetcher,
-  useLoaderData,
-  useSubmit,
-} from "@remix-run/react";
+import { Form, Link, Outlet, useLoaderData, useSubmit } from "@remix-run/react";
 import { useRef } from "react";
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
+import { namedAction } from "remix-utils/named-action";
 
+import { SidebarStateFormSchema } from "#app/components/sidebar/schema.ts";
+import {
+  getSidebarState,
+  setSidebarState,
+} from "#app/components/sidebar/sidebar.server.ts";
+import { Sidebar } from "#app/components/sidebar/sidebar.tsx";
 import { Flex, Inline, Stack } from "#app/components/ui/layout";
+import { TooltipProvider } from "#app/components/ui/tooltip.tsx";
 import { Document } from "#app/layout/document.tsx";
 import { ThemeFormSchema } from "#app/theme/schema.ts";
-import { ThemeSwitch } from "#app/theme/theme-switch.tsx";
 import { getTheme, setTheme } from "#app/theme/theme.server.ts";
 import { useTheme } from "#app/theme/useTheme.ts";
 
@@ -139,6 +139,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         path: new URL(request.url).pathname,
         userPrefs: {
           theme: getTheme(request),
+          sidebarState: getSidebarState(request),
         },
       },
       ENV: getEnv(),
@@ -164,22 +165,50 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 };
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const submission = parse(formData, {
-    schema: ThemeFormSchema,
-  });
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
-  }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
-  }
-  const { theme } = submission.value;
+  return namedAction(request, {
+    async switchTheme() {
+      const formData = await request.formData();
+      const submission = parse(formData, {
+        schema: ThemeFormSchema,
+      });
 
-  const responseInit = {
-    headers: { "set-cookie": setTheme(theme) },
-  };
-  return json({ success: true, submission }, responseInit);
+      if (submission.intent !== "submit") {
+        return json({ status: "idle", submission } as const);
+      }
+
+      if (!submission.value) {
+        return json({ status: "error", submission } as const, { status: 400 });
+      }
+
+      const { theme } = submission.value;
+
+      const responseInit = {
+        headers: { "set-cookie": setTheme(theme) },
+      };
+      return json({ success: true, submission }, responseInit);
+    },
+    async toggleSidebar() {
+      const formData = await request.formData();
+      const submission = parse(formData, {
+        schema: SidebarStateFormSchema,
+      });
+
+      if (submission.intent !== "submit") {
+        return json({ status: "idle", submission } as const);
+      }
+
+      if (!submission.value) {
+        return json({ status: "error", submission } as const, { status: 400 });
+      }
+
+      const { sidebarState } = submission.value;
+
+      const responseInit = {
+        headers: { "set-cookie": setSidebarState(sidebarState) },
+      };
+      return json({ success: true, submission }, responseInit);
+    },
+  });
 }
 
 function App() {
@@ -187,32 +216,16 @@ function App() {
   const nonce = useNonce();
   const user = useOptionalUser();
   const theme = useTheme();
-  const fetcher = useFetcher<typeof action>();
 
   return (
     <Document env={data.ENV} nonce={nonce} theme={theme}>
       <Stack className="h-screen" gap="none">
         {user ? (
           <Inline className="h-screen w-full" gap="none">
-            <Stack as="nav" className="h-full max-w-[224px]" justify="between">
-              <Stack as="header" className="w-full" grow={0} wrap="nowrap">
-                <Inline className="w-full" justify="between">
-                  <Link to="/">
-                    <p>Logo</p>
-                  </Link>
-                  <ThemeSwitch
-                    fetcher={fetcher}
-                    userPreference={data.requestInfo.userPrefs.theme}
-                  />
-                </Inline>
-                <Stack>
-                  <Button asChild size="sm" variant="default">
-                    <Link to="/dashboard">Dashboard</Link>
-                  </Button>
-                </Stack>
-              </Stack>
+            <Sidebar userPreference={data.requestInfo.userPrefs.sidebarState}>
+              {/* TODO: Remove this UserDropdown from here directly to Sidebar */}
               <UserDropdown />
-            </Stack>
+            </Sidebar>
             <Flex className="h-screen w-full overflow-auto" gap="none">
               <Outlet />
             </Flex>
@@ -251,7 +264,9 @@ function AppWithProviders() {
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
       <HoneypotProvider {...data.honeyProps}>
-        <App />
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
       </HoneypotProvider>
     </AuthenticityTokenProvider>
   );
@@ -268,19 +283,16 @@ function UserDropdown() {
       <DropdownMenuTrigger asChild>
         <Button asChild variant="secondary">
           <Link
-            className="flex items-center gap-2"
+            className="flex items-center px-1"
             to={`/users/${user.username}`}
             // this is for progressive enhancement
             onClick={(e) => e.preventDefault()}
           >
             <img
               alt={user.name ?? user.username}
-              className="h-8 w-8 rounded-full object-cover"
+              className="h-10 w-10 rounded-full object-cover"
               src={getUserImgSrc(user.image?.id)}
             />
-            <span className="text-body-sm font-bold">
-              {user.name ?? user.username}
-            </span>
           </Link>
         </Button>
       </DropdownMenuTrigger>
