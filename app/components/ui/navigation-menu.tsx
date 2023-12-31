@@ -5,6 +5,7 @@ import * as React from "react";
 import { forwardRef } from "react";
 
 import { Icon } from "#app/components/ui/icon";
+import { Inline } from "#app/components/ui/layout";
 import {
   Tooltip,
   TooltipContent,
@@ -32,11 +33,10 @@ const NavigationMenu = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NavigationMenuPrimitive.Root
     ref={ref}
-    className={cn("relative z-10 flex max-w-max flex-1", className)}
+    className={cn("relative z-10 flex flex-1", className)}
     {...props}
   >
     {children}
-    <NavigationMenuViewport />
   </NavigationMenuPrimitive.Root>
 ));
 NavigationMenu.displayName = NavigationMenuPrimitive.Root.displayName;
@@ -47,7 +47,7 @@ const NavigationMenuList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.List
     ref={ref}
-    className={cn("group flex flex-1 list-none flex-col gap-3", className)}
+    className={cn("flex flex-1 list-none flex-col gap-3", className)}
     {...props}
   />
 ));
@@ -143,17 +143,6 @@ const NavigationMenuItem = ({
   mode,
   to,
 }: NavigationMenuItemProps) => {
-  const RenderedIcon = (
-    <Icon
-      className={cn(
-        "h-10 w-10 rounded-sm p-1",
-        "bg-slate-100 bg-opacity-70 text-emerald-700 hover:bg-opacity-100",
-        "isolate aspect-square shadow-md",
-      )}
-      name={iconName}
-    />
-  );
-
   return (
     <li>
       {mode === "collapsed" ? (
@@ -166,10 +155,24 @@ const NavigationMenuItem = ({
               }
               to={to}
             >
-              {RenderedIcon}
+              <Inline
+                align="center"
+                className="group/menu-item hover:text-sky w-full rounded-e-sm border-l-2 border-l-transparent px-2 py-0.5 text-slate-300 transition-colors duration-200 ease-in-out hover:border-l-cyan-600 hover:bg-sky-950"
+                gap="small"
+              >
+                <Icon
+                  className={cn(
+                    "h-7 w-7 rounded-sm p-1 group-hover/menu-item:text-slate-200",
+                  )}
+                  name={iconName}
+                />
+              </Inline>
             </NavigationMenuNavLink>
           </TooltipTrigger>
-          <TooltipContent className="tooltip" side="right">
+          <TooltipContent
+            className="cursor-default rounded-sm bg-slate-50 px-2 py-0.5 font-semibold text-slate-800 shadow-sm"
+            side="right"
+          >
             {entryName}
           </TooltipContent>
         </Tooltip>
@@ -181,8 +184,19 @@ const NavigationMenuItem = ({
           }
           to={to}
         >
-          {RenderedIcon}
-          <span>{entryName}</span>
+          <Inline
+            align="center"
+            className="group/menu-item hover:text-sky w-full rounded-e-sm border-l-2 border-l-transparent px-2 py-0.5 text-slate-300 transition-colors duration-200 ease-in-out hover:border-l-cyan-600 hover:bg-sky-950"
+            gap="small"
+          >
+            <Icon
+              className={cn(
+                "h-7 w-7 rounded-sm p-1 group-hover/menu-item:text-slate-200",
+              )}
+              name={iconName}
+            />
+            <span>{entryName}</span>
+          </Inline>
         </NavigationMenuNavLink>
       )}
     </li>
@@ -201,6 +215,9 @@ const NavigationMenuNavLink = forwardRef<
     <NavLink
       {...props}
       ref={forwardedRef}
+      aria-label={`Navigate to ${
+        typeof props.to === "string" ? props.to : JSON.stringify(props.to)
+      }`}
       className={cn(className, (props: { isActive: boolean }) =>
         remixClassName(props),
       )}

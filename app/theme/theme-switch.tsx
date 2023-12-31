@@ -62,11 +62,11 @@ export const ThemeSwitch = ({ userPreference }: ThemeSwitchProps) => {
   };
 
   return (
-    <fetcher.Form method="POST" {...form.props}>
+    <fetcher.Form method="POST" {...form.props} className="self-center">
       <input name="theme" type="hidden" value={nextMode} />
       <div className="flex gap-2">
         <button
-          className="flex h-8 w-8 cursor-pointer items-center justify-center"
+          className="flex h-8 w-8 cursor-pointer items-center justify-center text-slate-300 hover:animate-pulse hover:text-slate-200"
           name="intent"
           type="submit"
           value="switchTheme"
