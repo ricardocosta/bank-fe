@@ -5,7 +5,6 @@ import * as React from "react";
 import { forwardRef } from "react";
 
 import { Icon } from "#app/components/ui/icon";
-import { Inline } from "#app/components/ui/layout";
 import {
   Tooltip,
   TooltipContent,
@@ -137,7 +136,6 @@ type NavigationMenuItemProps = {
 } & RadixNavigationMenuItemProps;
 
 const NavigationMenuItem = ({
-  className,
   entryName,
   iconName,
   mode,
@@ -149,24 +147,18 @@ const NavigationMenuItem = ({
         <Tooltip delayDuration={50}>
           <TooltipTrigger asChild>
             <NavigationMenuNavLink
-              className={cn("flex flex-nowrap items-center gap-2", className)}
-              remixClassName={({ isActive }: { isActive: boolean }) =>
-                "link " + (isActive && "link--active")
+              className="group/menu-item hover:text-sky flex flex-row items-center gap-1 rounded-e-sm border-l-2 border-l-transparent px-2 py-0.5 text-slate-300 transition-colors duration-200 ease-in-out hover:border-l-cyan-600 hover:bg-sky-950"
+              remixClassName={({ isActive }) =>
+                cn(isActive && "bg-sky-800 border-l-cyan-600")
               }
               to={to}
             >
-              <Inline
-                align="center"
-                className="group/menu-item hover:text-sky w-full rounded-e-sm border-l-2 border-l-transparent px-2 py-0.5 text-slate-300 transition-colors duration-200 ease-in-out hover:border-l-cyan-600 hover:bg-sky-950"
-                gap="small"
-              >
-                <Icon
-                  className={cn(
-                    "h-7 w-7 rounded-sm p-1 group-hover/menu-item:text-slate-200",
-                  )}
-                  name={iconName}
-                />
-              </Inline>
+              <Icon
+                className={cn(
+                  "h-7 w-7 rounded-sm p-1 group-hover/menu-item:text-slate-200",
+                )}
+                name={iconName}
+              />
             </NavigationMenuNavLink>
           </TooltipTrigger>
           <TooltipContent
@@ -178,25 +170,19 @@ const NavigationMenuItem = ({
         </Tooltip>
       ) : (
         <NavigationMenuNavLink
-          className={cn("flex flex-nowrap items-center gap-2", className)}
-          remixClassName={({ isActive }: { isActive: boolean }) =>
-            "link " + (isActive && "link--active")
+          className="group/menu-item hover:text-sky flex flex-row items-center gap-1 rounded-e-sm border-l-2 border-l-transparent px-2 py-0.5 text-slate-300 transition-colors duration-200 ease-in-out hover:border-l-cyan-600 hover:bg-sky-950"
+          remixClassName={({ isActive }) =>
+            cn(isActive && "bg-sky-800 border-l-cyan-600")
           }
           to={to}
         >
-          <Inline
-            align="center"
-            className="group/menu-item hover:text-sky w-full rounded-e-sm border-l-2 border-l-transparent px-2 py-0.5 text-slate-300 transition-colors duration-200 ease-in-out hover:border-l-cyan-600 hover:bg-sky-950"
-            gap="small"
-          >
-            <Icon
-              className={cn(
-                "h-7 w-7 rounded-sm p-1 group-hover/menu-item:text-slate-200",
-              )}
-              name={iconName}
-            />
-            <span>{entryName}</span>
-          </Inline>
+          <Icon
+            className={cn(
+              "h-7 w-7 rounded-sm p-1 group-hover/menu-item:text-slate-200",
+            )}
+            name={iconName}
+          />
+          <span>{entryName}</span>
         </NavigationMenuNavLink>
       )}
     </li>
@@ -218,9 +204,9 @@ const NavigationMenuNavLink = forwardRef<
       aria-label={`Navigate to ${
         typeof props.to === "string" ? props.to : JSON.stringify(props.to)
       }`}
-      className={cn(className, (props: { isActive: boolean }) =>
-        remixClassName(props),
-      )}
+      className={({ isActive }) => {
+        return cn(className, remixClassName({ isActive }));
+      }}
     />
   );
 });
