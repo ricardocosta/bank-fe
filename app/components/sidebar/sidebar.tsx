@@ -52,8 +52,8 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
       <Stack
         ref={ref}
         className={cn(
-          "group relative h-full gap-6 bg-slate-300 px-3 py-4 transition-all duration-300 ease-in-out",
-          mode === "expanded" ? "max-w-48" : "max-w-16",
+          "group/sidebar relative h-full gap-6 bg-sky-900 px-3 py-4 transition-all duration-200 ease-in-out",
+          mode === "expanded" ? "max-w-48" : "max-w-20",
         )}
       >
         <Stack as="header" className="w-full" grow={0} wrap="nowrap">
@@ -64,13 +64,13 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
             <fetcher.Form method="POST" {...form.props}>
               <input name="sidebarState" type="hidden" value={nextMode} />
               <button
-                className="ml-1 flex rounded-sm border border-slate-300 bg-slate-600 p-1 opacity-0 transition-all duration-200 group-hover:opacity-100"
+                className="ml-3 flex rounded-sm border border-slate-300 bg-sky-950 p-1 opacity-0 transition-all duration-200 hover:border-slate-200 group-hover/sidebar:opacity-100"
                 name="intent"
                 type="submit"
                 value="toggleSidebar"
               >
                 <Icon
-                  className="text-slate-300"
+                  className="text-slate-300 group-hover/sidebar:text-slate-200"
                   name={
                     mode === "expanded" ? "rail-right-open" : "rail-right-close"
                   }
