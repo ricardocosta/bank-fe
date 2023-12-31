@@ -23,6 +23,7 @@ import type {
   NavigationMenuItemProps as RadixNavigationMenuItemProps,
 } from "@radix-ui/react-navigation-menu";
 import type { NavLinkProps } from "@remix-run/react";
+import type { Routes } from "remix-routes";
 
 import type { SidebarState } from "#app/components/sidebar/types";
 
@@ -132,7 +133,7 @@ type NavigationMenuItemProps = {
   entryName: string;
   iconName: IconName;
   mode: SidebarState;
-  to: string;
+  to: keyof Routes;
 } & RadixNavigationMenuItemProps;
 
 const NavigationMenuItem = ({
@@ -191,6 +192,7 @@ const NavigationMenuItem = ({
 
 type NavigationMenuNavLinkProps = NavLinkProps & {
   remixClassName: ({ isActive }: { isActive: boolean }) => string;
+  to: keyof Routes;
 };
 
 const NavigationMenuNavLink = forwardRef<
