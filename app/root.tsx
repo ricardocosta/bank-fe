@@ -1,8 +1,7 @@
 import { parse } from "@conform-to/zod";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { json } from "@remix-run/node";
-import { Form, Link, Outlet, useLoaderData, useSubmit } from "@remix-run/react";
-import { useRef } from "react";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { namedAction } from "remix-utils/named-action";
@@ -24,14 +23,7 @@ import { GeneralErrorBoundary } from "./components/error-boundary.tsx";
 import { EpicProgress } from "./components/progress-bar.tsx";
 import { EpicToaster } from "./components/toaster.tsx";
 import { Button } from "./components/ui/button.tsx";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuTrigger,
-} from "./components/ui/dropdown-menu.tsx";
-import { Icon, href as iconsHref } from "./components/ui/icon.tsx";
+import { href as iconsHref } from "./components/ui/icon.tsx";
 import fontStyleSheetUrl from "./styles/font.css";
 import tailwindStyleSheetUrl from "./styles/tailwind.css";
 import { getUserId, logout } from "./utils/auth.server.ts";
@@ -40,11 +32,11 @@ import { csrf } from "./utils/csrf.server.ts";
 import { prisma } from "./utils/db/db.server.ts";
 import { getEnv } from "./utils/env.server.ts";
 import { honeypot } from "./utils/honeypot.server.ts";
-import { combineHeaders, getDomainUrl, getUserImgSrc } from "./utils/misc.tsx";
+import { combineHeaders, getDomainUrl } from "./utils/misc.tsx";
 import { useNonce } from "./utils/nonce-provider.ts";
 import { makeTimings, time } from "./utils/timing.server.ts";
 import { getToast } from "./utils/toast.server.ts";
-import { useOptionalUser, useUser } from "./utils/user.ts";
+import { useOptionalUser } from "./utils/user.ts";
 
 import type {
   ActionFunctionArgs,
@@ -105,6 +97,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
               id: true,
               name: true,
               username: true,
+              createdAt: true,
               image: { select: { id: true } },
               roles: {
                 select: {
@@ -222,10 +215,7 @@ function App() {
       <Stack className="h-screen" gap="none">
         {user ? (
           <Inline className="h-screen w-full" gap="none">
-            <Sidebar userPreference={data.requestInfo.userPrefs.sidebarState}>
-              {/* TODO: Remove this UserDropdown from here directly to Sidebar */}
-              <UserDropdown />
-            </Sidebar>
+            <Sidebar userPreference={data.requestInfo.userPrefs.sidebarState} />
             <Flex className="h-screen w-full overflow-auto" gap="none">
               <Outlet />
             </Flex>
@@ -259,7 +249,7 @@ function App() {
   );
 }
 
-function AppWithProviders() {
+export default function AppWithProviders() {
   const data = useLoaderData<typeof loader>();
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
@@ -269,66 +259,6 @@ function AppWithProviders() {
         </TooltipProvider>
       </HoneypotProvider>
     </AuthenticityTokenProvider>
-  );
-}
-
-export default AppWithProviders;
-
-function UserDropdown() {
-  const user = useUser();
-  const submit = useSubmit();
-  const formRef = useRef<HTMLFormElement>(null);
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button asChild variant="secondary">
-          <Link
-            className="flex items-center px-1"
-            to={`/users/${user.username}`}
-            // this is for progressive enhancement
-            onClick={(e) => e.preventDefault()}
-          >
-            <img
-              alt={user.name ?? user.username}
-              className="h-10 w-10 rounded-full object-cover"
-              src={getUserImgSrc(user.image?.id)}
-            />
-          </Link>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuContent align="start" sideOffset={8}>
-          <DropdownMenuItem asChild>
-            <Link prefetch="intent" to={`/users/${user.username}`}>
-              <Icon className="text-body-md" name="avatar">
-                Profile
-              </Icon>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link prefetch="intent" to={`/users/${user.username}/notes`}>
-              <Icon className="text-body-md" name="pencil-2">
-                Notes
-              </Icon>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            asChild
-            // this prevents the menu from closing before the form submission is completed
-            onSelect={(event) => {
-              event.preventDefault();
-              submit(formRef.current);
-            }}
-          >
-            <Form ref={formRef} action="/logout" method="POST">
-              <Icon className="text-body-md" name="exit">
-                <button type="submit">Logout</button>
-              </Icon>
-            </Form>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenuPortal>
-    </DropdownMenu>
   );
 }
 
