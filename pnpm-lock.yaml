@@ -275,8 +275,8 @@ devDependencies:
     specifier: ^18.2.17
     version: 18.2.17
   '@types/set-cookie-parser':
-    specifier: ^2.4.3
-    version: 2.4.6
+    specifier: ^2.4.7
+    version: 2.4.7
   '@types/source-map-support':
     specifier: ^0.5.7
     version: 0.5.10
@@ -4547,8 +4547,8 @@ packages:
       '@types/node': 20.10.6
     dev: true
 
-  /@types/set-cookie-parser@2.4.6:
-    resolution: {integrity: sha512-tjIRMxGztGfIbW2/d20MdJmAPZbabtdW051cKfU+nvZXUnKKifHbY2CyL/C0EGabUB8ahIRjanYzTqJUQR8TAQ==}
+  /@types/set-cookie-parser@2.4.7:
+    resolution: {integrity: sha512-+ge/loa0oTozxip6zmhRIk8Z/boU51wl9Q6QdLZcokIGMzY5lFXYy/x7Htj2HTC6/KZP1hUbZ1ekx8DYXICvWg==}
     dependencies:
       '@types/node': 20.10.6
     dev: true
