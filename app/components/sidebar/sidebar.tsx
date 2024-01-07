@@ -6,6 +6,7 @@ import { NavMenu } from "#app/components/nav";
 import { useOptimisticSidebarState } from "#app/components/sidebar/useOptimisticSidebarState";
 import { Icon } from "#app/components/ui/icon";
 import { Inline, Stack } from "#app/components/ui/layout";
+import { UserDropdown } from "#app/components/user-dropdown";
 import { ThemeSwitch } from "#app/theme/theme-switch";
 import { cn } from "#app/utils/misc";
 
@@ -87,6 +88,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
         </Stack>
         <NavMenu mode={mode} />
         {children}
+        <UserDropdown isSidebarOpen={userPreference === "expanded"} />
         <ThemeSwitch userPreference={data?.requestInfo.userPrefs.theme} />
       </Stack>
     );
