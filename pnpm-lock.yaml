@@ -380,8 +380,8 @@ devDependencies:
     specifier: ^0.6.4
     version: 0.6.4(@remix-run/dev@2.4.1)
   remix-routes:
-    specifier: ^1.5.1
-    version: 1.5.1
+    specifier: ^1.6.0
+    version: 1.6.0
   tsx:
     specifier: ^4.5.0
     version: 4.6.2
@@ -4210,7 +4210,7 @@ packages:
     resolution: {integrity: sha512-fB0R+fa3AUqbLHWyxXa2kGVtf1Fe1ZZFr0Zp6AIbIAzXb2mKbEXl+PCQNUOaq5lbTab5tfctfXRNsWXxa2f7Aw==}
     engines: {node: '>=14'}
     dependencies:
-      '@babel/code-frame': 7.23.4
+      '@babel/code-frame': 7.23.5
       '@babel/runtime': 7.23.4
       '@types/aria-query': 5.0.4
       aria-query: 5.1.3
@@ -10691,8 +10691,8 @@ packages:
       minimatch: 5.1.6
     dev: true
 
-  /remix-routes@1.5.1:
-    resolution: {integrity: sha512-2wA7ZBIS79djwDQisG7SeEZ7Rlsc9ITMm6tZGsAuyWatbNDWTyX7rKIg7lCl3Cmua8irihLcpsLeXudovvL74g==}
+  /remix-routes@1.6.0:
+    resolution: {integrity: sha512-E2fDLVXBsmp0BilsAtzYzNg0sA7rqex/HR/vS4cDYeeAk3ADpOJVcCD36mvMJSjaFgIMwo+iYAAND1LQf57QCA==}
     hasBin: true
     dependencies:
       chokidar: 3.5.3
