@@ -119,8 +119,8 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.4.4",
-    "@commitlint/config-conventional": "^18.4.4",
+    "@commitlint/cli": "^19.2.1",
+    "@commitlint/config-conventional": "^19.1.0",
     "@faker-js/faker": "^8.1.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@playwright/test": "^1.40.1",
