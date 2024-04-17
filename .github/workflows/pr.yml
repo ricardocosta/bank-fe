@@ -43,7 +43,7 @@ jobs:
           node-version: ${{ env.node_version }}
 
       - name: 📥 Install commitlint
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
         with:
           version: 8
           run_install: true
