@@ -12,7 +12,9 @@ import {
   setSidebarState,
 } from "#app/components/sidebar/sidebar.server.ts";
 import { Sidebar } from "#app/components/sidebar/sidebar.tsx";
+import { useToast } from "#app/components/toaster.tsx";
 import { Flex, Inline, Stack } from "#app/components/ui/layout";
+import { EpicToaster } from "#app/components/ui/sonner.tsx";
 import { TooltipProvider } from "#app/components/ui/tooltip.tsx";
 import { Document } from "#app/layout/document.tsx";
 import { ThemeFormSchema } from "#app/theme/schema.ts";
@@ -21,7 +23,6 @@ import { useTheme } from "#app/theme/useTheme.ts";
 
 import { GeneralErrorBoundary } from "./components/error-boundary.tsx";
 import { EpicProgress } from "./components/progress-bar.tsx";
-import { EpicToaster } from "./components/toaster.tsx";
 import { Button } from "./components/ui/button.tsx";
 import { href as iconsHref } from "./components/ui/icon.tsx";
 import fontStyleSheetUrl from "./styles/font.css";
@@ -210,6 +211,8 @@ function App() {
   const user = useOptionalUser();
   const theme = useTheme();
 
+  useToast(data.toast);
+
   return (
     <Document env={data.ENV} nonce={nonce} theme={theme}>
       <Stack className="h-screen" gap="none">
@@ -243,7 +246,7 @@ function App() {
           </Stack>
         )}
       </Stack>
-      <EpicToaster toast={data.toast} />
+      <EpicToaster closeButton position="top-center" theme={theme} />
       <EpicProgress />
     </Document>
   );
