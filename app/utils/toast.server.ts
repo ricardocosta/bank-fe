@@ -6,19 +6,15 @@ import { combineHeaders } from "./misc.tsx";
 
 export const toastKey = "toast";
 
-const TypeSchema = z.enum(["message", "success", "error"]);
 const ToastSchema = z.object({
   description: z.string(),
   id: z.string().default(() => cuid()),
   title: z.string().optional(),
-  type: TypeSchema.default("message"),
+  type: z.enum(["message", "success", "error"]).default("message"),
 });
 
 export type Toast = z.infer<typeof ToastSchema>;
-export type OptionalToast = Omit<Toast, "id" | "type"> & {
-  id?: string;
-  type?: z.infer<typeof TypeSchema>;
-};
+export type ToastInput = z.input<typeof ToastSchema>;
 
 type ToastSessionData = {
   [toastKey]: Toast;
@@ -39,7 +35,7 @@ export const toastSessionStorage = createCookieSessionStorage<ToastSessionData>(
 
 export async function redirectWithToast(
   url: string,
-  toast: OptionalToast,
+  toast: ToastInput,
   init?: ResponseInit,
 ) {
   return redirect(url, {
@@ -48,11 +44,13 @@ export async function redirectWithToast(
   });
 }
 
-export async function createToastHeaders(optionalToast: OptionalToast) {
+export async function createToastHeaders(toastInput: ToastInput) {
   const session = await toastSessionStorage.getSession();
-  const toast = ToastSchema.parse(optionalToast);
+  const toast = ToastSchema.parse(toastInput);
+
   session.flash(toastKey, toast);
   const cookie = await toastSessionStorage.commitSession(session);
+
   return new Headers({ "set-cookie": cookie });
 }
 
