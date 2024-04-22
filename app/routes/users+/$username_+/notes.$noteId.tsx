@@ -4,7 +4,6 @@ import { invariantResponse } from "@epic-web/invariant";
 import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { formatDistanceToNow } from "date-fns";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
 
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
@@ -14,7 +13,6 @@ import { Button } from "#app/components/ui/button.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { getNoteImgSrc, useIsPending } from "#app/utils/misc.tsx";
 import {
@@ -66,7 +64,6 @@ const DeleteFormSchema = z.object({
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
   const submission = parse(formData, {
     schema: DeleteFormSchema,
   });
@@ -167,7 +164,6 @@ export function DeleteNote({ id }: { id: string }) {
 
   return (
     <Form method="POST" {...form.props}>
-      <AuthenticityTokenInput />
       <input name="noteId" type="hidden" value={id} />
       <StatusButton
         className="w-full max-md:aspect-square max-md:px-0"

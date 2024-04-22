@@ -8,7 +8,6 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
@@ -21,7 +20,6 @@ import {
   sessionKey,
   signup,
 } from "#app/utils/auth.server.ts";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
@@ -76,7 +74,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const email = await requireOnboardingEmail(request);
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
+
   checkHoneypot(formData);
   const submission = await parse(formData, {
     schema: (intent) =>
@@ -185,7 +183,6 @@ export default function SignupRoute() {
           method="POST"
           {...form.props}
         >
-          <AuthenticityTokenInput />
           <HoneypotInputs />
           <Field
             errors={fields.username.errors}

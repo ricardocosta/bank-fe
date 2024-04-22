@@ -2,7 +2,6 @@ import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useSearchParams } from "@remix-run/react";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { z } from "zod";
 
@@ -11,7 +10,6 @@ import { ErrorList, Field } from "#app/components/forms.tsx";
 import { Spacer } from "#app/components/spacer.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { handleVerification as handleChangeEmailVerification } from "#app/routes/settings+/profile.change-email.tsx";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
 import { getDomainUrl, useIsPending } from "#app/utils/misc.tsx";
@@ -41,7 +39,7 @@ const VerifySchema = z.object({
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   checkHoneypot(formData);
-  await validateCSRF(formData, request.headers);
+
   return validateRequest(request, formData);
 }
 
@@ -251,7 +249,6 @@ export default function VerifyRoute() {
         </div>
         <div className="flex w-full gap-2">
           <Form method="POST" {...form.props} className="flex-1">
-            <AuthenticityTokenInput />
             <HoneypotInputs />
             <Field
               errors={fields[codeQueryParam].errors}

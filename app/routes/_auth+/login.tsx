@@ -3,7 +3,6 @@ import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { invariant } from "@epic-web/invariant";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
@@ -13,7 +12,6 @@ import { CheckboxField, ErrorList, Field } from "#app/components/forms.tsx";
 import { Spacer } from "#app/components/spacer.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { login, requireAnonymous, sessionKey } from "#app/utils/auth.server.ts";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
 import { combineResponseInits, useIsPending } from "#app/utils/misc.tsx";
@@ -136,7 +134,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   await requireAnonymous(request);
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
+
   checkHoneypot(formData);
   const submission = await parse(formData, {
     schema: (intent) =>
@@ -211,7 +209,6 @@ export default function LoginPage() {
         <div>
           <div className="mx-auto w-full max-w-md px-8">
             <Form method="POST" {...form.props}>
-              <AuthenticityTokenInput />
               <HoneypotInputs />
               <Field
                 errors={fields.username.errors}
