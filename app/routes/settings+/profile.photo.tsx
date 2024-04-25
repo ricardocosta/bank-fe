@@ -1,5 +1,5 @@
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
 import {
   json,
@@ -14,7 +14,6 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { useState } from "react";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
 
 import { ErrorList } from "#app/components/forms.tsx";
@@ -22,7 +21,6 @@ import { Button } from "#app/components/ui/button.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import {
   getUserImgSrc,
@@ -55,7 +53,10 @@ const NewImageSchema = z.object({
     ),
 });
 
-const PhotoFormSchema = z.union([DeleteImageSchema, NewImageSchema]);
+const PhotoFormSchema = z.discriminatedUnion("intent", [
+  DeleteImageSchema,
+  NewImageSchema,
+]);
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -78,9 +79,8 @@ export async function action({ request }: ActionFunctionArgs) {
     request,
     unstable_createMemoryUploadHandler({ maxPartSize: MAX_SIZE }),
   );
-  await validateCSRF(formData, request.headers);
 
-  const submission = await parse(formData, {
+  const submission = await parseWithZod(formData, {
     schema: PhotoFormSchema.transform(async (data) => {
       if (data.intent === "delete") {
         return { intent: "delete" };
@@ -99,11 +99,13 @@ export async function action({ request }: ActionFunctionArgs) {
     async: true,
   });
 
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
-  }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      {
+        status: submission.status === "error" ? 400 : 200,
+      },
+    );
   }
 
   const { image, intent } = submission.value;
@@ -134,22 +136,17 @@ export default function PhotoRoute() {
 
   const [form, fields] = useForm({
     id: "profile-photo",
-    constraint: getFieldsetConstraint(PhotoFormSchema),
-    lastSubmission: actionData?.submission,
+    constraint: getZodConstraint(PhotoFormSchema),
+    lastResult: actionData?.result,
     onValidate({ formData }) {
-      // otherwise, the best error zod gives us is "Invalid input" which is not
-      // enough
-      if (formData.get("intent") === "delete") {
-        return parse(formData, { schema: DeleteImageSchema });
-      }
-      return parse(formData, { schema: NewImageSchema });
+      return parseWithZod(formData, { schema: PhotoFormSchema });
     },
     shouldRevalidate: "onBlur",
   });
 
   const isPending = useIsPending();
   const pendingIntent = isPending ? navigation.formData?.get("intent") : null;
-  const lastSubmissionIntent = actionData?.submission.value?.intent;
+  const lastSubmissionIntent = fields.intent.value;
 
   const [newImageSrc, setNewImageSrc] = useState<string | null>(null);
 
@@ -160,9 +157,8 @@ export default function PhotoRoute() {
         encType="multipart/form-data"
         method="POST"
         onReset={() => setNewImageSrc(null)}
-        {...form.props}
+        {...getFormProps(form)}
       >
-        <AuthenticityTokenInput />
         <img
           alt={data.user?.name ?? data.user?.username}
           className="h-52 w-52 rounded-full object-cover"
@@ -179,7 +175,7 @@ export default function PhotoRoute() {
 						an image has been selected). Progressive enhancement FTW!
 					*/}
           <input
-            {...conform.input(fields.photoFile, { type: "file" })}
+            {...getInputProps(fields.photoFile, { type: "file" })}
             accept="image/*"
             className="peer sr-only"
             required
@@ -210,7 +206,7 @@ export default function PhotoRoute() {
               pendingIntent === "submit"
                 ? "pending"
                 : lastSubmissionIntent === "submit"
-                  ? actionData?.status ?? "idle"
+                  ? form.status ?? "idle"
                   : "idle"
             }
             type="submit"
@@ -220,8 +216,8 @@ export default function PhotoRoute() {
           </StatusButton>
           <Button
             className="peer-invalid:hidden"
-            type="reset"
             variant="destructive"
+            {...form.reset.getButtonProps()}
           >
             <Icon name="trash">Reset</Icon>
           </Button>
@@ -238,7 +234,7 @@ export default function PhotoRoute() {
                 pendingIntent === "delete"
                   ? "pending"
                   : lastSubmissionIntent === "delete"
-                    ? actionData?.status ?? "idle"
+                    ? form.status ?? "idle"
                     : "idle"
               }
             >

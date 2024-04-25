@@ -1,4 +1,4 @@
-import { useForm } from "@conform-to/react";
+import { getFormProps, useForm } from "@conform-to/react";
 import { useFetcher } from "@remix-run/react";
 
 import { useOptimisticThemeMode } from "#app/theme/useOptimisticThemeMode";
@@ -6,26 +6,22 @@ import { useOptimisticThemeMode } from "#app/theme/useOptimisticThemeMode";
 import { ErrorList } from "../components/forms";
 import { Icon } from "../components/ui/icon";
 
-import type { Submission } from "@conform-to/react";
-
+import type { action as rootAction } from "#app/root.tsx";
 import type { Theme } from "#app/theme/types";
+import type { SubAction } from "#types/named-actions";
 
 export type ThemeSwitchProps = {
   userPreference?: Theme | null;
 };
 
-type ThemeSwitchFetcher = {
-  submission: Submission<{
-    theme: "system" | Theme;
-  }>;
-};
+type ThemeSwitchFetcher = SubAction<typeof rootAction, "theme-switch">;
 
 export const ThemeSwitch = ({ userPreference }: ThemeSwitchProps) => {
   const fetcher = useFetcher<ThemeSwitchFetcher>();
   const optimisticMode = useOptimisticThemeMode();
   const [form] = useForm({
     id: "theme-switch",
-    lastSubmission: fetcher.data?.submission,
+    lastResult: fetcher.data?.result,
   });
 
   const mode = optimisticMode ?? userPreference ?? "system";
@@ -62,7 +58,7 @@ export const ThemeSwitch = ({ userPreference }: ThemeSwitchProps) => {
   };
 
   return (
-    <fetcher.Form method="POST" {...form.props} className="self-center">
+    <fetcher.Form method="POST" {...getFormProps(form)} className="self-center">
       <input name="theme" type="hidden" value={nextMode} />
       <div className="flex gap-2">
         <button

@@ -1,16 +1,14 @@
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import * as E from "@react-email/components";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { z } from "zod";
 
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { ErrorList, Field } from "#app/components/forms.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { sendEmail } from "#app/utils/email.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
@@ -26,9 +24,9 @@ const ForgotPasswordSchema = z.object({
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
+
   checkHoneypot(formData);
-  const submission = await parse(formData, {
+  const submission = await parseWithZod(formData, {
     schema: ForgotPasswordSchema.superRefine(async (data, ctx) => {
       const user = await prisma.user.findFirst({
         where: {
@@ -50,12 +48,16 @@ export async function action({ request }: ActionFunctionArgs) {
     }),
     async: true,
   });
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
+
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      {
+        status: submission.status === "error" ? 400 : 200,
+      },
+    );
   }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
-  }
+
   const { usernameOrEmail } = submission.value;
 
   const user = await prisma.user.findFirstOrThrow({
@@ -81,8 +83,14 @@ export async function action({ request }: ActionFunctionArgs) {
   if (response.status === "success") {
     return redirect(redirectTo.toString());
   } else {
-    submission.error[""] = [response.error.message];
-    return json({ status: "error", submission } as const, { status: 500 });
+    return json(
+      {
+        result: submission.reply({ formErrors: [response.error.message] }),
+      },
+      {
+        status: 500,
+      },
+    );
   }
 }
 
@@ -122,10 +130,10 @@ export default function ForgotPasswordRoute() {
 
   const [form, fields] = useForm({
     id: "forgot-password-form",
-    constraint: getFieldsetConstraint(ForgotPasswordSchema),
-    lastSubmission: forgotPassword.data?.submission,
+    constraint: getZodConstraint(ForgotPasswordSchema),
+    lastResult: forgotPassword.data?.result,
     onValidate({ formData }) {
-      return parse(formData, { schema: ForgotPasswordSchema });
+      return parseWithZod(formData, { schema: ForgotPasswordSchema });
     },
     shouldRevalidate: "onBlur",
   });
@@ -140,15 +148,14 @@ export default function ForgotPasswordRoute() {
           </p>
         </div>
         <div className="mx-auto mt-16 min-w-[368px] max-w-sm">
-          <forgotPassword.Form method="POST" {...form.props}>
-            <AuthenticityTokenInput />
+          <forgotPassword.Form method="POST" {...getFormProps(form)}>
             <HoneypotInputs />
             <div>
               <Field
                 errors={fields.usernameOrEmail.errors}
                 inputProps={{
                   autoFocus: true,
-                  ...conform.input(fields.usernameOrEmail),
+                  ...getInputProps(fields.usernameOrEmail, { type: "text" }),
                 }}
                 labelProps={{
                   htmlFor: fields.usernameOrEmail.id,
@@ -165,7 +172,7 @@ export default function ForgotPasswordRoute() {
                 status={
                   forgotPassword.state === "submitting"
                     ? "pending"
-                    : forgotPassword.data?.status ?? "idle"
+                    : form.status ?? "idle"
                 }
                 type="submit"
               >

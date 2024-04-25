@@ -7,7 +7,7 @@ import { toastKey, toastSessionStorage } from "#app/utils/toast.server.ts";
 
 import { convertSetCookieToCookie } from "#tests/utils.ts";
 
-import type { OptionalToast } from "#app/utils/toast.server.ts";
+import type { ToastInput } from "#app/utils/toast.server.ts";
 
 import "@testing-library/jest-dom/vitest";
 
@@ -114,7 +114,7 @@ expect.extend({
         } created in the database for ${userId}`,
     };
   },
-  async toSendToast(response: Response, toast: OptionalToast) {
+  async toSendToast(response: Response, toast: ToastInput) {
     const setCookies = getSetCookie(response.headers);
     const toastSetCookie = setCookies.find(
       (c) => setCookieParser.parseString(c).name === "en_toast",
@@ -140,9 +140,9 @@ expect.extend({
       };
     }
 
-    const expectedToast = (toast: OptionalToast) =>
+    const expectedToast = (toast: ToastInput) =>
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      expect.objectContaining<OptionalToast>({
+      expect.objectContaining<ToastInput>({
         type: toast.type,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: toast.id ?? expect.any(String),
@@ -169,7 +169,7 @@ expect.extend({
 type CustomMatchers<R = unknown> = {
   toHaveRedirect(redirectTo: string | null): R;
   toHaveSessionForUser(userId: string): Promise<R>;
-  toSendToast(toast: OptionalToast): Promise<R>;
+  toSendToast(toast: ToastInput): Promise<R>;
 };
 
 declare module "vitest" {

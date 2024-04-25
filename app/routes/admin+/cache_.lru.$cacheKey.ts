@@ -2,7 +2,7 @@ import { invariantResponse } from "@epic-web/invariant";
 import { json } from "@remix-run/node";
 
 import { lruCache } from "#app/utils/cache.server.ts";
-import { requireUserWithRole } from "#app/utils/permissions.ts";
+import { requireUserWithRole } from "#app/utils/permissions.server.ts";
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
 

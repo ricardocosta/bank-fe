@@ -1,9 +1,8 @@
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
 
 import { ErrorList, Field } from "#app/components/forms.tsx";
@@ -11,7 +10,6 @@ import { Button } from "#app/components/ui/button.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { requireUserId, sessionKey } from "#app/utils/auth.server.ts";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { getUserImgSrc, useDoubleCheck } from "#app/utils/misc.tsx";
 import { authSessionStorage } from "#app/utils/session.server.ts";
@@ -72,7 +70,7 @@ const deleteDataActionIntent = "delete-data";
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
+
   const intent = formData.get("intent");
   switch (intent) {
     case profileUpdateActionIntent: {
@@ -155,7 +153,7 @@ export default function EditUserProfile() {
 }
 
 async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
-  const submission = await parse(formData, {
+  const submission = await parseWithZod(formData, {
     async: true,
     schema: ProfileFormSchema.superRefine(async ({ username }, ctx) => {
       const existingUsername = await prisma.user.findUnique({
@@ -171,11 +169,14 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
       }
     }),
   });
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
-  }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      {
+        status: submission.status === "error" ? 400 : 200,
+      },
+    );
   }
 
   const data = submission.value;
@@ -189,7 +190,9 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
     },
   });
 
-  return json({ status: "success", submission } as const);
+  return json({
+    result: submission.reply(),
+  });
 }
 
 function UpdateProfile() {
@@ -199,26 +202,24 @@ function UpdateProfile() {
 
   const [form, fields] = useForm({
     id: "edit-profile",
-    constraint: getFieldsetConstraint(ProfileFormSchema),
-    lastSubmission: fetcher.data?.submission,
+    constraint: getZodConstraint(ProfileFormSchema),
+    lastResult: fetcher.data?.result,
     onValidate({ formData }) {
-      return parse(formData, { schema: ProfileFormSchema });
+      return parseWithZod(formData, { schema: ProfileFormSchema });
     },
     defaultValue: {
       username: data.user.username,
       name: data.user.name ?? "",
-      email: data.user.email,
     },
   });
 
   return (
-    <fetcher.Form method="POST" {...form.props}>
-      <AuthenticityTokenInput />
+    <fetcher.Form method="POST" {...getFormProps(form)}>
       <div className="grid grid-cols-6 gap-x-10">
         <Field
           className="col-span-3"
           errors={fields.username.errors}
-          inputProps={conform.input(fields.username)}
+          inputProps={getInputProps(fields.username, { type: "text" })}
           labelProps={{
             htmlFor: fields.username.id,
             children: "Username",
@@ -227,7 +228,7 @@ function UpdateProfile() {
         <Field
           className="col-span-3"
           errors={fields.name.errors}
-          inputProps={conform.input(fields.name)}
+          inputProps={getInputProps(fields.name, { type: "text" })}
           labelProps={{ htmlFor: fields.name.id, children: "Name" }}
         />
       </div>
@@ -238,11 +239,7 @@ function UpdateProfile() {
         <StatusButton
           name="intent"
           size="wide"
-          status={
-            fetcher.state !== "idle"
-              ? "pending"
-              : fetcher.data?.status ?? "idle"
-          }
+          status={fetcher.state !== "idle" ? "pending" : form.status ?? "idle"}
           type="submit"
           value={profileUpdateActionIntent}
         >
@@ -281,7 +278,6 @@ function SignOutOfSessions() {
     <div>
       {otherSessionsCount ? (
         <fetcher.Form method="POST">
-          <AuthenticityTokenInput />
           <StatusButton
             {...dc.getButtonProps({
               type: "submit",
@@ -325,7 +321,6 @@ function DeleteData() {
   return (
     <div>
       <fetcher.Form method="POST">
-        <AuthenticityTokenInput />
         <StatusButton
           {...dc.getButtonProps({
             type: "submit",

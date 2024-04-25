@@ -1,4 +1,4 @@
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { useFetchers } from "@remix-run/react";
 
 import { ThemeFormSchema } from "#app/theme/schema";
@@ -12,10 +12,12 @@ export const useOptimisticThemeMode = () => {
   const themeFetcher = fetchers.find((f) => f.formAction === "/");
 
   if (themeFetcher && themeFetcher.formData) {
-    const submission = parse(themeFetcher.formData, {
+    const submission = parseWithZod(themeFetcher.formData, {
       schema: ThemeFormSchema,
     });
 
-    return submission.value?.theme;
+    if (submission.status === "success") {
+      return submission.value.theme;
+    }
   }
 };

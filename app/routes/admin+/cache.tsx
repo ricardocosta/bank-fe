@@ -9,6 +9,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 
+import { GeneralErrorBoundary } from "#app/components/error-boundary";
 import { Field } from "#app/components/forms.tsx";
 import { Spacer } from "#app/components/spacer.tsx";
 import { Button } from "#app/components/ui/button.tsx";
@@ -19,7 +20,7 @@ import {
   searchCacheKeys,
 } from "#app/utils/cache.server.ts";
 import { useDebounce, useDoubleCheck } from "#app/utils/misc.tsx";
-import { requireUserWithRole } from "#app/utils/permissions.ts";
+import { requireUserWithRole } from "#app/utils/permissions.server.ts";
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
@@ -181,8 +182,15 @@ function CacheKeyRow({
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error);
-
-  return <div>An unexpected error occurred: {error.message}</div>;
+export function ErrorBoundary() {
+  return (
+    <GeneralErrorBoundary
+      statusHandlers={{
+        403: ({ error }) => (
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          <p>You are not allowed to do that: {error?.data.message}</p>
+        ),
+      }}
+    />
+  );
 }

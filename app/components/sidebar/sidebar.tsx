@@ -1,4 +1,4 @@
-import { useForm } from "@conform-to/react";
+import { getFormProps, useForm } from "@conform-to/react";
 import { Link, useFetcher, useRouteLoaderData } from "@remix-run/react";
 import { forwardRef } from "react";
 
@@ -10,11 +10,11 @@ import { UserDropdown } from "#app/components/user-dropdown";
 import { ThemeSwitch } from "#app/theme/theme-switch";
 import { cn } from "#app/utils/misc";
 
-import type { Submission } from "@conform-to/react";
 import type { HTMLAttributes } from "react";
 
 import type { SidebarState } from "#app/components/sidebar/types";
-import type { loader as rootLoader } from "#app/root.tsx";
+import type { action as rootAction, loader as rootLoader } from "#app/root.tsx";
+import type { SubAction } from "#types/named-actions";
 
 // Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -22,11 +22,7 @@ export interface SidebarProps extends HTMLAttributes<HTMLDivElement> {
   userPreference?: SidebarState | null;
 }
 
-type SidebarStateFetcher = {
-  submission: Submission<{
-    sidebarState: SidebarState;
-  }>;
-};
+type SidebarStateFetcher = SubAction<typeof rootAction, "sidebar-toggle">;
 
 export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
   ({ children, userPreference }, ref) => {
@@ -35,7 +31,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
     const optimisticMode = useOptimisticSidebarState();
     const [form] = useForm({
       id: "sidebar-toggle",
-      lastSubmission: fetcher.data?.submission,
+      lastResult: fetcher.data?.result,
     });
 
     const mode = optimisticMode ?? userPreference ?? "collapsed";
@@ -62,7 +58,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
             <Link to="/">
               <p>Logo</p>
             </Link>
-            <fetcher.Form method="POST" {...form.props}>
+            <fetcher.Form method="POST" {...getFormProps(form)}>
               <input name="sidebarState" type="hidden" value={nextMode} />
               <button
                 className="ml-3 flex rounded-sm border border-slate-300 bg-sky-950 p-1 opacity-0 transition-all duration-200 hover:border-slate-200 group-hover/sidebar:opacity-100"

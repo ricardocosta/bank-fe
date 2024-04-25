@@ -10,7 +10,7 @@ type AuthSessionData = {
 export const authSessionStorage = createCookieSessionStorage<AuthSessionData>({
   cookie: {
     name: "en_session",
-    sameSite: "lax",
+    sameSite: "lax", // CSRF protection is advised if changing to 'none'
     path: "/",
     httpOnly: true,
     secrets: process.env.SESSION_SECRET.split(","),

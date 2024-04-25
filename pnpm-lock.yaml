@@ -12,11 +12,11 @@ importers:
   .:
     dependencies:
       '@conform-to/react':
-        specifier: ^0.9.0
-        version: 0.9.1(react@18.2.0)
+        specifier: ^1.1.2
+        version: 1.1.2(react@18.2.0)
       '@conform-to/zod':
-        specifier: ^0.9.0
-        version: 0.9.1(@conform-to/dom@0.9.1)(zod@3.22.4)
+        specifier: ^1.1.2
+        version: 1.1.2(zod@3.22.4)
       '@epic-web/cachified':
         specifier: ^4.0.0
         version: 4.0.0
@@ -707,18 +707,17 @@ packages:
     resolution: {integrity: sha512-/FykLtodD8gKs3+VNkAUwofu4LBHankclj+I8fB2jTRvG6PV7k/OUt4P+VbM7ip853qS4F0g7Z6hLNa6JeMcAQ==}
     engines: {node: '>=v18'}
 
-  '@conform-to/dom@0.9.1':
-    resolution: {integrity: sha512-+T6QgpLDPZ29j4y5nWW61WMe8qj0cQBymyzbi5sq1f3CcBO3wBbR0VPI7mbm+rLoErHWM3ghhdNlIkw0UPoLLA==}
+  '@conform-to/dom@1.1.2':
+    resolution: {integrity: sha512-UFe1E++9vCU/mfGPwvXUnzWUNI16JRh5IM21iMSRFOkx9XkR1W/ozA36h8hVcCDKZiDXl6tjvzPmobIQ4usoFQ==}
 
-  '@conform-to/react@0.9.1':
-    resolution: {integrity: sha512-SibYHk86IFh60LRPk4aJHJOgyLTgb3JYphKvG4vcemyuntdOwncd5YM/GDoccVzeCTmJi4Os/fDtOOAaDcSa9w==}
+  '@conform-to/react@1.1.2':
+    resolution: {integrity: sha512-iM5weQt80swLds3oLeErcxi9EgAn4z4RPvqQBV1Z4kUqOX8zOQZiH9w5YXyutKuHV3GF823Qq31KLhmqSEZVNg==}
     peerDependencies:
-      react: '>=16.8'
+      react: '>=18'
 
-  '@conform-to/zod@0.9.1':
-    resolution: {integrity: sha512-4hWBGzRpSd4RrlBFRXjS6QQ2MWFpMZDbDwz8H/xiq38Xl5yaL1RSZMhOJ4pmsmy8CIKghs78qvaD8ltTFlrNvQ==}
+  '@conform-to/zod@1.1.2':
+    resolution: {integrity: sha512-0kNZHSUv+CT93hkU2XSsPx52e1JNNIo38SV3k8t9IOaW/+npueMMDrrUCl2nt2agbjtIzor8axEeZH7wfq3z2w==}
     peerDependencies:
-      '@conform-to/dom': 0.9.1
       zod: ^3.21.0
 
   '@emotion/hash@0.9.1':
@@ -7066,16 +7065,16 @@ snapshots:
     dependencies:
       chalk: 4.1.2
 
-  '@conform-to/dom@0.9.1': {}
+  '@conform-to/dom@1.1.2': {}
 
-  '@conform-to/react@0.9.1(react@18.2.0)':
+  '@conform-to/react@1.1.2(react@18.2.0)':
     dependencies:
-      '@conform-to/dom': 0.9.1
+      '@conform-to/dom': 1.1.2
       react: 18.2.0
 
-  '@conform-to/zod@0.9.1(@conform-to/dom@0.9.1)(zod@3.22.4)':
+  '@conform-to/zod@1.1.2(zod@3.22.4)':
     dependencies:
-      '@conform-to/dom': 0.9.1
+      '@conform-to/dom': 1.1.2
       zod: 3.22.4
 
   '@emotion/hash@0.9.1': {}

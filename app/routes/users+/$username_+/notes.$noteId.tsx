@@ -1,10 +1,9 @@
-import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { getFormProps, useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
 import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { formatDistanceToNow } from "date-fns";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
 
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
@@ -14,15 +13,11 @@ import { Button } from "#app/components/ui/button.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
-import { validateCSRF } from "#app/utils/csrf.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { getNoteImgSrc, useIsPending } from "#app/utils/misc.tsx";
-import {
-  requireUserWithPermission,
-  userHasPermission,
-} from "#app/utils/permissions.ts";
+import { requireUserWithPermission } from "#app/utils/permissions.server.ts.ts";
 import { redirectWithToast } from "#app/utils/toast.server.ts";
-import { useOptionalUser } from "#app/utils/user.ts";
+import { useOptionalUser, userHasPermission } from "#app/utils/user.ts";
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import type { MetaFunction } from "@remix-run/react";
@@ -66,15 +61,17 @@ const DeleteFormSchema = z.object({
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
-  const submission = parse(formData, {
+  const submission = parseWithZod(formData, {
     schema: DeleteFormSchema,
   });
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
-  }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      {
+        status: submission.status === "error" ? 400 : 200,
+      },
+    );
   }
 
   const { noteId } = submission.value;
@@ -162,18 +159,17 @@ export function DeleteNote({ id }: { id: string }) {
   const isPending = useIsPending();
   const [form] = useForm({
     id: "delete-note",
-    lastSubmission: actionData?.submission,
+    lastResult: actionData?.result,
   });
 
   return (
-    <Form method="POST" {...form.props}>
-      <AuthenticityTokenInput />
+    <Form method="POST" {...getFormProps(form)}>
       <input name="noteId" type="hidden" value={id} />
       <StatusButton
         className="w-full max-md:aspect-square max-md:px-0"
         disabled={isPending}
         name="intent"
-        status={isPending ? "pending" : actionData?.status ?? "idle"}
+        status={isPending ? "pending" : form.status ?? "idle"}
         type="submit"
         value="delete-note"
         variant="destructive"

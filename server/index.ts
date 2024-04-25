@@ -47,11 +47,11 @@ const app = express();
 
 // no ending slashes for SEO reasons
 // https://github.com/epicweb-dev/epic-stack/discussions/108
-app.use((req, res, next) => {
+app.get("*", (req, res, next) => {
   if (req.path.endsWith("/") && req.path.length > 1) {
     const query = req.url.slice(req.path.length);
     const safepath = req.path.slice(0, -1).replace(/\/+/g, "/");
-    res.redirect(301, safepath + query);
+    res.redirect(302, safepath + query);
   } else {
     next();
   }

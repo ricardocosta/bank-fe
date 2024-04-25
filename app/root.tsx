@@ -1,8 +1,8 @@
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
+import { invariantResponse } from "@epic-web/invariant";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { namedAction } from "remix-utils/named-action";
 
@@ -29,7 +29,6 @@ import fontStyleSheetUrl from "./styles/font.css";
 import tailwindStyleSheetUrl from "./styles/tailwind.css";
 import { getUserId, logout } from "./utils/auth.server.ts";
 import { getHints } from "./utils/client-hints.tsx";
-import { csrf } from "./utils/csrf.server.ts";
 import { prisma } from "./utils/db/db.server.ts";
 import { getEnv } from "./utils/env.server.ts";
 import { honeypot } from "./utils/honeypot.server.ts";
@@ -122,7 +121,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
   const { toast, headers: toastHeaders } = await getToast(request);
   const honeyProps = honeypot.getInputProps();
-  const [csrfToken, csrfCookieHeader] = await csrf.commitToken();
 
   return json(
     {
@@ -139,13 +137,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       ENV: getEnv(),
       toast,
       honeyProps,
-      csrfToken,
     },
     {
       headers: combineHeaders(
         { "Server-Timing": JSON.stringify(timings) },
         toastHeaders,
-        csrfCookieHeader ? { "set-cookie": csrfCookieHeader } : null,
       ),
     },
   );
@@ -162,45 +158,41 @@ export async function action({ request }: ActionFunctionArgs) {
   return namedAction(request, {
     async switchTheme() {
       const formData = await request.formData();
-      const submission = parse(formData, {
+      const submission = parseWithZod(formData, {
         schema: ThemeFormSchema,
       });
 
-      if (submission.intent !== "submit") {
-        return json({ status: "idle", submission } as const);
-      }
-
-      if (!submission.value) {
-        return json({ status: "error", submission } as const, { status: 400 });
-      }
+      invariantResponse(
+        submission.status === "success",
+        "Invalid theme received",
+      );
 
       const { theme } = submission.value;
 
-      const responseInit = {
-        headers: { "set-cookie": setTheme(theme) },
-      };
-      return json({ success: true, submission }, responseInit);
+      return json(
+        { result: submission.reply(), type: "theme-switch" as const },
+        { headers: { "set-cookie": setTheme(theme) } },
+      );
     },
     async toggleSidebar() {
       const formData = await request.formData();
-      const submission = parse(formData, {
+      const submission = parseWithZod(formData, {
         schema: SidebarStateFormSchema,
       });
 
-      if (submission.intent !== "submit") {
-        return json({ status: "idle", submission } as const);
-      }
-
-      if (!submission.value) {
-        return json({ status: "error", submission } as const, { status: 400 });
-      }
+      invariantResponse(
+        submission.status === "success",
+        "Invalid sidebar state received",
+      );
 
       const { sidebarState } = submission.value;
 
-      const responseInit = {
-        headers: { "set-cookie": setSidebarState(sidebarState) },
-      };
-      return json({ success: true, submission }, responseInit);
+      return json(
+        { result: submission.reply(), type: "sidebar-toggle" as const },
+        {
+          headers: { "set-cookie": setSidebarState(sidebarState) },
+        },
+      );
     },
   });
 }
@@ -255,13 +247,11 @@ function App() {
 export default function AppWithProviders() {
   const data = useLoaderData<typeof loader>();
   return (
-    <AuthenticityTokenProvider token={data.csrfToken}>
-      <HoneypotProvider {...data.honeyProps}>
-        <TooltipProvider>
-          <App />
-        </TooltipProvider>
-      </HoneypotProvider>
-    </AuthenticityTokenProvider>
+    <HoneypotProvider {...data.honeyProps}>
+      <TooltipProvider>
+        <App />
+      </TooltipProvider>
+    </HoneypotProvider>
   );
 }
 
