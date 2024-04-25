@@ -18,8 +18,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(zod@3.22.4)
       '@epic-web/cachified':
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^5.1.2
+        version: 5.1.2
       '@epic-web/client-hints':
         specifier: ^1.2.2
         version: 1.2.2
@@ -723,8 +723,8 @@ packages:
   '@emotion/hash@0.9.1':
     resolution: {integrity: sha512-gJB6HLm5rYwSLI6PQa+X1t5CFGrv1J1TWG+sOyMCeKz2ojaj6Fnl/rZEspogG+cvqbt4AE/2eIyD2QfLKTBNlQ==}
 
-  '@epic-web/cachified@4.0.0':
-    resolution: {integrity: sha512-5XPdddRV1NrRev5HjfvM72tBh2jnfzBXdbcirtt0G0hveDHT4pOPrYCfyHNt+QcKSX0yifXimWMirOVXtg8ewQ==}
+  '@epic-web/cachified@5.1.2':
+    resolution: {integrity: sha512-8Q1J/jF0bOKUN+XPTSUo+z34WJHMBLkuDv+HkPPS9ufs+cHvInWrLOLi3qIljhe03Xq777pwEDBKnMafetnPhA==}
 
   '@epic-web/client-hints@1.2.2':
     resolution: {integrity: sha512-36ei/PACvvi/nh/7uKbITnZd8EP39UzYdmofrk5lqJLaPRpBt4pMeDf1bgOp0DXpuiWSVd02tcQgpu0H7blB2A==}
@@ -7082,7 +7082,7 @@ snapshots:
 
   '@emotion/hash@0.9.1': {}
 
-  '@epic-web/cachified@4.0.0': {}
+  '@epic-web/cachified@5.1.2': {}
 
   '@epic-web/client-hints@1.2.2': {}
 
