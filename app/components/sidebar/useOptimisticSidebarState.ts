@@ -1,4 +1,4 @@
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { useFetchers } from "@remix-run/react";
 
 import { SidebarStateFormSchema } from "#app/components/sidebar/schema";
@@ -12,10 +12,12 @@ export const useOptimisticSidebarState = () => {
   const fetcher = fetchers.find((f) => f.formAction === "/");
 
   if (fetcher && fetcher.formData) {
-    const submission = parse(fetcher.formData, {
+    const submission = parseWithZod(fetcher.formData, {
       schema: SidebarStateFormSchema,
     });
 
-    return submission.value?.sidebarState;
+    if (submission.status === "success") {
+      return submission.value.sidebarState;
+    }
   }
 };

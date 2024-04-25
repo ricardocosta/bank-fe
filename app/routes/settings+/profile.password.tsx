@@ -1,5 +1,5 @@
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 import { z } from "zod";
@@ -63,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   await requirePassword(userId);
   const formData = await request.formData();
 
-  const submission = await parse(formData, {
+  const submission = await parseWithZod(formData, {
     async: true,
     schema: ChangePasswordForm.superRefine(
       async ({ currentPassword, newPassword }, ctx) => {
@@ -83,15 +83,18 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     ),
   });
-  // clear the payload so we don't send the password back to the client
-  submission.payload = {};
-  if (submission.intent !== "submit") {
-    // clear the value so we don't send the password back to the client
-    submission.value = undefined;
-    return json({ status: "idle", submission } as const);
-  }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+
+  if (submission.status !== "success") {
+    return json(
+      {
+        result: submission.reply({
+          hideFields: ["currentPassword", "newPassword", "confirmNewPassword"],
+        }),
+      },
+      {
+        status: submission.status === "error" ? 400 : 200,
+      },
+    );
   }
 
   const { newPassword } = submission.value;
@@ -125,31 +128,40 @@ export default function ChangePasswordRoute() {
 
   const [form, fields] = useForm({
     id: "password-change-form",
-    constraint: getFieldsetConstraint(ChangePasswordForm),
-    lastSubmission: actionData?.submission,
+    constraint: getZodConstraint(ChangePasswordForm),
+    lastResult: actionData?.result,
     onValidate({ formData }) {
-      return parse(formData, { schema: ChangePasswordForm });
+      return parseWithZod(formData, { schema: ChangePasswordForm });
     },
     shouldRevalidate: "onBlur",
   });
 
   return (
-    <Form method="POST" {...form.props} className="mx-auto max-w-md">
+    <Form method="POST" {...getFormProps(form)} className="mx-auto max-w-md">
       <Field
         errors={fields.currentPassword.errors}
-        inputProps={conform.input(fields.currentPassword, { type: "password" })}
+        inputProps={{
+          ...getInputProps(fields.currentPassword, { type: "password" }),
+          autoComplete: "current-password",
+        }}
         labelProps={{ children: "Current Password" }}
       />
       <Field
         errors={fields.newPassword.errors}
-        inputProps={conform.input(fields.newPassword, { type: "password" })}
+        inputProps={{
+          ...getInputProps(fields.newPassword, { type: "password" }),
+          autoComplete: "new-password",
+        }}
         labelProps={{ children: "New Password" }}
       />
       <Field
         errors={fields.confirmNewPassword.errors}
-        inputProps={conform.input(fields.confirmNewPassword, {
-          type: "password",
-        })}
+        inputProps={{
+          ...getInputProps(fields.confirmNewPassword, {
+            type: "password",
+          }),
+          autoComplete: "new-password",
+        }}
         labelProps={{ children: "Confirm New Password" }}
       />
       <ErrorList errors={form.errors} id={form.errorId} />
@@ -158,7 +170,7 @@ export default function ChangePasswordRoute() {
           <Link to="..">Cancel</Link>
         </Button>
         <StatusButton
-          status={isPending ? "pending" : actionData?.status ?? "idle"}
+          status={isPending ? "pending" : form.status ?? "idle"}
           type="submit"
         >
           Change Password

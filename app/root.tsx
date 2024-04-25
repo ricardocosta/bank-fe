@@ -1,4 +1,5 @@
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
+import { invariantResponse } from "@epic-web/invariant";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
@@ -157,45 +158,41 @@ export async function action({ request }: ActionFunctionArgs) {
   return namedAction(request, {
     async switchTheme() {
       const formData = await request.formData();
-      const submission = parse(formData, {
+      const submission = parseWithZod(formData, {
         schema: ThemeFormSchema,
       });
 
-      if (submission.intent !== "submit") {
-        return json({ status: "idle", submission } as const);
-      }
-
-      if (!submission.value) {
-        return json({ status: "error", submission } as const, { status: 400 });
-      }
+      invariantResponse(
+        submission.status === "success",
+        "Invalid theme received",
+      );
 
       const { theme } = submission.value;
 
-      const responseInit = {
-        headers: { "set-cookie": setTheme(theme) },
-      };
-      return json({ success: true, submission }, responseInit);
+      return json(
+        { result: submission.reply(), type: "theme-switch" as const },
+        { headers: { "set-cookie": setTheme(theme) } },
+      );
     },
     async toggleSidebar() {
       const formData = await request.formData();
-      const submission = parse(formData, {
+      const submission = parseWithZod(formData, {
         schema: SidebarStateFormSchema,
       });
 
-      if (submission.intent !== "submit") {
-        return json({ status: "idle", submission } as const);
-      }
-
-      if (!submission.value) {
-        return json({ status: "error", submission } as const, { status: 400 });
-      }
+      invariantResponse(
+        submission.status === "success",
+        "Invalid sidebar state received",
+      );
 
       const { sidebarState } = submission.value;
 
-      const responseInit = {
-        headers: { "set-cookie": setSidebarState(sidebarState) },
-      };
-      return json({ success: true, submission }, responseInit);
+      return json(
+        { result: submission.reply(), type: "sidebar-toggle" as const },
+        {
+          headers: { "set-cookie": setSidebarState(sidebarState) },
+        },
+      );
     },
   });
 }

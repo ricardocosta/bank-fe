@@ -1,11 +1,12 @@
 import {
-  conform,
-  list,
-  useFieldList,
-  useFieldset,
+  FormProvider,
+  getFieldsetProps,
+  getFormProps,
+  getInputProps,
+  getTextareaProps,
   useForm,
 } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { createId as cuid } from "@paralleldrive/cuid2";
 import {
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
@@ -13,8 +14,8 @@ import {
   unstable_parseMultipartFormData as parseMultipartFormData,
   redirect,
 } from "@remix-run/node";
-import { Form, useFetcher } from "@remix-run/react";
-import { useRef, useState } from "react";
+import { Form, useActionData } from "@remix-run/react";
+import { useState } from "react";
 import { z } from "zod";
 
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
@@ -26,10 +27,10 @@ import { Label } from "#app/components/ui/label.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
 import { Textarea } from "#app/components/ui/textarea.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
-import { prisma } from "#app/utils/db/db.server";
-import { cn, getNoteImgSrc } from "#app/utils/misc.tsx";
+import { prisma } from "#app/utils/db/db.server.ts";
+import { cn, getNoteImgSrc, useIsPending } from "#app/utils/misc.tsx";
 
-import type { FieldConfig } from "@conform-to/react";
+import type { FieldMetadata } from "@conform-to/react";
 import type { Note, NoteImage } from "@prisma/client";
 import type { ActionFunctionArgs, SerializeFrom } from "@remix-run/node";
 
@@ -80,7 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
     createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE }),
   );
 
-  const submission = await parse(formData, {
+  const submission = await parseWithZod(formData, {
     schema: NoteEditorSchema.superRefine(async (data, ctx) => {
       if (!data.id) {
         return;
@@ -90,6 +91,7 @@ export async function action({ request }: ActionFunctionArgs) {
         select: { id: true },
         where: { id: data.id, ownerId: userId },
       });
+
       if (!note) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -133,12 +135,13 @@ export async function action({ request }: ActionFunctionArgs) {
     async: true,
   });
 
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
-  }
-
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      {
+        status: submission.status === "error" ? 400 : 200,
+      },
+    );
   }
 
   const {
@@ -186,125 +189,125 @@ export function NoteEditor({
     }
   >;
 }) {
-  const noteFetcher = useFetcher<typeof action>();
-  const isPending = noteFetcher.state !== "idle";
+  const actionData = useActionData<typeof action>();
+  const isPending = useIsPending();
 
   const [form, fields] = useForm({
     id: "note-editor",
-    constraint: getFieldsetConstraint(NoteEditorSchema),
-    lastSubmission: noteFetcher.data?.submission,
+    constraint: getZodConstraint(NoteEditorSchema),
+    lastResult: actionData?.result,
     onValidate({ formData }) {
-      return parse(formData, { schema: NoteEditorSchema });
+      return parseWithZod(formData, { schema: NoteEditorSchema });
     },
     defaultValue: {
-      title: note?.title ?? "",
-      content: note?.content ?? "",
+      ...note,
       images: note?.images ?? [{}],
     },
+    shouldRevalidate: "onBlur",
   });
-  const imageList = useFieldList(form.ref, fields.images);
+  const imageList = fields.images.getFieldList();
 
   return (
     <div className="absolute inset-0">
-      <Form
-        className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
-        method="POST"
-        {...form.props}
-        encType="multipart/form-data"
-      >
-        {/*
+      <FormProvider context={form.context}>
+        <Form
+          className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+          method="POST"
+          {...getFormProps(form)}
+          encType="multipart/form-data"
+        >
+          {/*
 					This hidden submit button is here to ensure that when the user hits
 					"enter" on an input field, the primary form function is submitted
 					rather than the first button in the form (which is delete/add image).
 				*/}
-        <button className="hidden" type="submit" />
-        {note ? <input name="id" type="hidden" value={note.id} /> : null}
-        <div className="flex flex-col gap-1">
-          <Field
-            errors={fields.title.errors}
-            inputProps={{
-              autoFocus: true,
-              ...conform.input(fields.title, { ariaAttributes: true }),
-            }}
-            labelProps={{ children: "Title" }}
-          />
-          <TextareaField
-            errors={fields.content.errors}
-            labelProps={{ children: "Content" }}
-            textareaProps={{
-              ...conform.textarea(fields.content, { ariaAttributes: true }),
-            }}
-          />
-          <div>
-            <Label>Images</Label>
-            <ul className="flex flex-col gap-4">
-              {imageList.map((image, index) => (
-                <li
-                  key={image.key}
-                  className="relative border-b-2 border-muted-foreground"
-                >
-                  <button
-                    className="absolute right-0 top-0 text-foreground-destructive"
-                    {...list.remove(fields.images.name, { index })}
-                  >
-                    <span aria-hidden>
-                      <Icon name="cross-1" />
-                    </span>{" "}
-                    <span className="sr-only">Remove image {index + 1}</span>
-                  </button>
-                  <ImageChooser config={image} />
-                </li>
-              ))}
-            </ul>
+          <button className="hidden" type="submit" />
+          {note ? <input name="id" type="hidden" value={note.id} /> : null}
+          <div className="flex flex-col gap-1">
+            <Field
+              errors={fields.title.errors}
+              inputProps={{
+                autoFocus: true,
+                ...getInputProps(fields.title, { type: "text" }),
+              }}
+              labelProps={{ children: "Title" }}
+            />
+            <TextareaField
+              errors={fields.content.errors}
+              labelProps={{ children: "Content" }}
+              textareaProps={{
+                ...getTextareaProps(fields.content),
+              }}
+            />
+            <div>
+              <Label>Images</Label>
+              <ul className="flex flex-col gap-4">
+                {imageList.map((image, index) => {
+                  return (
+                    <li
+                      key={image.key}
+                      className="relative border-b-2 border-muted-foreground"
+                    >
+                      <button
+                        className="absolute right-0 top-0 text-foreground-destructive"
+                        {...form.remove.getButtonProps({
+                          name: fields.images.name,
+                          index,
+                        })}
+                      >
+                        <span aria-hidden>
+                          <Icon name="cross-1" />
+                        </span>{" "}
+                        <span className="sr-only">
+                          Remove image {index + 1}
+                        </span>
+                      </button>
+                      <ImageChooser meta={image} />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <Button
+              className="mt-3"
+              {...form.insert.getButtonProps({ name: fields.images.name })}
+            >
+              <span aria-hidden>
+                <Icon name="plus">Image</Icon>
+              </span>{" "}
+              <span className="sr-only">Add image</span>
+            </Button>
           </div>
-          <Button
-            className="mt-3"
-            {...list.insert(fields.images.name, { defaultValue: {} })}
-          >
-            <span aria-hidden>
-              <Icon name="plus">Image</Icon>
-            </span>{" "}
-            <span className="sr-only">Add image</span>
+          <ErrorList errors={form.errors} id={form.errorId} />
+        </Form>
+        <div className={floatingToolbarClassName}>
+          <Button variant="destructive" {...form.reset.getButtonProps()}>
+            Reset
           </Button>
+          <StatusButton
+            disabled={isPending}
+            form={form.id}
+            status={isPending ? "pending" : "idle"}
+            type="submit"
+          >
+            Submit
+          </StatusButton>
         </div>
-        <ErrorList errors={form.errors} id={form.errorId} />
-      </Form>
-      <div className={floatingToolbarClassName}>
-        <Button form={form.id} type="reset" variant="destructive">
-          Reset
-        </Button>
-        <StatusButton
-          disabled={isPending}
-          form={form.id}
-          status={isPending ? "pending" : "idle"}
-          type="submit"
-        >
-          Submit
-        </StatusButton>
-      </div>
+      </FormProvider>
     </div>
   );
 }
 
-function ImageChooser({
-  config,
-}: {
-  config: FieldConfig<z.infer<typeof ImageFieldsetSchema>>;
-}) {
-  const ref = useRef<HTMLFieldSetElement>(null);
-  const fields = useFieldset(ref, config);
-  const existingImage = Boolean(fields.id.defaultValue);
+function ImageChooser({ meta }: { meta: FieldMetadata<ImageFieldset> }) {
+  const fields = meta.getFieldset();
+  const existingImage = Boolean(fields.id.initialValue);
   const [previewImage, setPreviewImage] = useState<string | null>(
-    fields.id.defaultValue ? getNoteImgSrc(fields.id.defaultValue) : null,
+    fields.id.initialValue ? getNoteImgSrc(fields.id.initialValue) : null,
   );
-  const [altText, setAltText] = useState(fields.altText.defaultValue ?? "");
+  const [altText, setAltText] = useState(fields.altText.initialValue ?? "");
 
   return (
-    <fieldset
-      ref={ref}
-      aria-describedby={config.errors?.length ? config.errorId : undefined}
-      aria-invalid={Boolean(config.errors?.length) || undefined}
-    >
+    <fieldset {...getFieldsetProps(meta)}>
       <div className="flex gap-3">
         <div className="w-32">
           <div className="relative h-32 w-32">
@@ -312,7 +315,7 @@ function ImageChooser({
               className={cn("group absolute h-32 w-32 rounded-lg", {
                 "bg-accent opacity-40 focus-within:opacity-100 hover:opacity-100":
                   !previewImage,
-                "cursor-pointer focus-within:ring-4": !existingImage,
+                "cursor-pointer focus-within:ring-2": !existingImage,
               })}
               htmlFor={fields.file.id}
             >
@@ -335,12 +338,7 @@ function ImageChooser({
                 </div>
               )}
               {existingImage ? (
-                <input
-                  {...conform.input(fields.id, {
-                    type: "hidden",
-                    ariaAttributes: true,
-                  })}
-                />
+                <input {...getInputProps(fields.id, { type: "hidden" })} />
               ) : null}
               <input
                 accept="image/*"
@@ -359,10 +357,7 @@ function ImageChooser({
                     setPreviewImage(null);
                   }
                 }}
-                {...conform.input(fields.file, {
-                  type: "file",
-                  ariaAttributes: true,
-                })}
+                {...getInputProps(fields.file, { type: "file" })}
               />
             </label>
           </div>
@@ -374,7 +369,7 @@ function ImageChooser({
           <Label htmlFor={fields.altText.id}>Alt Text</Label>
           <Textarea
             onChange={(e) => setAltText(e.currentTarget.value)}
-            {...conform.textarea(fields.altText, { ariaAttributes: true })}
+            {...getTextareaProps(fields.altText)}
           />
           <div className="min-h-[32px] px-4 pb-3 pt-1">
             <ErrorList
@@ -385,7 +380,7 @@ function ImageChooser({
         </div>
       </div>
       <div className="min-h-[32px] px-4 pb-3 pt-1">
-        <ErrorList errors={config.errors} id={config.errorId} />
+        <ErrorList errors={meta.errors} id={meta.errorId} />
       </div>
     </fieldset>
   );

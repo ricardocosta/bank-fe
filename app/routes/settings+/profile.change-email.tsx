@@ -1,5 +1,5 @@
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { invariant } from "@epic-web/invariant";
 import * as E from "@react-email/components";
 import { json, redirect } from "@remix-run/node";
@@ -34,22 +34,34 @@ export async function handleVerification({
   request,
   submission,
 }: VerifyFunctionArgs) {
-  invariant(submission.value, "submission.value should be defined by now");
+  invariant(
+    submission.status === "success",
+    "Submission should be successful by now",
+  );
 
   const verifySession = await verifySessionStorage.getSession(
     request.headers.get("cookie"),
   );
+
   const newEmail = verifySession.get(newEmailAddressSessionKey);
   if (!newEmail) {
-    submission.error[""] = [
-      "You must submit the code on the same device that requested the email change.",
-    ];
-    return json({ status: "error", submission } as const, { status: 400 });
+    return json(
+      {
+        result: submission.reply({
+          formErrors: [
+            "You must submit the code on the same device that requested the email change.",
+          ],
+        }),
+      },
+      { status: 400 },
+    );
   }
+
   const preUpdateUser = await prisma.user.findFirstOrThrow({
     select: { email: true },
     where: { id: submission.value.target },
   });
+
   const user = await prisma.user.update({
     where: { id: submission.value.target },
     select: { id: true, email: true, username: true },
@@ -98,7 +110,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
 
-  const submission = await parse(formData, {
+  const submission = await parseWithZod(formData, {
     schema: ChangeEmailSchema.superRefine(async (data, ctx) => {
       const existingUser = await prisma.user.findUnique({
         where: { email: data.email },
@@ -114,12 +126,15 @@ export async function action({ request }: ActionFunctionArgs) {
     async: true,
   });
 
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      {
+        status: submission.status === "error" ? 400 : 200,
+      },
+    );
   }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
-  }
+
   const { otp, redirectTo, verifyUrl } = await prepareVerification({
     period: 10 * 60,
     request,
@@ -142,8 +157,14 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     });
   } else {
-    submission.error[""] = [response.error.message];
-    return json({ status: "error", submission } as const, { status: 500 });
+    return json(
+      {
+        result: submission.reply({ formErrors: [response.error.message] }),
+      },
+      {
+        status: 500,
+      },
+    );
   }
 }
 
@@ -208,10 +229,10 @@ export default function ChangeEmailIndex() {
 
   const [form, fields] = useForm({
     id: "change-email-form",
-    constraint: getFieldsetConstraint(ChangeEmailSchema),
-    lastSubmission: actionData?.submission,
+    constraint: getZodConstraint(ChangeEmailSchema),
+    lastResult: actionData?.result,
     onValidate({ formData }) {
-      return parse(formData, { schema: ChangeEmailSchema });
+      return parseWithZod(formData, { schema: ChangeEmailSchema });
     },
   });
 
@@ -224,16 +245,19 @@ export default function ChangeEmailIndex() {
         An email notice will also be sent to your old address {data.user.email}.
       </p>
       <div className="mx-auto mt-5 max-w-sm">
-        <Form method="POST" {...form.props}>
+        <Form method="POST" {...getFormProps(form)}>
           <Field
             errors={fields.email.errors}
-            inputProps={conform.input(fields.email)}
+            inputProps={{
+              ...getInputProps(fields.email, { type: "email" }),
+              autoComplete: "email",
+            }}
             labelProps={{ children: "New Email" }}
           />
           <ErrorList errors={form.errors} id={form.errorId} />
           <div>
             <StatusButton
-              status={isPending ? "pending" : actionData?.status ?? "idle"}
+              status={isPending ? "pending" : form.status ?? "idle"}
             >
               Send Confirmation
             </StatusButton>
