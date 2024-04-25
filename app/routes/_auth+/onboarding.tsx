@@ -1,6 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { invariant } from "@epic-web/invariant";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -37,8 +36,6 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-
-import type { VerifyFunctionArgs } from "./verify.tsx";
 
 export const onboardingEmailSessionKey = "onboardingEmail";
 
@@ -135,21 +132,6 @@ export async function action({ request }: ActionFunctionArgs) {
     { title: "Welcome", description: "Thanks for signing up!" },
     { headers },
   );
-}
-
-export async function handleVerification({ submission }: VerifyFunctionArgs) {
-  invariant(
-    submission.status === "success",
-    "Submission should be successful by now",
-  );
-
-  const verifySession = await verifySessionStorage.getSession();
-  verifySession.set(onboardingEmailSessionKey, submission.value.target);
-  return redirect("/onboarding", {
-    headers: {
-      "set-cookie": await verifySessionStorage.commitSession(verifySession),
-    },
-  });
 }
 
 export const meta: MetaFunction = () => {

@@ -56,11 +56,8 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install
 
-      - name: 🖼 Build icons
-        run: pnpm run build:icons
-
-      - name: 🛣 Build routes
-        run: pnpm run build:routes
+      - name: 🏗 Build
+        run: pnpm run build
 
       - name: 🔄 Generate Prisma client
         run: pnpm run prisma:generate
@@ -104,11 +101,8 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install
 
-      - name: 🖼 Build icons
-        run: pnpm run build:icons
-
-      - name: 🛣 Build routes
-        run: pnpm run build:routes
+      - name: 🏗 Build
+        run: pnpm run build
 
       - name: 💅 Prettier
         run: pnpm run format:ci
@@ -147,11 +141,8 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install
 
-      - name: 🖼 Build icons
-        run: pnpm run build:icons
-
-      - name: 🛣 Build routes
-        run: pnpm run build:routes
+      - name: 🏗 Build
+        run: pnpm run build
 
       - name: 🔄 Generate Prisma client
         run: pnpm run prisma:generate
@@ -196,11 +187,8 @@ jobs:
       - name: 🏄 Copy test env vars
         run: cp .env.example .env
 
-      - name: 🖼 Build icons
-        run: pnpm run build:icons
-
-      - name: 🛣 Build routes
-        run: pnpm run build:routes
+      - name: 🏗 Build
+        run: pnpm run build
 
       - name: 🔄 Generate Prisma client
         run: pnpm run prisma:generate
