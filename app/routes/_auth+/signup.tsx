@@ -9,13 +9,12 @@ import { z } from "zod";
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { ErrorList, Field } from "#app/components/forms.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
+import { prepareVerification } from "#app/routes/_auth+/verify.server";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { sendEmail } from "#app/utils/email.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
 import { EmailSchema } from "#app/utils/user-validation.ts";
-
-import { prepareVerification } from "./verify.tsx";
 
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 

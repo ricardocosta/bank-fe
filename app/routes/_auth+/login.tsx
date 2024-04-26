@@ -1,24 +1,19 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { invariant } from "@epic-web/invariant";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
-import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { CheckboxField, ErrorList, Field } from "#app/components/forms.tsx";
 import { Spacer } from "#app/components/spacer.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
-import { login, requireAnonymous, sessionKey } from "#app/utils/auth.server.ts";
-import { prisma } from "#app/utils/db/db.server.ts";
+import { handleNewSession } from "#app/routes/_auth+/login.server";
+import { login, requireAnonymous } from "#app/utils/auth.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
-import { combineResponseInits, useIsPending } from "#app/utils/misc.tsx";
-import { authSessionStorage } from "#app/utils/session.server.ts";
-import { redirectWithToast } from "#app/utils/toast.server.ts";
+import { useIsPending } from "#app/utils/misc.tsx";
 import { PasswordSchema, UsernameSchema } from "#app/utils/user-validation.ts";
-import { verifySessionStorage } from "#app/utils/verification.server.ts";
 
 import type {
   ActionFunctionArgs,
@@ -26,102 +21,9 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 
-import type { VerifyFunctionArgs } from "./verify.tsx";
-
 export const verifiedTimeKey = "verified-time";
 export const unverifiedSessionIdKey = "unverified-session-id";
 export const rememberKey = "remember";
-
-export async function handleNewSession(
-  {
-    request,
-    session,
-    redirectTo,
-    remember,
-  }: {
-    request: Request;
-    session: { userId: string; id: string; expirationDate: Date };
-    redirectTo?: string;
-    remember: boolean;
-  },
-  responseInit?: ResponseInit,
-) {
-  const authSession = await authSessionStorage.getSession(
-    request.headers.get("cookie"),
-  );
-  authSession.set(sessionKey, session.id);
-
-  return redirect(
-    safeRedirect(redirectTo),
-    combineResponseInits(
-      {
-        headers: {
-          "set-cookie": await authSessionStorage.commitSession(authSession, {
-            expires: remember ? session.expirationDate : undefined,
-          }),
-        },
-      },
-      responseInit,
-    ),
-  );
-}
-
-export async function handleVerification({
-  request,
-  submission,
-}: VerifyFunctionArgs) {
-  invariant(
-    submission.status === "success",
-    "Submission should be successful by now",
-  );
-
-  const authSession = await authSessionStorage.getSession(
-    request.headers.get("cookie"),
-  );
-  const verifySession = await verifySessionStorage.getSession(
-    request.headers.get("cookie"),
-  );
-
-  const remember = verifySession.get(rememberKey);
-  const { redirectTo } = submission.value;
-  const headers = new Headers();
-  authSession.set(verifiedTimeKey, Date.now());
-
-  const unverifiedSessionId = verifySession.get(unverifiedSessionIdKey);
-  if (unverifiedSessionId) {
-    const session = await prisma.session.findUnique({
-      select: { expirationDate: true },
-      where: { id: unverifiedSessionId },
-    });
-    if (!session) {
-      throw await redirectWithToast("/login", {
-        type: "error",
-        title: "Invalid session",
-        description: "Could not find session to verify. Please try again.",
-      });
-    }
-    authSession.set(sessionKey, unverifiedSessionId);
-
-    headers.append(
-      "set-cookie",
-      await authSessionStorage.commitSession(authSession, {
-        expires: remember ? session.expirationDate : undefined,
-      }),
-    );
-  } else {
-    headers.append(
-      "set-cookie",
-      await authSessionStorage.commitSession(authSession),
-    );
-  }
-
-  headers.append(
-    "set-cookie",
-    await verifySessionStorage.destroySession(verifySession),
-  );
-
-  return redirect(safeRedirect(redirectTo), { headers });
-}
 
 const LoginFormSchema = z.object({
   username: UsernameSchema,

@@ -1,49 +1,33 @@
 import crypto from "crypto";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import { createRequestHandler } from "@remix-run/express";
-import { broadcastDevReady, installGlobals } from "@remix-run/node";
+import { installGlobals } from "@remix-run/node";
 import { ip as ipAddress } from "address";
 import chalk from "chalk";
 import closeWithGrace from "close-with-grace";
 import compression from "compression";
-import express, { static as express_static } from "express";
+import express, { static as expressStatic } from "express";
 import { rateLimit } from "express-rate-limit";
 import getPort, { portNumbers } from "get-port";
 import helmet from "helmet";
 import morgan, { token } from "morgan";
 
-import type { RequestHandler } from "@remix-run/express";
-import type { AppLoadContext, ServerBuild } from "@remix-run/node";
+import type { ServerBuild } from "@remix-run/node";
 
 installGlobals();
 
 const MODE = process.env.NODE_ENV;
-const BUILD_PATH = "../build/index.js";
-const WATCH_PATH = "../build/version.txt";
 
-const build = (await import(BUILD_PATH)) as ServerBuild;
-let devBuild = build;
+const viteDevServer =
+  MODE === "production"
+    ? undefined
+    : await import("vite").then((vite) =>
+        vite.createServer({
+          server: { middlewareMode: true },
+        }),
+      );
 
 const app = express();
-
-// ensure HTTPS only
-// Leave this out for now, as I don't want to be managing certificates for docker images
-//
-// const getHost = (req: { get: (key: string) => string | undefined }) =>
-//   req.get("X-Forwarded-Host") ?? req.get("host") ?? "";
-//
-// app.use((req, res, next) => {
-//   const proto = req.get("X-Forwarded-Proto");
-//   const host = getHost(req);
-//   if (proto === "http") {
-//     res.set("X-Forwarded-Proto", "https");
-//     res.redirect(`https://${host}${req.originalUrl}`);
-//     return;
-//   }
-//   next();
-// });
 
 // no ending slashes for SEO reasons
 // https://github.com/epicweb-dev/epic-stack/discussions/108
@@ -51,6 +35,7 @@ app.get("*", (req, res, next) => {
   if (req.path.endsWith("/") && req.path.length > 1) {
     const query = req.url.slice(req.path.length);
     const safepath = req.path.slice(0, -1).replace(/\/+/g, "/");
+
     res.redirect(302, safepath + query);
   } else {
     next();
@@ -62,29 +47,27 @@ app.use(compression());
 // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
 app.disable("x-powered-by");
 
-// Remix fingerprints its assets so we can cache forever.
-app.use(
-  "/build",
-  express_static("public/build", { immutable: true, maxAge: "1y" }),
-);
+if (viteDevServer) {
+  app.use(viteDevServer.middlewares);
+} else {
+  // Remix fingerprints its assets so we can cache forever.
+  app.use(
+    "/assets",
+    expressStatic("build/client/assets", { immutable: true, maxAge: "1y" }),
+  );
 
-// Aggressively cache fonts for a year
-app.use(
-  "/fonts",
-  express_static("public/fonts", { immutable: true, maxAge: "1y" }),
-);
+  // Everything else (like favicon.ico) is cached for an hour. You may want to be
+  // more aggressive with this caching.
+  app.use(expressStatic("build/client", { maxAge: "1h" }));
+}
 
-// Everything else (like favicon.ico) is cached for an hour. You may want to be
-// more aggressive with this caching.
-app.use(express_static("public", { maxAge: "1h" }));
-
-app.get(["/build/*", "/img/*", "/fonts/*", "/favicons/*"], (req, res) => {
-  // if we made it past the express.static for these, then we're missing something.
+app.get(["/img/*", "/favicons/*"], (req, res) => {
+  // if we made it past the expressStatic for these, then we're missing something.
   // So we'll just send a 404 and won't bother calling other middleware.
   return res.status(404).send("Not found");
 });
 
-token("url", (req, _res) => decodeURIComponent(req.url ?? ""));
+token("url", (req) => decodeURIComponent(req.url ?? ""));
 app.use(
   morgan("tiny", {
     skip: (req, res) =>
@@ -136,6 +119,7 @@ app.use(
 // have to wait for the rate limit to reset between tests.
 const maxMultiple =
   MODE !== "production" || process.env.PLAYWRIGHT_TEST_BASE_URL ? 10_000 : 1;
+
 const rateLimitDefault = {
   windowMs: 60 * 1000,
   max: 1000 * maxMultiple,
@@ -156,6 +140,7 @@ const strongRateLimit = rateLimit({
 });
 
 const generalRateLimit = rateLimit(rateLimitDefault);
+
 app.use((req, res, next) => {
   const strongPaths = [
     "/login",
@@ -168,6 +153,7 @@ app.use((req, res, next) => {
     "/resources/login",
     "/resources/verify",
   ];
+
   if (req.method !== "GET" && req.method !== "HEAD") {
     if (strongPaths.some((p) => req.path.includes(p))) {
       return strongestRateLimit(req, res, next);
@@ -184,18 +170,26 @@ app.use((req, res, next) => {
   return generalRateLimit(req, res, next);
 });
 
-function getRequestHandler(build: ServerBuild): RequestHandler {
-  function getLoadContext(_req: express.Request, res: express.Response) {
-    return { cspNonce: res.locals.cspNonce } satisfies AppLoadContext;
-  }
-  return createRequestHandler({ build, mode: MODE, getLoadContext });
+async function getBuild() {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const build = viteDevServer
+    ? viteDevServer.ssrLoadModule("virtual:remix/server-build")
+    : await import("#build/server/index.js");
+
+  // not sure how to make this happy 🤷‍♂️
+  return build as unknown as ServerBuild;
 }
 
 app.all(
   "*",
-  MODE === "development"
-    ? (...args) => getRequestHandler(devBuild)(...args)
-    : getRequestHandler(build),
+  createRequestHandler({
+    getLoadContext: (_req, res) => ({
+      cspNonce: res.locals.cspNonce,
+      serverBuild: getBuild(),
+    }),
+    mode: MODE,
+    build: MODE === "production" ? await getBuild() : getBuild,
+  }),
 );
 
 const desiredPort = Number(process.env.PORT ?? 3000);
@@ -237,10 +231,6 @@ ${lanUrl ? `${chalk.bold("On Your Network:")}  ${chalk.cyan(lanUrl)}` : ""}
 ${chalk.bold("Press Ctrl+C to stop")}
 		`.trim(),
   );
-
-  if (MODE === "development") {
-    void broadcastDevReady(build);
-  }
 });
 
 closeWithGrace(async () => {
@@ -248,26 +238,3 @@ closeWithGrace(async () => {
     server.close((e) => (e ? reject(e) : resolve("ok")));
   });
 });
-
-async function reloadBuild() {
-  devBuild = (await import(
-    `${BUILD_PATH}?update=${Date.now()}`
-  )) as ServerBuild;
-  void broadcastDevReady(devBuild);
-}
-
-// during dev, we'll keep the build module up to date with the changes
-if (MODE === "development") {
-  // We'll import chokidar here so doesn't get bundled in production.
-  const chokidar = await import("chokidar");
-
-  const dirname = path.dirname(fileURLToPath(import.meta.url));
-  const watchPath = path.join(dirname, WATCH_PATH).replace(/\\/g, "/");
-
-  const buildWatcher = chokidar
-    .watch(watchPath, { ignoreInitial: true })
-    .on("add", reloadBuild)
-    .on("change", reloadBuild);
-
-  closeWithGrace(() => buildWatcher.close());
-}

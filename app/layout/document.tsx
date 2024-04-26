@@ -1,10 +1,4 @@
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Scripts,
-  ScrollRestoration,
-} from "@remix-run/react";
+import { Links, Meta, Scripts, ScrollRestoration } from "@remix-run/react";
 
 import { ClientHintCheck } from "#app/utils/client-hints.tsx";
 
@@ -42,7 +36,6 @@ export const Document = ({
         />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
-        <LiveReload nonce={nonce} />
       </body>
     </html>
   );

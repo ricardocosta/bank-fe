@@ -5,11 +5,11 @@ import { useLoaderData } from "@remix-run/react";
 import { requireUserId } from "#app/utils/auth.server.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 
-import { action, NoteEditor } from "./__note-editor.tsx";
+import { NoteEditor } from "./__note-editor.tsx";
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
-export { action };
+export { action } from "./__note-editor.server";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);

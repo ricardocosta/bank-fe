@@ -2,8 +2,8 @@ import fs from "fs";
 
 import {
   cachified as baseCachified,
-  lruCacheAdapter,
   mergeReporters,
+  totalTtl,
   verboseReporter,
 } from "@epic-web/cachified";
 import { remember } from "@epic-web/remember";
@@ -14,9 +14,10 @@ import { z } from "zod";
 import { cachifiedTimingReporter } from "./timing.server.ts";
 
 import type {
+  Cache,
   CacheEntry,
-  Cache as CachifiedCache,
   CachifiedOptions,
+  CreateReporter,
 } from "@epic-web/cachified";
 
 import type { Timings } from "./timing.server.ts";
@@ -55,7 +56,19 @@ const lru = remember(
   () => new LRUCache<string, CacheEntry<unknown>>({ max: 5000 }),
 );
 
-export const lruCache = lruCacheAdapter(lru);
+export const lruCache = {
+  name: "app-memory-cache",
+  set: (key, value) => {
+    const ttl = totalTtl(value?.metadata);
+    lru.set(key, value, {
+      ttl: ttl === Infinity ? undefined : ttl,
+      start: value?.metadata?.createdTime,
+    });
+    return value;
+  },
+  get: (key) => lru.get(key),
+  delete: (key) => lru.delete(key),
+} satisfies Cache;
 
 const cacheEntrySchema = z.object({
   metadata: z.object({
@@ -65,12 +78,13 @@ const cacheEntrySchema = z.object({
   }),
   value: z.unknown(),
 });
+
 const cacheQueryResultSchema = z.object({
   metadata: z.string(),
   value: z.string(),
 });
 
-export const cache: CachifiedCache = {
+export const cache: Cache = {
   name: "SQLite cache",
   get(key) {
     const result = cacheDb
@@ -130,15 +144,17 @@ export function searchCacheKeys(search: string, limit: number) {
   };
 }
 
-export async function cachified<Value>({
-  timings,
-  reporter = verboseReporter(),
-  ...options
-}: CachifiedOptions<Value> & {
-  timings?: Timings;
-}): Promise<Value> {
-  return baseCachified({
-    ...options,
-    reporter: mergeReporters(cachifiedTimingReporter(timings), reporter),
-  });
+export async function cachified<Value>(
+  {
+    timings,
+    ...options
+  }: CachifiedOptions<Value> & {
+    timings?: Timings;
+  },
+  reporter: CreateReporter<Value> = verboseReporter<Value>(),
+): Promise<Value> {
+  return baseCachified(
+    options,
+    mergeReporters(cachifiedTimingReporter(timings), reporter),
+  );
 }

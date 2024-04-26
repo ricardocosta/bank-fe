@@ -2,9 +2,9 @@ node_modules
 .DS_store
 
 /build
-/public/build
 /server-build
 .env*
+.cache
 !.env.example
 
 /prisma/data.db
