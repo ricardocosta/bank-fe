@@ -5,7 +5,7 @@ const APP_FILES = ["app/**"];
 const TEST_FILES = ["**/tests/**", ...VITEST_FILES];
 const TOP_LEVEL_AWAIT_FILES = ["index.js", "dev-server.js"];
 
-/** @type {import('@types/eslint').Linter.BaseConfig} */
+/** @type {import('@types/eslint').Linter.Config} */
 module.exports = {
   root: true,
   env: {
