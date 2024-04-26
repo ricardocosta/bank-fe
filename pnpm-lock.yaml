@@ -30,8 +30,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@epic-web/totp':
-        specifier: ^1.1.1
-        version: 1.1.1
+        specifier: ^1.1.2
+        version: 1.1.2
       '@nasa-gcn/remix-seo':
         specifier: ^2.0.0
         version: 2.0.0(@remix-run/react@2.9.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.3.3))(@remix-run/server-runtime@2.9.1(typescript@5.3.3))
@@ -738,8 +738,8 @@ packages:
   '@epic-web/remember@1.0.2':
     resolution: {integrity: sha512-K7DcGoRPqVkjVhPEMQzqw7W/c3hq/3LuiI74he6SkXwR6A49aUmXpxmdb6o+NldY4FFtG42U7nL8PrqNGRxXuQ==}
 
-  '@epic-web/totp@1.1.1':
-    resolution: {integrity: sha512-7FIStgheUm6EuOp5DDTrID5K5G3TzCNRaNvUYi7MBjdHW5gappPrg41IId95Q1fWN9S85R1P7Uoi2CSG7X7n1Q==}
+  '@epic-web/totp@1.1.2':
+    resolution: {integrity: sha512-ngw0+NjNgZ1ikmascnQWfut7dj0cuWqKwDM7m2w7JoOXHZCR0C5cx2aUPIl8oHOO2DQzkI6yaJLoc1bMDOn/oQ==}
     engines: {node: '>=18'}
 
   '@esbuild/aix-ppc64@0.19.10':
@@ -7179,7 +7179,7 @@ snapshots:
 
   '@epic-web/remember@1.0.2': {}
 
-  '@epic-web/totp@1.1.1':
+  '@epic-web/totp@1.1.2':
     dependencies:
       thirty-two: 1.0.2
 
