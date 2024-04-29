@@ -1,39 +1,34 @@
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { Checkbox as AriakitCheckbox } from "@ariakit/react";
 import * as React from "react";
 
 import { cn } from "#app/utils/misc.tsx";
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export interface CheckboxProps
-  extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {}
+import type { CheckboxProps as AriakitCheckboxProps } from "@ariakit/react";
 
-const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  CheckboxProps
->(({ className, ...props }, ref) => (
-  <CheckboxPrimitive.Root
-    ref={ref}
-    className={cn(
-      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
-      className,
-    )}
-    {...props}
-  >
-    <CheckboxPrimitive.Indicator
-      className={cn("flex items-center justify-center text-current")}
-    >
-      <svg viewBox="0 0 8 8">
-        <path
-          d="M1,4 L3,6 L7,2"
-          fill="none"
-          stroke="currentcolor"
-          strokeWidth="1"
+export type CheckboxProps = Omit<AriakitCheckboxProps, "type"> & {
+  label: string;
+  type?: string;
+};
+
+const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
+  function Checkbox({ className, id, label, ...props }, ref) {
+    return (
+      <label className="flex items-center gap-1" htmlFor={id}>
+        <AriakitCheckbox
+          ref={ref}
+          className={cn(
+            "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+            className,
+          )}
+          id={id}
+          {...props}
         />
-      </svg>
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
-));
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+        <span className="self-center text-body-xs text-muted-foreground">
+          {label}
+        </span>
+      </label>
+    );
+  },
+);
 
 export { Checkbox };

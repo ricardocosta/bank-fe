@@ -1,9 +1,10 @@
-import { Slot } from "@radix-ui/react-slot";
+import { Role } from "@ariakit/react";
 import { cva } from "class-variance-authority";
 import * as React from "react";
 
 import { cn } from "#app/utils/misc.tsx";
 
+import type { RoleProps } from "@ariakit/react";
 import type { VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
@@ -37,26 +38,22 @@ const buttonVariants = cva(
   },
 );
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
+export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+  Pick<RoleProps, "render"> &
+  VariantProps<typeof buttonVariants>;
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    return (
-      <Comp
-        ref={ref}
-        className={cn(buttonVariants({ variant, size, className }))}
-        {...props}
-      />
-    );
-  },
-);
-Button.displayName = "Button";
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { className, variant, size, ...props },
+  ref,
+) {
+  return (
+    // eslint-disable-next-line react/jsx-pascal-case
+    <Role.button
+      ref={ref}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  );
+});
 
 export { Button, buttonVariants };

@@ -220,10 +220,11 @@ function App() {
                 <Link to="/">
                   <p>Logo</p>
                 </Link>
-
-                <Button asChild size="sm" variant="default">
-                  <Link to="/login">Log In</Link>
-                </Button>
+                <Button
+                  render={<Link to="/login">Log In</Link>}
+                  size="sm"
+                  variant="default"
+                />
               </Flex>
             </header>
             <Outlet />

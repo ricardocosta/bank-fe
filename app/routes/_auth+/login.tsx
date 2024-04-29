@@ -142,15 +142,9 @@ export default function LoginPage() {
 
               <div className="flex justify-between">
                 <CheckboxField
-                  // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
-                  buttonProps={getInputProps(fields.remember, {
-                    type: "checkbox",
-                  })}
+                  label="Remember me"
+                  {...getInputProps(fields.remember, { type: "checkbox" })}
                   errors={fields.remember.errors}
-                  labelProps={{
-                    htmlFor: fields.remember.id,
-                    children: "Remember me",
-                  }}
                 />
                 <div>
                   <Link

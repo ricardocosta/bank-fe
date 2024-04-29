@@ -70,16 +70,20 @@ export default function ProfileRoute() {
           </Form>
 
           <div className="mt-10 flex gap-4">
-            <Button asChild>
-              <Link prefetch="intent" to="notes">
-                My notes
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link prefetch="intent" to="/settings/profile">
-                Edit profile
-              </Link>
-            </Button>
+            <Button
+              render={
+                <Link prefetch="intent" to="notes">
+                  My notes
+                </Link>
+              }
+            />
+            <Button
+              render={
+                <Link prefetch="intent" to="/settings/profile">
+                  Edit profile
+                </Link>
+              }
+            />
           </div>
         </div>
       </div>

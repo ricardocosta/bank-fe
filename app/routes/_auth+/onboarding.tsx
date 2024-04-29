@@ -211,26 +211,17 @@ export default function SignupRoute() {
           />
 
           <CheckboxField
-            // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
-            buttonProps={getInputProps(
-              fields.agreeToTermsOfServiceAndPrivacyPolicy,
-              { type: "checkbox" },
-            )}
+            label="Do you agree to our Terms of Service and Privacy Policy?"
+            {...getInputProps(fields.agreeToTermsOfServiceAndPrivacyPolicy, {
+              type: "checkbox",
+            })}
             errors={fields.agreeToTermsOfServiceAndPrivacyPolicy.errors}
-            labelProps={{
-              htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
-              children:
-                "Do you agree to our Terms of Service and Privacy Policy?",
-            }}
           />
+
           <CheckboxField
-            // @ts-expect-error Radix Checkbox requires <button />-specific 'type' but conform returns broader `<input />-type`.
-            buttonProps={getInputProps(fields.remember, { type: "checkbox" })}
+            label="Remember me"
+            {...getInputProps(fields.remember, { type: "checkbox" })}
             errors={fields.remember.errors}
-            labelProps={{
-              htmlFor: fields.remember.id,
-              children: "Remember me",
-            }}
           />
 
           <input {...getInputProps(fields.redirectTo, { type: "hidden" })} />

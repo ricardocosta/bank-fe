@@ -53,6 +53,7 @@
     "commitlint:ci": "commitlint"
   },
   "dependencies": {
+    "@ariakit/react": "^0.4.6",
     "@conform-to/react": "^1.1.2",
     "@conform-to/zod": "^1.1.2",
     "@epic-web/cachified": "^5.1.2",
@@ -63,12 +64,6 @@
     "@nasa-gcn/remix-seo": "^2.0.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^5.7.1",
-    "@radix-ui/react-checkbox": "^1.0.4",
-    "@radix-ui/react-dropdown-menu": "^2.0.6",
-    "@radix-ui/react-label": "^2.0.2",
-    "@radix-ui/react-navigation-menu": "^1.1.4",
-    "@radix-ui/react-slot": "^1.0.2",
-    "@radix-ui/react-tooltip": "^1.0.7",
     "@react-email/components": "^0.0.12",
     "@remix-run/express": "^2.9.1",
     "@remix-run/node": "^2.9.1",
@@ -111,7 +106,6 @@
     "tailwind-merge": "^2.2.0",
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
-    "tailwindcss-radix": "^2.8.0",
     "zod": "^3.22.2"
   },
   "devDependencies": {

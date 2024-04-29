@@ -113,9 +113,7 @@ export default function CreatePasswordRoute() {
       />
       <ErrorList errors={form.errors} id={form.errorId} />
       <div className="grid w-full grid-cols-2 gap-6">
-        <Button asChild variant="secondary">
-          <Link to="..">Cancel</Link>
-        </Button>
+        <Button render={<Link to="..">Cancel</Link>} variant="secondary" />
         <StatusButton
           status={isPending ? "pending" : form.status ?? "idle"}
           type="submit"
