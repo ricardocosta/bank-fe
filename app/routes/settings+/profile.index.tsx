@@ -103,19 +103,19 @@ export default function EditUserProfile() {
             src={getUserImgSrc(data.user.image?.id)}
           />
           <Button
-            asChild
             className="absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
+            render={
+              <Link
+                aria-label="Change profile photo"
+                preventScrollReset
+                title="Change profile photo"
+                to="photo"
+              >
+                <Icon className="h-4 w-4" name="camera" />
+              </Link>
+            }
             variant="outline"
-          >
-            <Link
-              aria-label="Change profile photo"
-              preventScrollReset
-              title="Change profile photo"
-              to="photo"
-            >
-              <Icon className="h-4 w-4" name="camera" />
-            </Link>
-          </Button>
+          />
         </div>
       </div>
       <UpdateProfile />

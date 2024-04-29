@@ -1,248 +1,126 @@
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import * as React from "react";
+import {
+  MenuButton,
+  Menu as MenuContent,
+  MenuItem,
+  MenuItemCheck,
+  MenuItemCheckbox,
+  MenuItemRadio,
+  MenuProvider,
+  MenuSeparator,
+} from "@ariakit/react";
+import { forwardRef } from "react";
 
 import { cn } from "#app/utils/misc.tsx";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+import type {
+  MenuProps as MenuContentProps,
+  MenuItemCheckboxProps,
+  MenuItemProps,
+  MenuItemRadioProps,
+  MenuSeparatorProps,
+} from "@ariakit/react";
 
-const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+const DropdownMenu = MenuProvider;
 
-const DropdownMenuGroup = DropdownMenuPrimitive.Group;
+const DropdownMenuTrigger = MenuButton;
 
-const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
+const DropdownMenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
+  function DropdownMenuContent({ className, gutter = 4, ...props }, ref) {
+    return (
+      <MenuContent
+        ref={ref}
+        className={cn(
+          "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+          className,
+        )}
+        gutter={gutter}
+        {...props}
+      />
+    );
+  },
+);
 
-const DropdownMenuSub = DropdownMenuPrimitive.Sub;
+const MENU_ITEM_CLASS_NAME =
+  "px-2 py-1.5 relative flex select-none items-center rounded-sm text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[active-item]:bg-accent data-[active-item]:text-accent-foreground data-[disabled]:opacity-50";
 
-const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+const DropdownMenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
+  function DropdownMenuItem({ className, ...props }, ref) {
+    return (
+      <MenuItem
+        ref={ref}
+        className={cn(MENU_ITEM_CLASS_NAME, className)}
+        {...props}
+      />
+    );
+  },
+);
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuSubTriggerProps
-  extends React.ComponentPropsWithoutRef<
-    typeof DropdownMenuPrimitive.SubTrigger
-  > {
-  inset?: boolean;
-}
-
-const DropdownMenuSubTrigger = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
-  DropdownMenuSubTriggerProps
->(({ className, inset, children, ...props }, ref) => (
-  <DropdownMenuPrimitive.SubTrigger
-    ref={ref}
-    className={cn(
-      "flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
-      inset && "pl-8",
-      className,
-    )}
-    {...props}
-  >
-    {children}
-    <span className="ml-auto h-4 w-4">▶️</span>
-  </DropdownMenuPrimitive.SubTrigger>
-));
-DropdownMenuSubTrigger.displayName =
-  DropdownMenuPrimitive.SubTrigger.displayName;
-
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuSubContentProps
-  extends React.ComponentPropsWithoutRef<
-    typeof DropdownMenuPrimitive.SubContent
-  > {}
-
-const DropdownMenuSubContent = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.SubContent>,
-  DropdownMenuSubContentProps
->(({ className, ...props }, ref) => (
-  <DropdownMenuPrimitive.SubContent
-    ref={ref}
-    className={cn(
-      "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-      className,
-    )}
-    {...props}
-  />
-));
-DropdownMenuSubContent.displayName =
-  DropdownMenuPrimitive.SubContent.displayName;
-
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuContentProps
-  extends React.ComponentPropsWithoutRef<
-    typeof DropdownMenuPrimitive.Content
-  > {}
-
-const DropdownMenuContent = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Content>,
-  DropdownMenuContentProps
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content
+const DropdownMenuCheckboxItem = forwardRef<
+  HTMLDivElement,
+  MenuItemCheckboxProps
+>(function DropdownMenuCheckboxItem(
+  { className, children, checked, ...props },
+  ref,
+) {
+  return (
+    <MenuItemCheckbox
       ref={ref}
+      checked={checked}
       className={cn(
-        "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        MENU_ITEM_CLASS_NAME,
+        "flex items-center gap-1.5",
         className,
       )}
-      sideOffset={sideOffset}
       {...props}
-    />
-  </DropdownMenuPrimitive.Portal>
-));
-DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
+    >
+      <MenuItemCheck className="inline h-[1em] w-[1em] self-center text-body-md" />
+      {children}
+    </MenuItemCheckbox>
+  );
+});
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuItemProps
-  extends React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> {
-  inset?: boolean;
-}
+const DropdownMenuRadioItem = forwardRef<HTMLDivElement, MenuItemRadioProps>(
+  function DropdownMenuRadioItem({ className, children, ...props }, ref) {
+    return (
+      <MenuItemRadio
+        ref={ref}
+        className={cn(
+          MENU_ITEM_CLASS_NAME,
+          "flex items-center gap-1.5",
+          className,
+        )}
+        {...props}
+      >
+        <MenuItemCheck className="inline h-[1em] w-[1em] self-center text-body-md" />
+        {children}
+      </MenuItemRadio>
+    );
+  },
+);
 
-const DropdownMenuItem = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Item>,
-  DropdownMenuItemProps
->(({ className, inset, ...props }, ref) => (
-  <DropdownMenuPrimitive.Item
-    ref={ref}
-    className={cn(
-      "relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      inset && "pl-8",
-      className,
-    )}
-    {...props}
-  />
-));
-DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
+const DropdownMenuSeparator = forwardRef<HTMLHRElement, MenuSeparatorProps>(
+  function DropdownMenuSeparator({ className, ...props }, ref) {
+    return (
+      <MenuSeparator
+        ref={ref}
+        className={cn("-mx-1 my-1 h-px bg-muted", className)}
+        {...props}
+      />
+    );
+  },
+);
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuCheckboxItemProps
-  extends React.ComponentPropsWithoutRef<
-    typeof DropdownMenuPrimitive.CheckboxItem
-  > {}
-
-const DropdownMenuCheckboxItem = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
-  DropdownMenuCheckboxItemProps
->(({ className, children, checked, ...props }, ref) => (
-  <DropdownMenuPrimitive.CheckboxItem
-    ref={ref}
-    checked={checked}
-    className={cn(
-      "relative flex select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className,
-    )}
-    {...props}
-  >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <DropdownMenuPrimitive.ItemIndicator>
-        <span className="h-4 w-4">
-          <svg viewBox="0 0 8 8">
-            <path
-              d="M1,4 L3,6 L7,2"
-              fill="none"
-              stroke="black"
-              strokeWidth="1"
-            />
-          </svg>
-        </span>
-      </DropdownMenuPrimitive.ItemIndicator>
-    </span>
-    {children}
-  </DropdownMenuPrimitive.CheckboxItem>
-));
-DropdownMenuCheckboxItem.displayName =
-  DropdownMenuPrimitive.CheckboxItem.displayName;
-
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuRadioItemProps
-  extends React.ComponentPropsWithoutRef<
-    typeof DropdownMenuPrimitive.RadioItem
-  > {}
-
-const DropdownMenuRadioItem = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
-  DropdownMenuRadioItemProps
->(({ className, children, ...props }, ref) => (
-  <DropdownMenuPrimitive.RadioItem
-    ref={ref}
-    className={cn(
-      "relative flex select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className,
-    )}
-    {...props}
-  >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <DropdownMenuPrimitive.ItemIndicator>
-        <span className="h-2 w-2">⚪</span>
-      </DropdownMenuPrimitive.ItemIndicator>
-    </span>
-    {children}
-  </DropdownMenuPrimitive.RadioItem>
-));
-DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName;
-
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuLabelProps
-  extends React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> {
-  inset?: boolean;
-}
-
-const DropdownMenuLabel = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Label>,
-  DropdownMenuLabelProps
->(({ className, inset, ...props }, ref) => (
-  <DropdownMenuPrimitive.Label
-    ref={ref}
-    className={cn(
-      "px-2 py-1.5 text-sm font-semibold",
-      inset && "pl-8",
-      className,
-    )}
-    {...props}
-  />
-));
-DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName;
-
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuSeparatorProps
-  extends React.ComponentPropsWithoutRef<
-    typeof DropdownMenuPrimitive.Separator
-  > {}
-
-const DropdownMenuSeparator = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
-  DropdownMenuSeparatorProps
->(({ className, ...props }, ref) => (
-  <DropdownMenuPrimitive.Separator
-    ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-muted", className)}
-    {...props}
-  />
-));
-DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
-
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface DropdownMenuShortcutProps
-  extends React.HTMLAttributes<HTMLSpanElement> {}
-
-const DropdownMenuShortcut = ({
+function DropdownMenuShortcut({
   className,
   ...props
-}: DropdownMenuShortcutProps) => {
+}: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
       className={cn("ml-auto text-xs tracking-widest opacity-60", className)}
       {...props}
     />
   );
-};
-DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
+}
 
 export {
   DropdownMenu,
@@ -251,13 +129,6 @@ export {
   DropdownMenuItem,
   DropdownMenuCheckboxItem,
   DropdownMenuRadioItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuGroup,
-  DropdownMenuPortal,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuRadioGroup,
 };

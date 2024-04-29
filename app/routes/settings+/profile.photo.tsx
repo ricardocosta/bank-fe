@@ -192,13 +192,13 @@ export default function PhotoRoute() {
             }}
           />
           <Button
-            asChild
             className="cursor-pointer peer-valid:hidden peer-focus-within:ring-4 peer-focus-visible:ring-4"
-          >
-            <label htmlFor={fields.photoFile.id}>
-              <Icon name="pencil-1">Change</Icon>
-            </label>
-          </Button>
+            render={
+              <label htmlFor={fields.photoFile.id}>
+                <Icon name="pencil-1">Change</Icon>
+              </label>
+            }
+          />
           <StatusButton
             className="peer-invalid:hidden"
             name="intent"

@@ -1,16 +1,15 @@
 import * as React from "react";
 import { useSpinDelay } from "spin-delay";
 
+import {
+  TooltipAnchor,
+  TooltipContent,
+  TooltipProvider,
+} from "#app/components/ui/tooltip.tsx";
 import { cn } from "#app/utils/misc.tsx";
 
 import { Button } from "./button.tsx";
 import { Icon } from "./icon.tsx";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./tooltip.tsx";
 
 import type { ButtonProps } from "./button.tsx";
 
@@ -55,10 +54,8 @@ export const StatusButton = React.forwardRef<
       <div>{children}</div>
       {message ? (
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>{companion}</TooltipTrigger>
-            <TooltipContent>{message}</TooltipContent>
-          </Tooltip>
+          <TooltipAnchor>{companion}</TooltipAnchor>
+          <TooltipContent>{message}</TooltipContent>
         </TooltipProvider>
       ) : (
         companion

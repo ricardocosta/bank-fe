@@ -1,5 +1,4 @@
 import animatePlugin from "tailwindcss-animate";
-import radixPlugin from "tailwindcss-radix";
 
 import { extendedTheme } from "./app/utils/extended-theme.ts";
 
@@ -18,5 +17,5 @@ export default {
     },
     extend: extendedTheme,
   },
-  plugins: [animatePlugin, radixPlugin],
+  plugins: [animatePlugin],
 } satisfies Config;
