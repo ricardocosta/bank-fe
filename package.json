@@ -161,7 +161,7 @@
     "husky": "^8.0.3",
     "jsdom": "^23.0.1",
     "lint-staged": "^15.2.2",
-    "msw": "2.0.12",
+    "msw": "2.2.14",
     "node-html-parser": "^6.1.13",
     "npm-run-all2": "^6.1.2",
     "postcss-color-converter": "^1.1.0",
