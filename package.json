@@ -89,7 +89,7 @@
     "glob": "^10.3.12",
     "helmet": "^7.0.0",
     "intl-parse-accept-language": "^1.0.0",
-    "isbot": "^3.7.0",
+    "isbot": "^5.1.6",
     "lru-cache": "^10.1.0",
     "morgan": "^1.10.0",
     "prisma": "^5.13.0",
