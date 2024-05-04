@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
 import { json } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { namedAction } from "remix-utils/named-action";
 
@@ -10,11 +10,12 @@ import {
   getSidebarState,
   setSidebarState,
 } from "#app/components/sidebar/sidebar.server.ts";
-import { Sidebar } from "#app/components/sidebar/sidebar.tsx";
 import { useToast } from "#app/components/toaster.tsx";
-import { Flex, Inline, Stack } from "#app/components/ui/layout";
+import { Stack } from "#app/components/ui/layout";
 import { EpicToaster } from "#app/components/ui/sonner.tsx";
 import { TooltipProvider } from "#app/components/ui/tooltip.tsx";
+import { AnonymousPage } from "#app/layout/anonymous-page.tsx";
+import { AuthenticatedPage } from "#app/layout/authenticated-page.tsx";
 import { Document } from "#app/layout/document.tsx";
 import { ThemeFormSchema } from "#app/theme/schema.ts";
 import { getTheme, setTheme } from "#app/theme/theme.server.ts";
@@ -22,7 +23,6 @@ import { useTheme } from "#app/theme/useTheme.ts";
 
 import { GeneralErrorBoundary } from "./components/error-boundary.tsx";
 import { EpicProgress } from "./components/progress-bar.tsx";
-import { Button } from "./components/ui/button.tsx";
 import { href as iconsHref } from "./components/ui/icon.tsx";
 import tailwindStyleSheetUrl from "./styles/tailwind.css?url";
 import { getUserId, logout } from "./utils/auth.server.ts";
@@ -200,36 +200,7 @@ function App() {
   return (
     <Document env={data.ENV} nonce={nonce} theme={theme}>
       <Stack className="h-screen" gap="none">
-        {user ? (
-          <Inline className="h-screen w-full" gap="none">
-            <Sidebar userPreference={data.requestInfo.userPrefs.sidebarState} />
-            <Flex className="h-screen w-full overflow-auto" gap="none">
-              <Outlet />
-            </Flex>
-          </Inline>
-        ) : (
-          <Stack align="center" className="w-full" gap="none">
-            <header className="container py-6">
-              <Flex
-                align="center"
-                as="nav"
-                gap="xlarge"
-                justify="between"
-                wrap="wrap"
-              >
-                <Link to="/">
-                  <p>Logo</p>
-                </Link>
-                <Button
-                  render={<Link to="/login">Log In</Link>}
-                  size="sm"
-                  variant="default"
-                />
-              </Flex>
-            </header>
-            <Outlet />
-          </Stack>
-        )}
+        {user ? <AuthenticatedPage /> : <AnonymousPage />}
       </Stack>
       <EpicToaster closeButton position="top-center" theme={theme} />
       <EpicProgress />

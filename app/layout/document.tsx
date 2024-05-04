@@ -26,7 +26,7 @@ export const Document = ({
         <meta content="width=device-width,initial-scale=1" name="viewport" />
         <Links />
       </head>
-      <body className="bg-background text-foreground">
+      <body>
         {children}
         <script
           dangerouslySetInnerHTML={{
