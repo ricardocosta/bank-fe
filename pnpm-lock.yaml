@@ -49,7 +49,7 @@ importers:
         version: 0.0.12(@types/react@18.2.47)(react@18.2.0)
       '@remix-run/express':
         specifier: ^2.9.1
-        version: 2.9.1(express@4.18.2)(typescript@5.3.3)
+        version: 2.9.1(express@4.19.2)(typescript@5.3.3)
       '@remix-run/node':
         specifier: ^2.9.1
         version: 2.9.1(typescript@5.3.3)
@@ -102,11 +102,11 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       express:
-        specifier: ^4.18.2
-        version: 4.18.2
+        specifier: ^4.19.2
+        version: 4.19.2
       express-rate-limit:
         specifier: ^7.1.5
-        version: 7.1.5(express@4.18.2)
+        version: 7.1.5(express@4.19.2)
       get-port:
         specifier: ^7.0.0
         version: 7.0.0
@@ -2472,8 +2472,8 @@ packages:
   bl@5.1.0:
     resolution: {integrity: sha512-tv1ZJHLfTDnXE6tMHv73YgSJaWR2AFuPwMntBe7XL/GBFHnT0CLnsHMogfk5+GzCDC5ZWarSCYaIGATZt9dNsQ==}
 
-  body-parser@1.20.1:
-    resolution: {integrity: sha512-jWi7abTbYwajOytWCQc37VulmWiRae5RyTpaCyDcS5/lMdtwSz5lOpDE67srw/HYe35f1z3fDQw+3txg7gNtWw==}
+  body-parser@1.20.2:
+    resolution: {integrity: sha512-ml9pReCu3M61kGlqoTm2umSXTlRTuGTx0bfYj+uIUKKYycG5NtSbeetV3faSU6R7ajOPw0g/J1PvK4qNy7s5bA==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
 
   boolbase@1.0.0:
@@ -3342,8 +3342,8 @@ packages:
     peerDependencies:
       express: 4 || 5 || ^5.0.0-beta.1
 
-  express@4.18.2:
-    resolution: {integrity: sha512-5/PsL6iGPdfQ/lKM1UuielYgv3BUoJfz1aUwU9vHZ+J7gyvwdQXFEBIEIaxeGf0GIcreATNyBExtalisDbuMqQ==}
+  express@4.19.2:
+    resolution: {integrity: sha512-5T6nhjsT+EOMzuck8JjBHARTHfMht0POzlA60WV2pMD3gyXw2LZnZ+ueGdNxG+0calOJcWKbpFcuzLZ91YWq9Q==}
     engines: {node: '>= 0.10.0'}
 
   extend-shallow@2.0.1:
@@ -5167,8 +5167,8 @@ packages:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
 
-  raw-body@2.5.1:
-    resolution: {integrity: sha512-qqJBtEyVgS0ZmPGdCFPWJ3FreoqvG4MVQln/kCgF7Olq95IbOp0/BWyMwbdtn4VTvkM8Y7khCQ2Xgk/tcrCXig==}
+  raw-body@2.5.2:
+    resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
     engines: {node: '>= 0.8'}
 
   rc@1.2.8:
@@ -8168,7 +8168,7 @@ snapshots:
       esbuild-plugins-node-modules-polyfill: 1.6.1(esbuild@0.19.10)
       execa: 5.1.1
       exit-hook: 2.2.1
-      express: 4.18.2
+      express: 4.19.2
       fs-extra: 10.1.0
       get-port: 5.1.1
       gunzip-maybe: 1.4.2
@@ -8213,10 +8213,10 @@ snapshots:
       - ts-node
       - utf-8-validate
 
-  '@remix-run/express@2.9.1(express@4.18.2)(typescript@5.3.3)':
+  '@remix-run/express@2.9.1(express@4.19.2)(typescript@5.3.3)':
     dependencies:
       '@remix-run/node': 2.9.1(typescript@5.3.3)
-      express: 4.18.2
+      express: 4.19.2
     optionalDependencies:
       typescript: 5.3.3
 
@@ -8248,11 +8248,11 @@ snapshots:
 
   '@remix-run/serve@2.9.1(typescript@5.3.3)':
     dependencies:
-      '@remix-run/express': 2.9.1(express@4.18.2)(typescript@5.3.3)
+      '@remix-run/express': 2.9.1(express@4.19.2)(typescript@5.3.3)
       '@remix-run/node': 2.9.1(typescript@5.3.3)
       chokidar: 3.5.3
       compression: 1.7.4
-      express: 4.18.2
+      express: 4.19.2
       get-port: 5.1.1
       morgan: 1.10.0
       source-map-support: 0.5.21
@@ -9129,7 +9129,7 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  body-parser@1.20.1:
+  body-parser@1.20.2:
     dependencies:
       bytes: 3.1.2
       content-type: 1.0.5
@@ -9140,7 +9140,7 @@ snapshots:
       iconv-lite: 0.4.24
       on-finished: 2.4.1
       qs: 6.11.0
-      raw-body: 2.5.1
+      raw-body: 2.5.2
       type-is: 1.6.18
       unpipe: 1.0.0
     transitivePeerDependencies:
@@ -10153,18 +10153,18 @@ snapshots:
 
   expand-template@2.0.3: {}
 
-  express-rate-limit@7.1.5(express@4.18.2):
+  express-rate-limit@7.1.5(express@4.19.2):
     dependencies:
-      express: 4.18.2
+      express: 4.19.2
 
-  express@4.18.2:
+  express@4.19.2:
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
-      body-parser: 1.20.1
+      body-parser: 1.20.2
       content-disposition: 0.5.4
       content-type: 1.0.5
-      cookie: 0.5.0
+      cookie: 0.6.0
       cookie-signature: 1.0.6
       debug: 2.6.9
       depd: 2.0.0
@@ -12171,7 +12171,7 @@ snapshots:
 
   range-parser@1.2.1: {}
 
-  raw-body@2.5.1:
+  raw-body@2.5.2:
     dependencies:
       bytes: 3.1.2
       http-errors: 2.0.0
