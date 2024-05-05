@@ -105,8 +105,8 @@ importers:
         specifier: ^4.19.2
         version: 4.19.2
       express-rate-limit:
-        specifier: ^7.1.5
-        version: 7.1.5(express@4.19.2)
+        specifier: ^7.2.0
+        version: 7.2.0(express@4.19.2)
       get-port:
         specifier: ^7.0.0
         version: 7.0.0
@@ -3336,8 +3336,8 @@ packages:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
     engines: {node: '>=6'}
 
-  express-rate-limit@7.1.5:
-    resolution: {integrity: sha512-/iVogxu7ueadrepw1bS0X0kaRC/U0afwiYRSLg68Ts+p4Dc85Q5QKsOnPS/QUjPMHvOJQtBDrZgvkOzf8ejUYw==}
+  express-rate-limit@7.2.0:
+    resolution: {integrity: sha512-T7nul1t4TNyfZMJ7pKRKkdeVJWa2CqB8NA1P8BwYaoDI5QSBZARv5oMS43J7b7I5P+4asjVXjb7ONuwDKucahg==}
     engines: {node: '>= 16'}
     peerDependencies:
       express: 4 || 5 || ^5.0.0-beta.1
@@ -10153,7 +10153,7 @@ snapshots:
 
   expand-template@2.0.3: {}
 
-  express-rate-limit@7.1.5(express@4.19.2):
+  express-rate-limit@7.2.0(express@4.19.2):
     dependencies:
       express: 4.19.2
 
