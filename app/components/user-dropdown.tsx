@@ -14,11 +14,13 @@ import { Icon } from "#app/components/ui/icon";
 import { getUserImgSrc } from "#app/utils/misc";
 import { useUser } from "#app/utils/user";
 
+import type { SidebarState } from "#app/components/sidebar/types";
+
 type UserDropdownProps = {
-  isSidebarOpen: boolean;
+  mode: SidebarState;
 };
 
-export function UserDropdown({ isSidebarOpen }: UserDropdownProps) {
+export function UserDropdown({ mode }: UserDropdownProps) {
   const user = useUser();
   const submit = useSubmit();
   const formRef = useRef<HTMLFormElement>(null);
@@ -43,7 +45,7 @@ export function UserDropdown({ isSidebarOpen }: UserDropdownProps) {
                 className="h-8 w-8 rounded-full object-cover"
                 src={getUserImgSrc(user.image?.id)}
               />
-              {isSidebarOpen ? user.name : null}
+              {mode === "expanded" ? user.name : null}
             </NavLink>
           </Button>
         }

@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 
 export const extendedTheme = {
   colors: {
+    frame: "var(--frame)",
     border: "hsl(var(--border))",
     input: {
       DEFAULT: "hsl(var(--input))",

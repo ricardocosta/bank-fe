@@ -1,5 +1,6 @@
 import { Links, Meta, Scripts, ScrollRestoration } from "@remix-run/react";
 
+import { useTheme } from "#app/theme/useTheme";
 import { ClientHintCheck } from "#app/utils/client-hints.tsx";
 
 import type { Theme } from "#app/theme/types";
@@ -11,12 +12,9 @@ type DocumentProps = {
   env?: Record<string, string>;
 };
 
-export const Document = ({
-  children,
-  nonce,
-  theme = "light",
-  env = {},
-}: DocumentProps) => {
+export const Document = ({ children, nonce, env = {} }: DocumentProps) => {
+  const theme = useTheme();
+
   return (
     <html className={`${theme} h-full overflow-x-hidden`} lang="en">
       <head>

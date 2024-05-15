@@ -1,11 +1,22 @@
-import { getFormProps, useForm } from "@conform-to/react";
-import { Link, useFetcher, useRouteLoaderData } from "@remix-run/react";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { invariant } from "@epic-web/invariant";
+import {
+  NavLink,
+  useActionData,
+  useFetcher,
+  useRouteLoaderData,
+} from "@remix-run/react";
 import { forwardRef } from "react";
+import { $path, $routeId } from "remix-routes";
 
 import { NavMenu } from "#app/components/nav";
+import { SidebarToggleSchema } from "#app/components/sidebar/schema";
 import { useOptimisticSidebarState } from "#app/components/sidebar/useOptimisticSidebarState";
+import { Button } from "#app/components/ui/button";
 import { Icon } from "#app/components/ui/icon";
-import { Inline, Stack } from "#app/components/ui/layout";
+import { Input } from "#app/components/ui/input";
+import { Flex, Stack } from "#app/components/ui/layout";
 import { UserDropdown } from "#app/components/user-dropdown";
 import { ThemeSwitch } from "#app/theme/theme-switch";
 import { cn } from "#app/utils/misc";
@@ -16,25 +27,22 @@ import type { SidebarState } from "#app/components/sidebar/types";
 import type { action as rootAction, loader as rootLoader } from "#app/root.tsx";
 import type { SubAction } from "#types/named-actions";
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export interface SidebarProps extends HTMLAttributes<HTMLDivElement> {
-  userPreference?: SidebarState | null;
-}
+export type SidebarProps = HTMLAttributes<HTMLDivElement>;
 
 type SidebarStateFetcher = SubAction<typeof rootAction, "sidebar-toggle">;
 
 export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
-  ({ children, userPreference }, ref) => {
-    const fetcher = useFetcher<SidebarStateFetcher>();
-    const data = useRouteLoaderData<typeof rootLoader>("root");
-    const optimisticMode = useOptimisticSidebarState();
-    const [form] = useForm({
-      id: "sidebar-toggle",
-      lastResult: fetcher.data?.result,
-    });
+  ({ children }, ref) => {
+    const actionData = useActionData<SidebarStateFetcher>();
+    const fetcher = useFetcher();
+    const data = useRouteLoaderData<typeof rootLoader>($routeId("root"));
+    invariant(data, "No data found for root loader");
 
-    const mode = optimisticMode ?? userPreference ?? "collapsed";
+    const optimisticMode = useOptimisticSidebarState();
+
+    const mode =
+      optimisticMode ?? data.requestInfo.userPrefs.sidebarState ?? "collapsed";
+
     let nextMode: SidebarState;
     switch (mode) {
       case "expanded":
@@ -45,47 +53,67 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
         break;
     }
 
+    const [form, fields] = useForm({
+      id: "sidebar-toggle",
+      constraint: getZodConstraint(SidebarToggleSchema),
+      lastResult: actionData?.result,
+
+      onValidate({ formData }) {
+        return parseWithZod(formData, { schema: SidebarToggleSchema });
+      },
+    });
+
     return (
       <Stack
         ref={ref}
         className={cn(
-          "group/sidebar relative h-full gap-6 bg-sky-900 px-3 py-4 transition-all duration-200 ease-in-out",
+          "group/sidebar relative h-full gap-3 px-3 pb-7 pt-1 transition-all duration-200 ease-in-out",
           mode === "expanded" ? "max-w-48" : "max-w-20",
         )}
       >
-        <Stack as="header" className="w-full" grow={0} wrap="nowrap">
-          <Inline className="w-full" justify="between">
-            <Link to="/">
-              <p>Logo</p>
-            </Link>
-            <fetcher.Form method="POST" {...getFormProps(form)}>
-              <input name="sidebarState" type="hidden" value={nextMode} />
-              <button
-                className="ml-3 flex rounded-sm border border-slate-300 bg-sky-950 p-1 opacity-0 transition-all duration-200 hover:border-slate-200 group-hover/sidebar:opacity-100"
-                name="intent"
-                type="submit"
-                value="toggleSidebar"
-              >
-                <Icon
-                  className="text-slate-300 group-hover/sidebar:text-slate-200"
-                  name={
-                    mode === "expanded" ? "rail-right-open" : "rail-right-close"
-                  }
-                >
-                  <span className="sr-only">
-                    {mode === "expanded"
-                      ? "Collapse sidebar"
-                      : "Expand sidebar"}
-                  </span>
-                </Icon>
-              </button>
-            </fetcher.Form>
-          </Inline>
-        </Stack>
+        <Flex className="w-full" gap="medium" grow={0} justify="end">
+          <ThemeSwitch />
+          <fetcher.Form
+            method="POST"
+            {...getFormProps(form)}
+            className="opacity-0 transition-opacity duration-200 ease-in-out focus-within:opacity-100 group-hover/sidebar:opacity-100 group-focus-visible/sidebar:opacity-100"
+          >
+            <Input
+              {...getInputProps(fields.sidebarState, {
+                type: "hidden",
+                value: false,
+              })}
+              value={nextMode}
+            />
+            <Button
+              aria-label={
+                mode === "expanded" ? "Collapse sidebar" : "Expand sidebar"
+              }
+              className="size-5 p-0.5 hover:bg-slate-100 focus-visible:ring-offset-0"
+              name="intent"
+              size="icon"
+              type="submit"
+              value="toggleSidebar"
+              variant="ghost"
+            >
+              <Icon
+                className={cn(
+                  "ring-0 ring-offset-frame",
+                  mode === "expanded" ? "fill-slate-800" : "fill-slate-400",
+                )}
+                name="margin-left"
+              />
+            </Button>
+          </fetcher.Form>
+        </Flex>
+        <NavLink to={$path("/")}>
+          <div className="flex size-12 items-center justify-center bg-blue-400">
+            B
+          </div>
+        </NavLink>
         <NavMenu mode={mode} />
         {children}
-        <UserDropdown isSidebarOpen={userPreference === "expanded"} />
-        <ThemeSwitch userPreference={data?.requestInfo.userPrefs.theme} />
+        <UserDropdown mode={mode} />
       </Stack>
     );
   },
