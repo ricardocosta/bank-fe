@@ -115,7 +115,7 @@ export default function VerifyRoute() {
             <StatusButton
               className="w-full"
               disabled={isPending}
-              status={isPending ? "pending" : form.status ?? "idle"}
+              status={isPending ? "pending" : (form.status ?? "idle")}
               type="submit"
             >
               Submit

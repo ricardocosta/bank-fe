@@ -239,7 +239,9 @@ function UpdateProfile() {
         <StatusButton
           name="intent"
           size="wide"
-          status={fetcher.state !== "idle" ? "pending" : form.status ?? "idle"}
+          status={
+            fetcher.state !== "idle" ? "pending" : (form.status ?? "idle")
+          }
           type="submit"
           value={profileUpdateActionIntent}
         >
@@ -287,7 +289,7 @@ function SignOutOfSessions() {
             status={
               fetcher.state !== "idle"
                 ? "pending"
-                : fetcher.data?.status ?? "idle"
+                : (fetcher.data?.status ?? "idle")
             }
             variant={dc.doubleCheck ? "destructive" : "default"}
           >
