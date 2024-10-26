@@ -10,7 +10,8 @@
     /* prefixed with foreground because it should look good on the background */
     --foreground-destructive: 345 82.7% 40.8%;
 
-    --background: theme("colors.stone.100");
+    --frame: theme("colors.slate.200");
+    --background: theme("colors.slate.50");
     --foreground: 222.2 84% 4.9%;
 
     --muted: 210 40% 93%;
@@ -32,7 +33,7 @@
     --secondary: theme("colors.sky.950");
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --accent: 210 40% 90%;
+    --accent: theme("colors.slate.50");
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 70% 50%;
@@ -44,7 +45,8 @@
   }
 
   .dark {
-    --background: theme("colors.slate.900");
+    --frame: theme("colors.sky.950");
+    --background: theme("colors.sky.800");
     --foreground: 210 40% 98%;
 
     /* prefixed with foreground because it should look good on the background */

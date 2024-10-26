@@ -231,7 +231,7 @@ export default function SignupRoute() {
             <StatusButton
               className="w-full"
               disabled={isPending}
-              status={isPending ? "pending" : form.status ?? "idle"}
+              status={isPending ? "pending" : (form.status ?? "idle")}
               type="submit"
             >
               Create an account

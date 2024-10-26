@@ -206,7 +206,7 @@ export default function PhotoRoute() {
               pendingIntent === "submit"
                 ? "pending"
                 : lastSubmissionIntent === "submit"
-                  ? form.status ?? "idle"
+                  ? (form.status ?? "idle")
                   : "idle"
             }
             type="submit"
@@ -234,7 +234,7 @@ export default function PhotoRoute() {
                 pendingIntent === "delete"
                   ? "pending"
                   : lastSubmissionIntent === "delete"
-                    ? form.status ?? "idle"
+                    ? (form.status ?? "idle")
                     : "idle"
               }
             >

@@ -1,8 +1,12 @@
 import { Toaster as Sonner } from "sonner";
 
+import { useTheme } from "#app/theme/useTheme";
+
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
-function EpicToaster({ theme, ...props }: ToasterProps) {
+function EpicToaster({ ...props }: ToasterProps) {
+  const theme = useTheme();
+
   return (
     <Sonner
       className="toaster group"

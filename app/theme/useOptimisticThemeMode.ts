@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { useFetchers } from "@remix-run/react";
 
-import { ThemeFormSchema } from "#app/theme/schema";
+import { ThemeSwitchSchema } from "#app/theme/schema";
 
 /**
  * If the user's changing their theme mode preference, this will return the
@@ -13,7 +13,7 @@ export const useOptimisticThemeMode = () => {
 
   if (themeFetcher && themeFetcher.formData) {
     const submission = parseWithZod(themeFetcher.formData, {
-      schema: ThemeFormSchema,
+      schema: ThemeSwitchSchema,
     });
 
     if (submission.status === "success") {

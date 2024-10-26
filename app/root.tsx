@@ -1,28 +1,23 @@
-import { parseWithZod } from "@conform-to/zod";
-import { invariantResponse } from "@epic-web/invariant";
 import { json } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { namedAction } from "remix-utils/named-action";
 
-import { SidebarStateFormSchema } from "#app/components/sidebar/schema.ts";
 import {
   getSidebarState,
-  setSidebarState,
+  toggleSidebarAction,
 } from "#app/components/sidebar/sidebar.server.ts";
-import { Sidebar } from "#app/components/sidebar/sidebar.tsx";
 import { useToast } from "#app/components/toaster.tsx";
-import { Flex, Inline, Stack } from "#app/components/ui/layout";
+import { Stack } from "#app/components/ui/layout";
 import { EpicToaster } from "#app/components/ui/sonner.tsx";
 import { TooltipProvider } from "#app/components/ui/tooltip.tsx";
+import { AnonymousPage } from "#app/layout/anonymous-page.tsx";
+import { AuthenticatedPage } from "#app/layout/authenticated-page.tsx";
 import { Document } from "#app/layout/document.tsx";
-import { ThemeFormSchema } from "#app/theme/schema.ts";
-import { getTheme, setTheme } from "#app/theme/theme.server.ts";
-import { useTheme } from "#app/theme/useTheme.ts";
+import { getTheme, switchThemeAction } from "#app/theme/theme.server.ts";
 
 import { GeneralErrorBoundary } from "./components/error-boundary.tsx";
 import { EpicProgress } from "./components/progress-bar.tsx";
-import { Button } from "./components/ui/button.tsx";
 import { href as iconsHref } from "./components/ui/icon.tsx";
 import tailwindStyleSheetUrl from "./styles/tailwind.css?url";
 import { getUserId, logout } from "./utils/auth.server.ts";
@@ -149,42 +144,10 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 export async function action({ request }: ActionFunctionArgs) {
   return namedAction(request, {
     async switchTheme() {
-      const formData = await request.formData();
-      const submission = parseWithZod(formData, {
-        schema: ThemeFormSchema,
-      });
-
-      invariantResponse(
-        submission.status === "success",
-        "Invalid theme received",
-      );
-
-      const { theme } = submission.value;
-
-      return json(
-        { result: submission.reply(), type: "theme-switch" as const },
-        { headers: { "set-cookie": setTheme(theme) } },
-      );
+      return switchThemeAction(request);
     },
     async toggleSidebar() {
-      const formData = await request.formData();
-      const submission = parseWithZod(formData, {
-        schema: SidebarStateFormSchema,
-      });
-
-      invariantResponse(
-        submission.status === "success",
-        "Invalid sidebar state received",
-      );
-
-      const { sidebarState } = submission.value;
-
-      return json(
-        { result: submission.reply(), type: "sidebar-toggle" as const },
-        {
-          headers: { "set-cookie": setSidebarState(sidebarState) },
-        },
-      );
+      return toggleSidebarAction(request);
     },
   });
 }
@@ -193,45 +156,15 @@ function App() {
   const data = useLoaderData<typeof loader>();
   const nonce = useNonce();
   const user = useOptionalUser();
-  const theme = useTheme();
 
   useToast(data.toast);
 
   return (
-    <Document env={data.ENV} nonce={nonce} theme={theme}>
+    <Document env={data.ENV} nonce={nonce}>
       <Stack className="h-screen" gap="none">
-        {user ? (
-          <Inline className="h-screen w-full" gap="none">
-            <Sidebar userPreference={data.requestInfo.userPrefs.sidebarState} />
-            <Flex className="h-screen w-full overflow-auto" gap="none">
-              <Outlet />
-            </Flex>
-          </Inline>
-        ) : (
-          <Stack align="center" className="w-full" gap="none">
-            <header className="container py-6">
-              <Flex
-                align="center"
-                as="nav"
-                gap="xlarge"
-                justify="between"
-                wrap="wrap"
-              >
-                <Link to="/">
-                  <p>Logo</p>
-                </Link>
-                <Button
-                  render={<Link to="/login">Log In</Link>}
-                  size="sm"
-                  variant="default"
-                />
-              </Flex>
-            </header>
-            <Outlet />
-          </Stack>
-        )}
+        {user ? <AuthenticatedPage /> : <AnonymousPage />}
       </Stack>
-      <EpicToaster closeButton position="top-center" theme={theme} />
+      <EpicToaster closeButton position="top-center" />
       <EpicProgress />
     </Document>
   );
@@ -239,6 +172,7 @@ function App() {
 
 export default function AppWithProviders() {
   const data = useLoaderData<typeof loader>();
+
   return (
     <HoneypotProvider {...data.honeyProps}>
       <TooltipProvider>

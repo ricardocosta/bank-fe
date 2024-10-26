@@ -165,7 +165,7 @@ export default function LoginPage() {
                 <StatusButton
                   className="w-full"
                   disabled={isPending}
-                  status={isPending ? "pending" : form.status ?? "idle"}
+                  status={isPending ? "pending" : (form.status ?? "idle")}
                   type="submit"
                 >
                   Log in
