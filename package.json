@@ -119,7 +119,7 @@
     "@remix-run/testing": "^2.13.1",
     "@sly-cli/sly": "^1.14.0",
     "@testing-library/jest-dom": "^6.6.2",
-    "@testing-library/react": "^15.0.7",
+    "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/bcryptjs": "^2.4.6",
