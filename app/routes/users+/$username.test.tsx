@@ -22,16 +22,16 @@ describe("username", () => {
   it("the user profile when not logged in as self", async () => {
     const userImages = await getUserImages();
     const userImage =
-      userImages[faker.number.int({ min: 0, max: userImages.length - 1 })];
+      userImages[faker.number.int({ max: userImages.length - 1, min: 0 })];
     const user = await prisma.user.create({
-      select: { id: true, username: true, name: true },
       data: { ...createUser(), image: { create: userImage } },
+      select: { id: true, name: true, username: true },
     });
     const App = createRemixStub([
       {
-        path: "/users/:username",
         Component: UsernameRoute,
         loader,
+        path: "/users/:username",
       },
     ]);
 
@@ -52,17 +52,17 @@ describe("username", () => {
   it("the user profile when logged in as self", async () => {
     const userImages = await getUserImages();
     const userImage =
-      userImages[faker.number.int({ min: 0, max: userImages.length - 1 })];
+      userImages[faker.number.int({ max: userImages.length - 1, min: 0 })];
     const user = await prisma.user.create({
-      select: { id: true, username: true, name: true },
       data: { ...createUser(), image: { create: userImage } },
+      select: { id: true, name: true, username: true },
     });
     const session = await prisma.session.create({
-      select: { id: true },
       data: {
         expirationDate: getSessionExpirationDate(),
         userId: user.id,
       },
+      select: { id: true },
     });
 
     const authSession = await authSessionStorage.getSession();
@@ -75,24 +75,24 @@ describe("username", () => {
 
     const App = createRemixStub([
       {
-        id: "root",
-        path: "/",
-        loader: async (args) => {
-          // add the cookie header to the request
-          args.request.headers.set("cookie", cookieHeader);
-          return rootLoader(args);
-        },
         children: [
           {
-            path: "users/:username",
             Component: UsernameRoute,
             loader: async (args) => {
               // add the cookie header to the request
               args.request.headers.set("cookie", cookieHeader);
               return loader(args);
             },
+            path: "users/:username",
           },
         ],
+        id: "root",
+        loader: async (args) => {
+          // add the cookie header to the request
+          args.request.headers.set("cookie", cookieHeader);
+          return rootLoader(args);
+        },
+        path: "/",
       },
     ]);
 

@@ -26,20 +26,20 @@ import type { loader as notesLoader } from "./notes.tsx";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const note = await prisma.note.findUnique({
-    where: { id: params.noteId },
     select: {
-      id: true,
-      title: true,
       content: true,
-      ownerId: true,
-      updatedAt: true,
+      id: true,
       images: {
         select: {
-          id: true,
           altText: true,
+          id: true,
         },
       },
+      ownerId: true,
+      title: true,
+      updatedAt: true,
     },
+    where: { id: params.noteId },
   });
 
   invariantResponse(note, "Not found", { status: 404 });
@@ -77,7 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const { noteId } = submission.value;
 
   const note = await prisma.note.findFirst({
-    select: { id: true, ownerId: true, owner: { select: { username: true } } },
+    select: { id: true, owner: { select: { username: true } }, ownerId: true },
     where: { id: noteId },
   });
   invariantResponse(note, "Not found", { status: 404 });
@@ -91,9 +91,9 @@ export async function action({ request }: ActionFunctionArgs) {
   await prisma.note.delete({ where: { id: note.id } });
 
   return redirectWithToast(`/users/${note.owner.username}/notes`, {
-    type: "success",
-    title: "Success",
     description: "Your note has been deleted.",
+    title: "Success",
+    type: "success",
   });
 }
 
@@ -117,7 +117,7 @@ export default function NoteRoute() {
               <a href={getNoteImgSrc(image.id)}>
                 <img
                   alt={image.altText ?? ""}
-                  className="h-32 w-32 rounded-lg object-cover"
+                  className="size-32 rounded-lg object-cover"
                   src={getNoteImgSrc(image.id)}
                 />
               </a>
@@ -196,11 +196,12 @@ export const meta: MetaFunction<
     data && data.note.content.length > 100
       ? data?.note.content.slice(0, 97) + "..."
       : "No content";
+
   return [
     { title: `${noteTitle} | ${displayName}'s Notes | Epic Notes` },
     {
-      name: "description",
       content: noteContentsSummary,
+      name: "description",
     },
   ];
 };

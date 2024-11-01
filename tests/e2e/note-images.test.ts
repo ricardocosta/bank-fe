@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 
 import { faker } from "@faker-js/faker";
 
@@ -71,16 +71,16 @@ test("Users can edit note image", async ({ page, login }) => {
   const user = await login();
 
   const note = await prisma.note.create({
-    select: { id: true },
     data: {
       ...createNoteWithImage(),
       ownerId: user.id,
     },
+    select: { id: true },
   });
   await page.goto(`/users/${user.username}/notes/${note.id}`);
 
   // edit the image
-  await page.getByRole("link", { name: "Edit", exact: true }).click();
+  await page.getByRole("link", { exact: true, name: "Edit" }).click();
   const updatedImage = {
     altText: "koala coder",
     location: "tests/fixtures/images/kody-notes/koala-coder.png",
@@ -97,11 +97,11 @@ test("Users can delete note image", async ({ page, login }) => {
   const user = await login();
 
   const note = await prisma.note.create({
-    select: { id: true, title: true },
     data: {
       ...createNoteWithImage(),
       ownerId: user.id,
     },
+    select: { id: true, title: true },
   });
   await page.goto(`/users/${user.username}/notes/${note.id}`);
 
@@ -113,7 +113,7 @@ test("Users can delete note image", async ({ page, login }) => {
     .getByRole("listitem")
     .getByRole("img");
   const countBefore = await images.count();
-  await page.getByRole("link", { name: "Edit", exact: true }).click();
+  await page.getByRole("link", { exact: true, name: "Edit" }).click();
   await page.getByRole("button", { name: "remove image" }).click();
   await page.getByRole("button", { name: "submit" }).click();
   await expect(page).toHaveURL(new RegExp(`/users/${user.username}/notes/.*`));
@@ -123,8 +123,8 @@ test("Users can delete note image", async ({ page, login }) => {
 
 function createNote() {
   return {
-    title: faker.lorem.words(3),
     content: faker.lorem.paragraphs(3),
+    title: faker.lorem.words(3),
   } satisfies Omit<Note, "id" | "createdAt" | "updatedAt" | "type" | "ownerId">;
 }
 function createNoteWithImage() {
@@ -133,10 +133,10 @@ function createNoteWithImage() {
     images: {
       create: {
         altText: "cute koala",
-        contentType: "image/png",
         blob: fs.readFileSync(
           "tests/fixtures/images/kody-notes/cute-koala.png",
         ),
+        contentType: "image/png",
       },
     },
   } satisfies Omit<

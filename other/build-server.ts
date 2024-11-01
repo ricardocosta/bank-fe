@@ -1,5 +1,5 @@
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { build } from "esbuild";
 import { copySync, ensureDirSync, readJsonSync } from "fs-extra/esm";
@@ -11,7 +11,7 @@ const pkg = readJsonSync(path.join(process.cwd(), "package.json")) as {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const here = (...s: string[]) => path.join(__dirname, ...s);
-const globsafe = (s: string) => s.replace(/\\/g, "/");
+const globsafe = (s: string) => s.replaceAll("\\", "/");
 
 const allFiles = globSync(globsafe(here("../server/**/*.*")), {
   ignore: [
@@ -39,12 +39,12 @@ console.log("building...");
 
 build({
   entryPoints: entries,
-  outdir: here("../server-build"),
-  target: [`node${pkg.engines.node}`],
-  platform: "node",
-  sourcemap: true,
   format: "esm",
   logLevel: "info",
+  outdir: here("../server-build"),
+  platform: "node",
+  sourcemap: true,
+  target: [`node${pkg.engines.node}`],
 }).catch((error: unknown) => {
   console.error(error);
   throw error;

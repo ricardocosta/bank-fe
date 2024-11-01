@@ -1,4 +1,5 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
+import { constants } from "node:http2";
 
 import { createRequestHandler } from "@remix-run/express";
 import { installGlobals } from "@remix-run/node";
@@ -35,9 +36,9 @@ const app = express();
 app.get("*", (req, res, next) => {
   if (req.path.endsWith("/") && req.path.length > 1) {
     const query = req.url.slice(req.path.length);
-    const safepath = req.path.slice(0, -1).replace(/\/+/g, "/");
+    const safepath = req.path.slice(0, -1).replaceAll(/\/+/g, "/");
 
-    res.redirect(302, safepath + query);
+    res.redirect(constants.HTTP_STATUS_FOUND, safepath + query);
   } else {
     next();
   }
@@ -65,14 +66,14 @@ if (viteDevServer) {
 app.get(["/img/*", "/favicons/*"], (_req, res) => {
   // if we made it past the expressStatic for these, then we're missing something.
   // So we'll just send a 404 and won't bother calling other middleware.
-  return res.status(404).send("Not found");
+  return res.status(constants.HTTP_STATUS_NOT_FOUND).send("Not found");
 });
 
 token("url", (req) => decodeURIComponent(req.url ?? ""));
 app.use(
   morgan("tiny", {
     skip: (req, res) =>
-      res.statusCode === 200 &&
+      res.statusCode === constants.HTTP_STATUS_OK &&
       (req.url?.startsWith("/resources/note-images") ||
         req.url?.startsWith("/resources/user-images")),
   }),
@@ -85,15 +86,12 @@ app.use((_, res, next) => {
 
 app.use(
   helmet({
-    referrerPolicy: { policy: "same-origin" },
-    crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
-      // NOTE: Remove reportOnly when you're ready to enforce this CSP
-      reportOnly: true,
       directives: {
-        "connect-src": [MODE === "development" ? "ws:" : null, "'self'"].filter(
-          Boolean,
-        ),
+        "connect-src": [
+          MODE === "development" ? "ws:" : undefined,
+          "'self'",
+        ].filter(Boolean),
         "font-src": ["'self'"],
         "frame-src": ["'self'"],
         "img-src": ["'self'", "data:"],
@@ -109,9 +107,13 @@ app.use(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           (_, res) => `'nonce-${res.locals.cspNonce}'`,
         ],
-        "upgrade-insecure-requests": null,
+        "upgrade-insecure-requests": [],
       },
+      // NOTE: Remove reportOnly when you're ready to enforce this CSP
+      reportOnly: true,
     },
+    crossOriginEmbedderPolicy: false,
+    referrerPolicy: { policy: "same-origin" },
   }),
 );
 
@@ -122,22 +124,22 @@ const maxMultiple =
   !IS_PROD || process.env.PLAYWRIGHT_TEST_BASE_URL ? 10_000 : 1;
 
 const rateLimitDefault = {
-  windowMs: 60 * 1000,
+  legacyHeaders: false,
   max: 1000 * maxMultiple,
   standardHeaders: true,
-  legacyHeaders: false,
+  windowMs: 60 * 1000,
 };
 
 const strongestRateLimit = rateLimit({
   ...rateLimitDefault,
-  windowMs: 60 * 1000,
   max: 10 * maxMultiple,
+  windowMs: 60 * 1000,
 });
 
 const strongRateLimit = rateLimit({
   ...rateLimitDefault,
-  windowMs: 60 * 1000,
   max: 100 * maxMultiple,
+  windowMs: 60 * 1000,
 });
 
 const generalRateLimit = rateLimit(rateLimitDefault);
@@ -183,13 +185,15 @@ async function getBuild() {
 
 app.all(
   "*",
+  // ESLint doesn't want Promises being used in arguments of functions
+  // that return void, which is the case for RequestHandler
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   createRequestHandler({
+    build: getBuild,
     getLoadContext: (_req, res) => ({
       cspNonce: res.locals.cspNonce,
-      serverBuild: getBuild(),
     }),
     mode: MODE,
-    build: getBuild,
   }),
 );
 
@@ -201,7 +205,7 @@ const portToUse = await getPort({
 const portAvailable = desiredPort === portToUse;
 if (!portAvailable && !IS_DEV) {
   console.log(`⚠️ Port ${desiredPort} is not available.`);
-  // eslint-disable-next-line n/no-process-exit
+  // oxlint-disable-next-line n/no-process-exit
   process.exit(1);
 }
 

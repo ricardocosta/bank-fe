@@ -24,11 +24,11 @@ export async function createFixture(
 }
 
 const EmailSchema = z.object({
-  to: z.string(),
   from: z.string(),
+  html: z.string(),
   subject: z.string(),
   text: z.string(),
-  html: z.string(),
+  to: z.string(),
 });
 type Email = z.infer<typeof EmailSchema>;
 

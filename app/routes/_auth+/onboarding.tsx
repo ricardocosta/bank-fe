@@ -41,14 +41,14 @@ export const onboardingEmailSessionKey = "onboardingEmail";
 
 const SignupFormSchema = z
   .object({
-    username: UsernameSchema,
-    name: NameSchema,
     agreeToTermsOfServiceAndPrivacyPolicy: z.boolean({
       required_error:
         "You must agree to the terms of service and privacy policy",
     }),
-    remember: z.boolean().optional(),
+    name: NameSchema,
     redirectTo: z.string().optional(),
+    remember: z.boolean().optional(),
+    username: UsernameSchema,
   })
   .and(PasswordAndConfirmPasswordSchema);
 
@@ -74,17 +74,18 @@ export async function action({ request }: ActionFunctionArgs) {
 
   checkHoneypot(formData);
   const submission = await parseWithZod(formData, {
+    async: true,
     schema: (intent) =>
       SignupFormSchema.superRefine(async (data, ctx) => {
         const existingUser = await prisma.user.findUnique({
-          where: { username: data.username },
           select: { id: true },
+          where: { username: data.username },
         });
         if (existingUser) {
           ctx.addIssue({
-            path: ["username"],
             code: z.ZodIssueCode.custom,
             message: "A user already exists with this username",
+            path: ["username"],
           });
           return;
         }
@@ -96,7 +97,6 @@ export async function action({ request }: ActionFunctionArgs) {
         const session = await signup({ ...data, email });
         return { ...data, session };
       }),
-    async: true,
   });
 
   if (submission.status !== "success" || !submission.value.session) {
@@ -129,7 +129,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   return redirectWithToast(
     safeRedirect(redirectTo),
-    { title: "Welcome", description: "Thanks for signing up!" },
+    { description: "Thanks for signing up!", title: "Welcome" },
     { headers },
   );
 }
@@ -146,9 +146,9 @@ export default function SignupRoute() {
   const redirectTo = searchParams.get("redirectTo");
 
   const [form, fields] = useForm({
-    id: "onboarding-form",
     constraint: getZodConstraint(SignupFormSchema),
     defaultValue: { redirectTo },
+    id: "onboarding-form",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: SignupFormSchema });
@@ -179,7 +179,7 @@ export default function SignupRoute() {
               autoComplete: "username",
               className: "lowercase",
             }}
-            labelProps={{ htmlFor: fields.username.id, children: "Username" }}
+            labelProps={{ children: "Username", htmlFor: fields.username.id }}
           />
           <Field
             errors={fields.name.errors}
@@ -187,7 +187,7 @@ export default function SignupRoute() {
               ...getInputProps(fields.name, { type: "text" }),
               autoComplete: "name",
             }}
-            labelProps={{ htmlFor: fields.name.id, children: "Name" }}
+            labelProps={{ children: "Name", htmlFor: fields.name.id }}
           />
           <Field
             errors={fields.password.errors}
@@ -195,7 +195,7 @@ export default function SignupRoute() {
               ...getInputProps(fields.password, { type: "password" }),
               autoComplete: "new-password",
             }}
-            labelProps={{ htmlFor: fields.password.id, children: "Password" }}
+            labelProps={{ children: "Password", htmlFor: fields.password.id }}
           />
 
           <Field
@@ -205,8 +205,8 @@ export default function SignupRoute() {
               autoComplete: "new-password",
             }}
             labelProps={{
-              htmlFor: fields.confirmPassword.id,
               children: "Confirm Password",
+              htmlFor: fields.confirmPassword.id,
             }}
           />
 

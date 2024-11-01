@@ -3,16 +3,18 @@ import { createCookieSessionStorage } from "@remix-run/node";
 import type { verifiedTimeKey } from "#app/routes/_auth+/login.tsx";
 import type { sessionKey } from "#app/utils/auth.server.ts";
 
-type AuthSessionData = {
-  [key in string]: string;
-} & { expires?: Date; [sessionKey]: string; [verifiedTimeKey]: number };
+type AuthSessionData = Record<string, string> & {
+  expires?: Date;
+  [sessionKey]: string;
+  [verifiedTimeKey]: number;
+};
 
 export const authSessionStorage = createCookieSessionStorage<AuthSessionData>({
   cookie: {
-    name: "en_session",
-    sameSite: "lax", // CSRF protection is advised if changing to 'none'
-    path: "/",
     httpOnly: true,
+    name: "en_session",
+    path: "/",
+    sameSite: "lax", // CSRF protection is advised if changing to 'none'
     secrets: process.env.SESSION_SECRET.split(","),
     secure: process.env.NODE_ENV === "production",
   },

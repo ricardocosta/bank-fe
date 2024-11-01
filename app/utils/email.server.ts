@@ -5,15 +5,15 @@ import type { ReactElement } from "react";
 
 const resendErrorSchema = z.union([
   z.object({
-    name: z.string(),
     message: z.string(),
+    name: z.string(),
     statusCode: z.number(),
   }),
   z.object({
-    name: z.literal("UnknownError"),
-    message: z.literal("Unknown Error"),
-    statusCode: z.literal(500),
     cause: z.any(),
+    message: z.literal("Unknown Error"),
+    name: z.literal("UnknownError"),
+    statusCode: z.literal(500),
   }),
 ]);
 type ResendError = z.infer<typeof resendErrorSchema>;
@@ -51,46 +51,46 @@ export async function sendEmail({
       JSON.stringify(email),
     );
     return {
-      status: "success",
       data: { id: "mocked" },
+      status: "success",
     } as const;
   }
 
   const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
     body: JSON.stringify(email),
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
+    method: "POST",
   });
   const data = await response.json();
   const parsedData = resendSuccessSchema.safeParse(data);
 
   if (response.ok && parsedData.success) {
     return {
-      status: "success",
       data: parsedData,
+      status: "success",
     } as const;
-  } else {
-    const parseResult = resendErrorSchema.safeParse(data);
-    if (parseResult.success) {
-      return {
-        status: "error",
-        error: parseResult.data,
-      } as const;
-    } else {
-      return {
-        status: "error",
-        error: {
-          name: "UnknownError",
-          message: "Unknown Error",
-          statusCode: 500,
-          cause: data,
-        } satisfies ResendError,
-      } as const;
-    }
   }
+
+  const parseResult = resendErrorSchema.safeParse(data);
+  if (parseResult.success) {
+    return {
+      error: parseResult.data,
+      status: "error",
+    } as const;
+  }
+
+  return {
+    error: {
+      cause: data,
+      message: "Unknown Error",
+      name: "UnknownError",
+      statusCode: 500,
+    } satisfies ResendError,
+    status: "error",
+  } as const;
 }
 
 async function renderReactEmail(react: ReactElement) {

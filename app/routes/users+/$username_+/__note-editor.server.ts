@@ -26,7 +26,7 @@ function imageHasFile(
 function imageHasId(
   image: ImageFieldset,
 ): image is ImageFieldset & { id: NonNullable<ImageFieldset["id"]> } {
-  return image.id != null;
+  return image.id !== null;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -38,6 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   const submission = await parseWithZod(formData, {
+    async: true,
     schema: NoteEditorSchema.superRefine(async (data, ctx) => {
       if (!data.id) {
         return;
@@ -60,17 +61,17 @@ export async function action({ request }: ActionFunctionArgs) {
           images.filter(imageHasId).map(async (i) => {
             if (imageHasFile(i)) {
               return {
-                id: i.id,
                 altText: i.altText,
-                contentType: i.file.type,
                 blob: Buffer.from(await i.file.arrayBuffer()),
-              };
-            } else {
-              return {
+                contentType: i.file.type,
                 id: i.id,
-                altText: i.altText,
               };
             }
+
+            return {
+              altText: i.altText,
+              id: i.id,
+            };
           }),
         ),
         newImages: await Promise.all(
@@ -80,14 +81,13 @@ export async function action({ request }: ActionFunctionArgs) {
             .map(async (image) => {
               return {
                 altText: image.altText,
-                contentType: image.file.type,
                 blob: Buffer.from(await image.file.arrayBuffer()),
+                contentType: image.file.type,
               };
             }),
         ),
       };
     }),
-    async: true,
   });
 
   if (submission.status !== "success") {
@@ -106,26 +106,26 @@ export async function action({ request }: ActionFunctionArgs) {
   } = submission.value;
 
   const updatedNote = await prisma.note.upsert({
-    select: { id: true, owner: { select: { username: true } } },
-    where: { id: noteId ?? "__new_note__" },
     create: {
+      content,
+      images: { create: { ...newImages } },
       ownerId: userId,
       title,
-      content,
-      images: { create: newImages },
     },
+    select: { id: true, owner: { select: { username: true } } },
     update: {
-      title,
       content,
       images: {
+        create: newImages,
         deleteMany: { id: { notIn: imageUpdates.map((i) => i.id) } },
         updateMany: imageUpdates.map((updates) => ({
-          where: { id: updates.id },
           data: { ...updates, id: updates.blob ? cuid() : updates.id },
+          where: { id: updates.id },
         })),
-        create: newImages,
       },
+      title,
     },
+    where: { id: noteId ?? "__new_note__" },
   });
 
   return redirect(

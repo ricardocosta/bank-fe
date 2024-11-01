@@ -20,6 +20,7 @@ function TestComponent() {
           onClick: (e) =>
             setDefaultPrevented(e.defaultPrevented ? "yes" : "no"),
         })}
+        type="button"
       >
         {dc.doubleCheck ? "You sure?" : "Click me"}
       </button>

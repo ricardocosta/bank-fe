@@ -16,7 +16,6 @@ export default defineConfig({
   plugins: [
     remix({
       ignoredRouteFiles: ["**/*"],
-      serverModuleFormat: "esm",
       routes: (defineRoutes) => {
         return flatRoutes("routes", defineRoutes, {
           ignoredRouteFiles: [
@@ -33,6 +32,7 @@ export default defineConfig({
           ],
         });
       },
+      serverModuleFormat: "esm",
     }),
     remixRoutes(),
   ],

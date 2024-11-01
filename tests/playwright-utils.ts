@@ -1,4 +1,5 @@
 import { test as base } from "@playwright/test";
+import { Prisma } from "@prisma/client";
 import * as setCookieParser from "set-cookie-parser";
 
 import {
@@ -15,19 +16,19 @@ import type { User as UserModel } from "@prisma/client";
 
 export * from "./db-utils.ts";
 
-type GetOrInsertUserOptions = {
+interface GetOrInsertUserOptions {
   id?: string;
   username?: UserModel["username"];
   password?: string;
   email?: UserModel["email"];
-};
+}
 
-type User = {
+interface User {
   id: string;
   email: string;
   username: string;
   name: string | null;
-};
+}
 
 async function getOrInsertUser({
   id,
@@ -35,48 +36,61 @@ async function getOrInsertUser({
   password,
   email,
 }: GetOrInsertUserOptions = {}): Promise<User> {
-  const select = { id: true, email: true, username: true, name: true };
+  const select = { email: true, id: true, name: true, username: true };
   if (id) {
     return await prisma.user.findUniqueOrThrow({
       select,
       where: { id: id },
     });
-  } else {
-    const userData = createUser();
-    username ??= userData.username;
-    password ??= userData.username;
-    email ??= userData.email;
-    return await prisma.user.create({
-      select,
-      data: {
-        ...userData,
-        email,
-        username,
-        roles: { connect: { name: "user" } },
-        password: { create: { hash: await getPasswordHash(password) } },
-      },
-    });
   }
+
+  const userData = createUser();
+  username ??= userData.username;
+  password ??= userData.username;
+  email ??= userData.email;
+  return await prisma.user.create({
+    data: {
+      ...userData,
+      email,
+      password: { create: { hash: await getPasswordHash(password) } },
+      roles: { connect: { name: "user" } },
+      username,
+    },
+    select,
+  });
 }
 
 export const test = base.extend<{
-  insertNewUser(options?: GetOrInsertUserOptions): Promise<User>;
-  login(options?: GetOrInsertUserOptions): Promise<User>;
+  insertNewUser(this: void, options?: GetOrInsertUserOptions): Promise<User>;
+  login(this: void, options?: GetOrInsertUserOptions): Promise<User>;
 }>({
-  insertNewUser: async ({}, use) => {
-    let userId: string | undefined = undefined;
+  // oxlint-disable-next-line react/rules-of-hooks
+  insertNewUser: async (_params, use) => {
+    let userId: string | undefined;
     await use(async (options) => {
       const user = await getOrInsertUser(options);
       userId = user.id;
       return user;
     });
-    await prisma.user.delete({ where: { id: userId } }).catch(() => {});
+
+    await prisma.user
+      .delete({
+        where: {
+          id: userId ?? Prisma.skip,
+        },
+      })
+      .catch(() => {
+        /* Empty on purpose */
+      });
   },
+
+  // oxlint-disable-next-line react/rules-of-hooks
   login: async ({ page }, use) => {
-    let userId: string | undefined = undefined;
+    let userId: string | undefined;
     await use(async (options) => {
       const user = await getOrInsertUser(options);
       userId = user.id;
+
       const session = await prisma.session.create({
         data: {
           expirationDate: getSessionExpirationDate(),
@@ -93,20 +107,23 @@ export const test = base.extend<{
       await page.context().addCookies([
         {
           ...cookieConfig,
+          domain: "localhost",
+          expires: cookieConfig.expires
+            ? Number.parseInt(
+                (cookieConfig.expires?.getTime() / 1000).toFixed(0),
+                10,
+              )
+            : undefined,
           sameSite: cookieConfig.sameSite as
             | "Strict"
             | "Lax"
             | "None"
             | undefined,
-          expires: cookieConfig.expires
-            ? parseInt((cookieConfig.expires?.getTime() / 1000).toFixed(0))
-            : undefined,
-          domain: "localhost",
         },
       ]);
       return user;
     });
-    await prisma.user.deleteMany({ where: { id: userId } });
+    await prisma.user.deleteMany({ where: { id: userId ?? Prisma.skip } });
   },
 });
 export const { expect } = test;
@@ -127,16 +144,21 @@ export async function waitFor<ReturnValue>(
 ) {
   const endTime = Date.now() + timeout;
   let lastError: unknown = new Error(errorMessage);
+
   while (Date.now() < endTime) {
     try {
+      // oxlint-disable-next-line eslint/no-await-in-loop
       const response = await cb();
       if (response) {
         return response;
       }
-    } catch (e: unknown) {
-      lastError = e;
+    } catch (error: unknown) {
+      lastError = error;
     }
+
+    // oxlint-disable-next-line eslint/no-await-in-loop
     await new Promise((r) => setTimeout(r, 100));
   }
+
   throw lastError;
 }

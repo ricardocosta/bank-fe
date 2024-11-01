@@ -16,8 +16,8 @@ export async function handleVerification({ submission }: VerifyFunctionArgs) {
 
   const target = submission.value.target;
   const user = await prisma.user.findFirst({
-    where: { OR: [{ email: target }, { username: target }] },
     select: { email: true, username: true },
+    where: { OR: [{ email: target }, { username: target }] },
   });
 
   // we don't want to say the user is not found if the email is not found

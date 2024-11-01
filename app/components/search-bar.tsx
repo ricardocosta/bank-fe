@@ -21,8 +21,8 @@ export function SearchBar({
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
   const isSubmitting = useIsPending({
-    formMethod: "GET",
     formAction: "/users",
+    formMethod: "GET",
   });
 
   const handleFormChange = useDebounce((form: HTMLFormElement) => {
@@ -43,7 +43,7 @@ export function SearchBar({
         <Input
           // Autofocus will be handled by the consumers
           // By default, it's disabled, so no a11y issues here
-          // eslint-disable-next-line jsx-a11y/no-autofocus
+          // oxlint-disable-next-line jsx-a11y/no-autofocus
           autoFocus={autoFocus}
           className="w-full"
           defaultValue={searchParams.get("search") ?? ""}

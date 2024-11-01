@@ -14,13 +14,15 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import type { MetaFunction } from "@remix-run/react";
 
 export async function loader({ params }: LoaderFunctionArgs) {
+  invariantResponse(params.username, "User not found", { status: 404 });
+
   const user = await prisma.user.findFirst({
     select: {
+      createdAt: true,
       id: true,
+      image: { select: { id: true } },
       name: true,
       username: true,
-      createdAt: true,
-      image: { select: { id: true } },
     },
     where: {
       username: params.username,
@@ -49,7 +51,7 @@ export default function ProfileRoute() {
             <div className="relative">
               <img
                 alt={userDisplayName}
-                className="h-52 w-52 rounded-full object-cover"
+                className="size-52 rounded-full object-cover"
                 src={getUserImgSrc(data.user.image?.id)}
               />
             </div>
@@ -113,8 +115,8 @@ export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
   return [
     { title: `${displayName} | Epic Notes` },
     {
-      name: "description",
       content: `Profile of ${displayName} on Epic Notes`,
+      name: "description",
     },
   ];
 };

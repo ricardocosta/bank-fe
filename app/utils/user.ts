@@ -20,6 +20,7 @@ export function useOptionalUser() {
   if (!data || !isUser(data.user)) {
     return undefined;
   }
+
   return data.user;
 }
 
@@ -48,9 +49,9 @@ export function parsePermissionString(permissionString: PermissionString) {
   ];
 
   return {
+    access: access ? (access.split(",") as Access[]) : undefined,
     action,
     entity,
-    access: access ? (access.split(",") as Access[]) : undefined,
   };
 }
 

@@ -6,8 +6,6 @@ import { Input } from "./ui/input.tsx";
 import { Label } from "./ui/label.tsx";
 import { Textarea } from "./ui/textarea.tsx";
 
-import type React from "react";
-
 import type { CheckboxProps } from "./ui/checkbox.tsx";
 
 export type ListOfErrors = Array<string | null | undefined> | null | undefined;
@@ -112,10 +110,10 @@ export function CheckboxField({
   const fallbackId = useId();
   const checkedValue = props.value ?? "on";
   const input = useInputControl({
-    key,
-    name: props.name,
     formId: props.form,
     initialValue: defaultChecked ? checkedValue : undefined,
+    key,
+    name: props.name,
   });
   const errorId = errors?.length ? `${id}-error` : undefined;
 

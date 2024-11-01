@@ -1,3 +1,5 @@
+import { constants } from "node:http2";
+
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { json } from "@remix-run/node";
@@ -26,10 +28,10 @@ export const unverifiedSessionIdKey = "unverified-session-id";
 export const rememberKey = "remember";
 
 const LoginFormSchema = z.object({
-  username: UsernameSchema,
   password: PasswordSchema,
   redirectTo: z.string().optional(),
   remember: z.boolean().default(false),
+  username: UsernameSchema,
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -43,6 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   checkHoneypot(formData);
   const submission = await parseWithZod(formData, {
+    async: true,
     schema: (intent) =>
       LoginFormSchema.transform(async (data, ctx) => {
         if (intent !== null) {
@@ -60,7 +63,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
         return { ...data, session };
       }),
-    async: true,
   });
 
   if (submission.status !== "success" || !submission.value.session) {
@@ -71,7 +73,10 @@ export async function action({ request }: ActionFunctionArgs) {
         }),
       },
       {
-        status: submission.status === "error" ? 400 : 200,
+        status:
+          submission.status === "error"
+            ? constants.HTTP_STATUS_BAD_REQUEST
+            : constants.HTTP_STATUS_OK,
       },
     );
   }
@@ -79,10 +84,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const { session, remember, redirectTo } = submission.value;
 
   return handleNewSession({
+    redirectTo,
+    remember: remember ?? false,
     request,
     session,
-    remember: remember ?? false,
-    redirectTo,
   });
 }
 
@@ -93,9 +98,9 @@ export default function LoginPage() {
   const redirectTo = searchParams.get("redirectTo");
 
   const [form, fields] = useForm({
-    id: "login-form",
     constraint: getZodConstraint(LoginFormSchema),
     defaultValue: { redirectTo },
+    id: "login-form",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: LoginFormSchema });
@@ -122,9 +127,9 @@ export default function LoginPage() {
                 errors={fields.username.errors}
                 inputProps={{
                   ...getInputProps(fields.username, { type: "text" }),
+                  autoComplete: "username",
                   autoFocus: true,
                   className: "lowercase",
-                  autoComplete: "username",
                 }}
                 labelProps={{ children: "Username" }}
               />

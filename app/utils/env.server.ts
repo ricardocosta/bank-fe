@@ -1,18 +1,18 @@
 import { z } from "zod";
 
 const schema = z.object({
-  NODE_ENV: z.enum(["production", "development", "test"] as const),
-  DATABASE_URL: z.string(),
-  CACHE_DATABASE_PATH: z.string(),
-  SESSION_SECRET: z.string(),
-  INTERNAL_COMMAND_TOKEN: z.string(),
-  HONEYPOT_SECRET: z.string(),
-  // If you plan to use Resend, uncomment this line
-  // RESEND_API_KEY: z.string(),
   ADMIN_EMAIL: z.string().optional(),
   ADMIN_NAME: z.string().optional(),
   ADMIN_PASSWORD: z.string().optional(),
   ADMIN_USERNAME: z.string().optional(),
+  CACHE_DATABASE_PATH: z.string(),
+  DATABASE_URL: z.string(),
+  HONEYPOT_SECRET: z.string(),
+  INTERNAL_COMMAND_TOKEN: z.string(),
+  NODE_ENV: z.enum(["production", "development", "test"] as const),
+  SESSION_SECRET: z.string(),
+  // If you plan to use Resend, uncomment this line
+  // RESEND_API_KEY: z.string(),
 });
 
 declare global {
@@ -55,7 +55,6 @@ type ENV = ReturnType<typeof getEnv>;
 declare global {
   // eslint-disable-next-line no-var
   var ENV: ENV;
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     ENV: ENV;
   }

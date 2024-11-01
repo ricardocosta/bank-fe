@@ -30,9 +30,9 @@ import {
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
-import type { BreadcrumbHandle } from "./profile.tsx";
+import type { BreadcrumbHandleType } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle = {
+export const handle: BreadcrumbHandleType = {
   breadcrumb: <Icon name="avatar">Photo</Icon>,
 };
 
@@ -61,13 +61,13 @@ const PhotoFormSchema = z.discriminatedUnion("intent", [
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const user = await prisma.user.findUnique({
-    where: { id: userId },
     select: {
       id: true,
+      image: { select: { id: true } },
       name: true,
       username: true,
-      image: { select: { id: true } },
     },
+    where: { id: userId },
   });
   invariantResponse(user, "User not found", { status: 404 });
   return json({ user });
@@ -81,6 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   const submission = await parseWithZod(formData, {
+    async: true,
     schema: PhotoFormSchema.transform(async (data) => {
       if (data.intent === "delete") {
         return { intent: "delete" };
@@ -89,14 +90,13 @@ export async function action({ request }: ActionFunctionArgs) {
         return z.NEVER;
       }
       return {
-        intent: data.intent,
         image: {
-          contentType: data.photoFile.type,
           blob: Buffer.from(await data.photoFile.arrayBuffer()),
+          contentType: data.photoFile.type,
         },
+        intent: data.intent,
       };
     }),
-    async: true,
   });
 
   if (submission.status !== "success") {
@@ -117,10 +117,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
   await prisma.$transaction(async ($prisma) => {
     await $prisma.userImage.deleteMany({ where: { userId } });
-    await $prisma.user.update({
-      where: { id: userId },
-      data: { image: { create: image } },
-    });
+
+    if (image) {
+      await $prisma.user.update({
+        data: { image: { create: image } },
+        where: { id: userId },
+      });
+    }
   });
 
   return redirect("/settings/profile");
@@ -135,8 +138,8 @@ export default function PhotoRoute() {
   const navigation = useNavigation();
 
   const [form, fields] = useForm({
-    id: "profile-photo",
     constraint: getZodConstraint(PhotoFormSchema),
+    id: "profile-photo",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: PhotoFormSchema });
@@ -145,10 +148,12 @@ export default function PhotoRoute() {
   });
 
   const isPending = useIsPending();
-  const pendingIntent = isPending ? navigation.formData?.get("intent") : null;
+  const pendingIntent = isPending
+    ? navigation.formData?.get("intent")
+    : undefined;
   const lastSubmissionIntent = fields.intent.value;
 
-  const [newImageSrc, setNewImageSrc] = useState<string | null>(null);
+  const [newImageSrc, setNewImageSrc] = useState<string | undefined>();
 
   return (
     <div>
@@ -156,12 +161,12 @@ export default function PhotoRoute() {
         className="flex flex-col items-center justify-center gap-10"
         encType="multipart/form-data"
         method="POST"
-        onReset={() => setNewImageSrc(null)}
+        onReset={() => setNewImageSrc(undefined)}
         {...getFormProps(form)}
       >
         <img
           alt={data.user?.name ?? data.user?.username}
-          className="h-52 w-52 rounded-full object-cover"
+          className="size-52 rounded-full object-cover"
           src={
             newImageSrc ?? (data.user ? getUserImgSrc(data.user.image?.id) : "")
           }
@@ -184,9 +189,9 @@ export default function PhotoRoute() {
               const file = e.currentTarget.files?.[0];
               if (file) {
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                  setNewImageSrc(event.target?.result?.toString() ?? null);
-                };
+                reader.addEventListener("load", (event) => {
+                  setNewImageSrc(event.target?.result?.toString() ?? undefined);
+                });
                 reader.readAsDataURL(file);
               }
             }}
@@ -226,8 +231,8 @@ export default function PhotoRoute() {
               className="peer-valid:hidden"
               variant="destructive"
               {...doubleCheckDeleteImage.getButtonProps({
-                type: "submit",
                 name: "intent",
+                type: "submit",
                 value: "delete",
               })}
               status={

@@ -16,7 +16,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const { key, cacheValue } = z
-    .object({ key: z.string(), cacheValue: z.unknown().optional() })
+    .object({ cacheValue: z.unknown().optional(), key: z.string() })
     .parse(await request.json());
 
   if (cacheValue === undefined) {

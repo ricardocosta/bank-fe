@@ -30,28 +30,28 @@ import type { action } from "./__note-editor.server";
 const titleMinLength = 1;
 const titleMaxLength = 100;
 const contentMinLength = 1;
-const contentMaxLength = 10000;
+const contentMaxLength = 10_000;
 
 export const MAX_UPLOAD_SIZE = 1024 * 1024 * 3; // 3MB
 
 const ImageFieldsetSchema = z.object({
-  id: z.string().optional(),
+  altText: z.string().optional(),
   file: z
     .instanceof(File)
     .optional()
     .refine((file) => {
       return !file || file.size <= MAX_UPLOAD_SIZE;
     }, "File size must be less than 3MB"),
-  altText: z.string().optional(),
+  id: z.string().optional(),
 });
 
 export type ImageFieldset = z.infer<typeof ImageFieldsetSchema>;
 
 export const NoteEditorSchema = z.object({
-  id: z.string().optional(),
-  title: z.string().min(titleMinLength).max(titleMaxLength),
   content: z.string().min(contentMinLength).max(contentMaxLength),
+  id: z.string().optional(),
   images: z.array(ImageFieldsetSchema).max(5).optional(),
+  title: z.string().min(titleMinLength).max(titleMaxLength),
 });
 
 export function NoteEditor({
@@ -67,15 +67,15 @@ export function NoteEditor({
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
-    id: "note-editor",
     constraint: getZodConstraint(NoteEditorSchema),
-    lastResult: actionData?.result,
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: NoteEditorSchema });
-    },
     defaultValue: {
       ...note,
       images: note?.images ?? [{}],
+    },
+    id: "note-editor",
+    lastResult: actionData?.result,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: NoteEditorSchema });
     },
     shouldRevalidate: "onBlur",
   });
@@ -124,9 +124,10 @@ export function NoteEditor({
                     >
                       <button
                         className="absolute right-0 top-0 text-foreground-destructive"
+                        type="button"
                         {...form.remove.getButtonProps({
-                          name: fields.images.name,
                           index,
+                          name: fields.images.name,
                         })}
                       >
                         <span aria-hidden>
@@ -184,9 +185,9 @@ function ImageChooser({ meta }: { meta: FieldMetadata<ImageFieldset> }) {
     <fieldset {...getFieldsetProps(meta)}>
       <div className="flex gap-3">
         <div className="w-32">
-          <div className="relative h-32 w-32">
+          <div className="relative size-32">
             <label
-              className={cn("group absolute h-32 w-32 rounded-lg", {
+              className={cn("group absolute size-32 rounded-lg", {
                 "bg-accent opacity-40 focus-within:opacity-100 hover:opacity-100":
                   !previewImage,
                 "cursor-pointer focus-within:ring-2": !existingImage,
@@ -197,7 +198,7 @@ function ImageChooser({ meta }: { meta: FieldMetadata<ImageFieldset> }) {
                 <div className="relative">
                   <img
                     alt={altText ?? ""}
-                    className="h-32 w-32 rounded-lg object-cover"
+                    className="size-32 rounded-lg object-cover"
                     src={previewImage}
                   />
                   {existingImage ? null : (
@@ -207,7 +208,7 @@ function ImageChooser({ meta }: { meta: FieldMetadata<ImageFieldset> }) {
                   )}
                 </div>
               ) : (
-                <div className="flex h-32 w-32 items-center justify-center rounded-lg border border-muted-foreground text-4xl text-muted-foreground">
+                <div className="flex size-32 items-center justify-center rounded-lg border border-muted-foreground text-4xl text-muted-foreground">
                   <Icon name="plus" />
                 </div>
               )}
@@ -217,7 +218,7 @@ function ImageChooser({ meta }: { meta: FieldMetadata<ImageFieldset> }) {
               <input
                 accept="image/*"
                 aria-label="Image"
-                className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
+                className="absolute left-0 top-0 z-0 size-32 cursor-pointer opacity-0"
                 onChange={(event) => {
                   const file = event.target.files?.[0];
 

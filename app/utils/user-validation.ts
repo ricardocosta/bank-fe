@@ -27,13 +27,13 @@ export const EmailSchema = z
   .transform((value) => value.toLowerCase());
 
 export const PasswordAndConfirmPasswordSchema = z
-  .object({ password: PasswordSchema, confirmPassword: PasswordSchema })
+  .object({ confirmPassword: PasswordSchema, password: PasswordSchema })
   .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {
       ctx.addIssue({
-        path: ["confirmPassword"],
         code: "custom",
         message: "The passwords must match",
+        path: ["confirmPassword"],
       });
     }
   });

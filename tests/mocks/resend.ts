@@ -14,10 +14,10 @@ export const handlers: HttpHandler[] = [
     const email = await writeEmail(body);
 
     return HttpResponse.json({
-      id: faker.string.uuid(),
-      from: email.from,
-      to: email.to,
       created_at: new Date().toISOString(),
+      from: email.from,
+      id: faker.string.uuid(),
+      to: email.to,
     });
   }),
 ];

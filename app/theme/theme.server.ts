@@ -41,8 +41,8 @@ export const getTheme = (request: Request): Theme | null => {
 
 export const setTheme = (theme: Theme | "system") => {
   if (theme === "system") {
-    return cookie.serialize(cookieName, "", { path: "/", maxAge: -1 });
-  } else {
-    return cookie.serialize(cookieName, theme, { path: "/" });
+    return cookie.serialize(cookieName, "", { maxAge: -1, path: "/" });
   }
+
+  return cookie.serialize(cookieName, theme, { path: "/" });
 };

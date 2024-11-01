@@ -1,0 +1,68 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "nursery": "warn",
+    "pedantic": "error",
+    "perf": "error",
+    "restriction": "error",
+    "style": "error",
+    "suspicious": "error"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true,
+    "jest": true,
+    "node": true
+  },
+  "globals": {
+    "vi": "writeable"
+  },
+  "plugins": [
+    "typescript-eslint",
+    "unicorn",
+    "import",
+    "jsx-a11y",
+    "n",
+    "react",
+    "react-hooks",
+    "vitest"
+  ],
+  "rules": {
+    "eslint/max-lines": ["error", { "max": 500, "skipComments": true }],
+    "eslint/no-console": "off",
+    "eslint/no-continue": "off",
+    "eslint/no-empty-function": ["error", { "allow": ["arrowFunctions"] }],
+    "eslint/no-magic-numbers": "off",
+    "eslint/no-ternary": "off",
+    "eslint/no-undef": "off",
+    "eslint/no-undefined": "off",
+    "eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    ],
+    "eslint/no-void": "off",
+    "eslint/require-await": "off",
+    "eslint/sort-imports": "off",
+    "import/max-dependencies": "off",
+    "import/no-default-export": "off",
+    "jsx_a11y/label-has-associated-control": "off",
+    "no-side-effects-in-initialization": "off",
+    "oxc/no-async-await": "off",
+    "oxc/no-optional-chaining": "off",
+    "oxc/no-rest-spread-properties": "off",
+    "react/react-in-jsx-scope": "off",
+    "typescript/array-type": ["error", { "default": "array-simple" }],
+    "typescript/consistent-indexed-object-style": ["error", "record"],
+    "typescript/consistent-type-imports": "error",
+    "typescript/explicit-function-return-type": "off",
+    "typescript/no-empty-interface": "off",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-namespace": ["error", { "allowDeclarations": true }],
+    "typescript/no-non-null-assertion": "off",
+    "unicorn/no-nested-ternary": "off",
+    "unicorn/no-null": "off",
+    "unicorn/no-useless-undefined": "off"
+  },
+  "settings": {}
+}
