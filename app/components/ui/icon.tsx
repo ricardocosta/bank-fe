@@ -9,6 +9,7 @@ export { href };
 export type { IconName };
 
 const sizeClassName = {
+  // oxlint-disable-next-line eslint/sort-keys
   font: "w-[1em] h-[1em]",
   xs: "w-3 h-3",
   sm: "w-4 h-4",
@@ -20,6 +21,7 @@ const sizeClassName = {
 type Size = keyof typeof sizeClassName;
 
 const childrenSizeClassName = {
+  // oxlint-disable-next-line eslint/sort-keys
   font: "gap-1.5",
   xs: "gap-1.5",
   sm: "gap-1.5",

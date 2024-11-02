@@ -12,7 +12,7 @@ import { $path, $routeId } from "remix-routes";
 
 import { NavMenu } from "#app/components/nav";
 import { SidebarToggleSchema } from "#app/components/sidebar/schema";
-import { useOptimisticSidebarState } from "#app/components/sidebar/useOptimisticSidebarState";
+import { useOptimisticSidebarState } from "#app/components/sidebar/use-optimistic-sidebar-state.ts";
 import { Button } from "#app/components/ui/button";
 import { Icon } from "#app/components/ui/icon";
 import { Input } from "#app/components/ui/input";
@@ -43,19 +43,12 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
     const mode =
       optimisticMode ?? data.requestInfo.userPrefs.sidebarState ?? "collapsed";
 
-    let nextMode: SidebarState;
-    switch (mode) {
-      case "expanded":
-        nextMode = "collapsed";
-        break;
-      case "collapsed":
-        nextMode = "expanded";
-        break;
-    }
+    const nextMode: SidebarState =
+      mode === "expanded" ? "collapsed" : "expanded";
 
     const [form, fields] = useForm({
-      id: "sidebar-toggle",
       constraint: getZodConstraint(SidebarToggleSchema),
+      id: "sidebar-toggle",
       lastResult: actionData?.result,
 
       onValidate({ formData }) {

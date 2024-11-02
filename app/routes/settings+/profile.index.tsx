@@ -1,6 +1,7 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
+import { Prisma } from "@prisma/client";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
@@ -26,15 +27,7 @@ const ProfileFormSchema = z.object({
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const user = await prisma.user.findUniqueOrThrow({
-    where: { id: userId },
     select: {
-      id: true,
-      name: true,
-      username: true,
-      email: true,
-      image: {
-        select: { id: true },
-      },
       _count: {
         select: {
           sessions: {
@@ -44,7 +37,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
           },
         },
       },
+      email: true,
+      id: true,
+      image: {
+        select: { id: true },
+      },
+      name: true,
+      username: true,
     },
+    where: { id: userId },
   });
 
   const password = await prisma.password.findUnique({
@@ -53,16 +54,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   return json({
-    user,
     hasPassword: Boolean(password),
+    user,
   });
 }
 
-type ProfileActionArgs = {
+interface ProfileActionArgs {
   request: Request;
   userId: string;
   formData: FormData;
-};
+}
 const profileUpdateActionIntent = "update-profile";
 const signOutOfSessionsActionIntent = "sign-out-of-sessions";
 const deleteDataActionIntent = "delete-data";
@@ -74,13 +75,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
   switch (intent) {
     case profileUpdateActionIntent: {
-      return profileUpdateAction({ request, userId, formData });
+      return profileUpdateAction({ formData, request, userId });
     }
     case signOutOfSessionsActionIntent: {
-      return signOutOfSessionsAction({ request, userId, formData });
+      return signOutOfSessionsAction({ formData, request, userId });
     }
     case deleteDataActionIntent: {
-      return deleteDataAction({ request, userId, formData });
+      return deleteDataAction({ formData, request, userId });
     }
     default: {
       throw new Response(`Invalid intent "${intent?.toString()}"`, {
@@ -96,14 +97,14 @@ export default function EditUserProfile() {
   return (
     <div className="flex flex-col gap-12">
       <div className="flex justify-center">
-        <div className="relative h-52 w-52">
+        <div className="relative size-52">
           <img
             alt={data.user.username}
-            className="h-full w-full rounded-full object-cover"
+            className="size-full rounded-full object-cover"
             src={getUserImgSrc(data.user.image?.id)}
           />
           <Button
-            className="absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
+            className="absolute -right-3 top-3 flex size-10 items-center justify-center rounded-full p-0"
             render={
               <Link
                 aria-label="Change profile photo"
@@ -111,7 +112,7 @@ export default function EditUserProfile() {
                 title="Change profile photo"
                 to="photo"
               >
-                <Icon className="h-4 w-4" name="camera" />
+                <Icon className="size-4" name="camera" />
               </Link>
             }
             variant="outline"
@@ -157,14 +158,14 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
     async: true,
     schema: ProfileFormSchema.superRefine(async ({ username }, ctx) => {
       const existingUsername = await prisma.user.findUnique({
-        where: { username },
         select: { id: true },
+        where: { username },
       });
       if (existingUsername && existingUsername.id !== userId) {
         ctx.addIssue({
-          path: ["username"],
           code: z.ZodIssueCode.custom,
           message: "A user already exists with this username",
+          path: ["username"],
         });
       }
     }),
@@ -182,12 +183,12 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
   const data = submission.value;
 
   await prisma.user.update({
-    select: { username: true },
-    where: { id: userId },
     data: {
-      name: data.name,
+      name: data.name ?? Prisma.skip,
       username: data.username,
     },
+    select: { username: true },
+    where: { id: userId },
   });
 
   return json({
@@ -201,15 +202,15 @@ function UpdateProfile() {
   const fetcher = useFetcher<typeof profileUpdateAction>();
 
   const [form, fields] = useForm({
-    id: "edit-profile",
     constraint: getZodConstraint(ProfileFormSchema),
+    defaultValue: {
+      name: data.user.name ?? "",
+      username: data.user.username,
+    },
+    id: "edit-profile",
     lastResult: fetcher.data?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: ProfileFormSchema });
-    },
-    defaultValue: {
-      username: data.user.username,
-      name: data.user.name ?? "",
     },
   });
 
@@ -221,15 +222,15 @@ function UpdateProfile() {
           errors={fields.username.errors}
           inputProps={getInputProps(fields.username, { type: "text" })}
           labelProps={{
-            htmlFor: fields.username.id,
             children: "Username",
+            htmlFor: fields.username.id,
           }}
         />
         <Field
           className="col-span-3"
           errors={fields.name.errors}
           inputProps={getInputProps(fields.name, { type: "text" })}
-          labelProps={{ htmlFor: fields.name.id, children: "Name" }}
+          labelProps={{ children: "Name", htmlFor: fields.name.id }}
         />
       </div>
 
@@ -240,7 +241,7 @@ function UpdateProfile() {
           name="intent"
           size="wide"
           status={
-            fetcher.state !== "idle" ? "pending" : (form.status ?? "idle")
+            fetcher.state === "idle" ? (form.status ?? "idle") : "pending"
           }
           type="submit"
           value={profileUpdateActionIntent}
@@ -263,8 +264,8 @@ async function signOutOfSessionsAction({ request, userId }: ProfileActionArgs) {
   );
   await prisma.session.deleteMany({
     where: {
-      userId,
       id: { not: sessionId },
+      userId,
     },
   });
   return json({ status: "success" } as const);
@@ -282,14 +283,14 @@ function SignOutOfSessions() {
         <fetcher.Form method="POST">
           <StatusButton
             {...dc.getButtonProps({
-              type: "submit",
               name: "intent",
+              type: "submit",
               value: signOutOfSessionsActionIntent,
             })}
             status={
-              fetcher.state !== "idle"
-                ? "pending"
-                : (fetcher.data?.status ?? "idle")
+              fetcher.state === "idle"
+                ? (fetcher.data?.status ?? "idle")
+                : "pending"
             }
             variant={dc.doubleCheck ? "destructive" : "default"}
           >
@@ -310,9 +311,9 @@ function SignOutOfSessions() {
 async function deleteDataAction({ userId }: ProfileActionArgs) {
   await prisma.user.delete({ where: { id: userId } });
   return redirectWithToast("/", {
-    type: "success",
-    title: "Data Deleted",
     description: "All of your data has been deleted",
+    title: "Data Deleted",
+    type: "success",
   });
 }
 
@@ -325,11 +326,11 @@ function DeleteData() {
       <fetcher.Form method="POST">
         <StatusButton
           {...dc.getButtonProps({
-            type: "submit",
             name: "intent",
+            type: "submit",
             value: deleteDataActionIntent,
           })}
-          status={fetcher.state !== "idle" ? "pending" : "idle"}
+          status={fetcher.state === "idle" ? "idle" : "pending"}
           variant={dc.doubleCheck ? "destructive" : "default"}
         >
           <Icon name="trash">

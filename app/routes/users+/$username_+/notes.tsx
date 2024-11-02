@@ -11,13 +11,15 @@ import { useOptionalUser } from "#app/utils/user.ts";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
 export async function loader({ params }: LoaderFunctionArgs) {
+  invariantResponse(params.username, "Username not found", { status: 404 });
+
   const owner = await prisma.user.findFirst({
     select: {
       id: true,
-      name: true,
-      username: true,
       image: { select: { id: true } },
+      name: true,
       notes: { select: { id: true, title: true } },
+      username: true,
     },
     where: { username: params.username },
   });
@@ -45,7 +47,7 @@ export default function NotesRoute() {
             >
               <img
                 alt={ownerDisplayName}
-                className="h-16 w-16 rounded-full object-cover lg:h-24 lg:w-24"
+                className="size-16 rounded-full object-cover lg:size-24"
                 src={getUserImgSrc(data.owner.image?.id)}
               />
               <h1 className="text-center text-base font-bold md:text-lg lg:text-left lg:text-2xl">

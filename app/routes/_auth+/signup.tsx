@@ -28,21 +28,21 @@ export async function action({ request }: ActionFunctionArgs) {
   checkHoneypot(formData);
 
   const submission = await parseWithZod(formData, {
+    async: true,
     schema: SignupSchema.superRefine(async (data, ctx) => {
       const existingUser = await prisma.user.findUnique({
-        where: { email: data.email },
         select: { id: true },
+        where: { email: data.email },
       });
       if (existingUser) {
         ctx.addIssue({
-          path: ["email"],
           code: z.ZodIssueCode.custom,
           message: "A user already exists with this email",
+          path: ["email"],
         });
         return;
       }
     }),
-    async: true,
   });
 
   if (submission.status !== "success") {
@@ -58,28 +58,28 @@ export async function action({ request }: ActionFunctionArgs) {
   const { verifyUrl, redirectTo, otp } = await prepareVerification({
     period: 10 * 60,
     request,
-    type: "onboarding",
     target: email,
+    type: "onboarding",
   });
 
   const response = await sendEmail({
-    to: email,
-    subject: `Welcome to Epic Notes!`,
     react: <SignupEmail onboardingUrl={verifyUrl.toString()} otp={otp} />,
+    subject: `Welcome to Epic Notes!`,
+    to: email,
   });
 
   if (response.status === "success") {
     return redirect(redirectTo.toString());
-  } else {
-    return json(
-      {
-        result: submission.reply({ formErrors: [response.error.message] }),
-      },
-      {
-        status: 500,
-      },
-    );
   }
+
+  return json(
+    {
+      result: submission.reply({ formErrors: [response.error.message] }),
+    },
+    {
+      status: 500,
+    },
+  );
 }
 
 export function SignupEmail({
@@ -97,7 +97,7 @@ export function SignupEmail({
         </h1>
         <p>
           <E.Text>
-            {`Here's your verification code:`} <strong>{otp}</strong>
+            Here&apos;s your verification code: <strong>{otp}</strong>
           </E.Text>
         </p>
         <p>
@@ -118,8 +118,8 @@ export default function SignupRoute() {
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
-    id: "signup-form",
     constraint: getZodConstraint(SignupSchema),
+    id: "signup-form",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: SignupSchema });
@@ -130,7 +130,7 @@ export default function SignupRoute() {
   return (
     <div className="container flex flex-col justify-center pb-32 pt-20">
       <div className="text-center">
-        <h1 className="text-h1">{`Let's start your journey!`}</h1>
+        <h1 className="text-h1">Let&apos;s start your journey!</h1>
         <p className="mt-3 text-body-md text-muted-foreground">
           Please enter your email.
         </p>
@@ -142,12 +142,12 @@ export default function SignupRoute() {
             errors={fields.email.errors}
             inputProps={{
               ...getInputProps(fields.email, { type: "email" }),
-              autoFocus: true,
               autoComplete: "email",
+              autoFocus: true,
             }}
             labelProps={{
-              htmlFor: fields.email.id,
               children: "Email",
+              htmlFor: fields.email.id,
             }}
           />
           <ErrorList errors={form.errors} id={form.errorId} />

@@ -27,22 +27,22 @@ export const StatusButton = React.forwardRef<
     ...spinDelay,
   });
   const companion = {
-    pending: delayedPending ? (
-      <div className="inline-flex h-6 w-6 items-center justify-center">
-        <Icon className="animate-spin" name="update" />
-      </div>
-    ) : null,
-    success: (
-      <div className="inline-flex h-6 w-6 items-center justify-center">
-        <Icon name="check" />
-      </div>
-    ),
     error: (
-      <div className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-destructive">
+      <div className="inline-flex size-6 items-center justify-center rounded-full bg-destructive">
         <Icon className="text-destructive-foreground" name="cross-1" />
       </div>
     ),
     idle: null,
+    pending: delayedPending ? (
+      <div className="inline-flex size-6 items-center justify-center">
+        <Icon className="animate-spin" name="update" />
+      </div>
+    ) : null,
+    success: (
+      <div className="inline-flex size-6 items-center justify-center">
+        <Icon name="check" />
+      </div>
+    ),
   }[status];
 
   return (

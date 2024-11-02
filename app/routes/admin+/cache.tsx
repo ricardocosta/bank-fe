@@ -99,9 +99,9 @@ export default function CacheAdminRoute() {
             <Field
               className="flex-1"
               inputProps={{
-                type: "search",
-                name: "query",
                 defaultValue: query,
+                name: "query",
+                type: "search",
               }}
               labelProps={{ children: "Search" }}
             />
@@ -115,13 +115,13 @@ export default function CacheAdminRoute() {
         <div className="flex flex-wrap items-center gap-4">
           <Field
             inputProps={{
-              name: "limit",
               defaultValue: limit,
-              type: "number",
-              step: "1",
-              min: "1",
               max: "10000",
+              min: "1",
+              name: "limit",
               placeholder: "results limit",
+              step: "1",
+              type: "number",
             }}
             labelProps={{
               children: "Limit",

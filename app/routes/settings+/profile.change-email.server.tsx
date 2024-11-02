@@ -2,13 +2,14 @@ import { invariant } from "@epic-web/invariant";
 import * as E from "@react-email/components";
 import { json } from "@remix-run/node";
 
-import { newEmailAddressSessionKey } from "#app/routes/settings+/profile.change-email.tsx";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { sendEmail } from "#app/utils/email.server.ts";
 import { redirectWithToast } from "#app/utils/toast.server.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
 
 import type { VerifyFunctionArgs } from "#app/routes/_auth+/verify.server";
+
+export const newEmailAddressSessionKey = "new-email-address";
 
 export async function handleVerification({
   request,
@@ -44,23 +45,23 @@ export async function handleVerification({
   });
 
   const user = await prisma.user.update({
-    where: { id: submission.value.target },
-    select: { id: true, email: true, username: true },
     data: { email: newEmail },
+    select: { email: true, id: true, username: true },
+    where: { id: submission.value.target },
   });
 
-  void sendEmail({
-    to: preUpdateUser.email,
-    subject: "Epic Stack email changed",
+  await sendEmail({
     react: <EmailChangeNoticeEmail userId={user.id} />,
+    subject: "Epic Stack email changed",
+    to: preUpdateUser.email,
   });
 
   return redirectWithToast(
     "/settings/profile",
     {
+      description: `Your email has been changed to ${user.email}`,
       title: "Email Changed",
       type: "success",
-      description: `Your email has been changed to ${user.email}`,
     },
     {
       headers: {
@@ -85,7 +86,7 @@ export function EmailChangeEmail({
         </h1>
         <p>
           <E.Text>
-            {`Here's your verification code:`} <strong>{otp}</strong>
+            Here&apos;s your verification code: <strong>{otp}</strong>
           </E.Text>
         </p>
         <p>

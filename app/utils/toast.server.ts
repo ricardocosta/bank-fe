@@ -16,17 +16,17 @@ const ToastSchema = z.object({
 export type Toast = z.infer<typeof ToastSchema>;
 export type ToastInput = z.input<typeof ToastSchema>;
 
-type ToastSessionData = {
+interface ToastSessionData {
   [toastKey]: Toast;
-};
+}
 
 export const toastSessionStorage = createCookieSessionStorage<ToastSessionData>(
   {
     cookie: {
-      name: "en_toast",
-      sameSite: "lax",
-      path: "/",
       httpOnly: true,
+      name: "en_toast",
+      path: "/",
+      sameSite: "lax",
       secrets: process.env.SESSION_SECRET.split(","),
       secure: process.env.NODE_ENV === "production",
     },
@@ -61,11 +61,11 @@ export async function getToast(request: Request) {
   const result = ToastSchema.safeParse(session.get(toastKey));
   const toast = result.success ? result.data : null;
   return {
-    toast,
     headers: toast
       ? new Headers({
           "set-cookie": await toastSessionStorage.destroySession(session),
         })
       : null,
+    toast,
   };
 }

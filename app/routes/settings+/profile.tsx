@@ -13,17 +13,17 @@ import { useUser } from "#app/utils/user.ts";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
 export const BreadcrumbHandle = z.object({ breadcrumb: z.any() });
-export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>;
+export type BreadcrumbHandleType = z.infer<typeof BreadcrumbHandle>;
 
-export const handle: BreadcrumbHandle = {
+export const handle: BreadcrumbHandleType = {
   breadcrumb: <Icon name="file-text">Edit Profile</Icon>,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const user = await prisma.user.findUnique({
-    where: { id: userId },
     select: { username: true },
+    where: { id: userId },
   });
   invariantResponse(user, "User not found", { status: 404 });
   return json({});
@@ -42,6 +42,7 @@ export default function EditUserProfile() {
       if (!result.success || !result.data.handle.breadcrumb) {
         return null;
       }
+
       return (
         <Link key={m.id} className="flex items-center" to={m.pathname}>
           {result.data.handle.breadcrumb}

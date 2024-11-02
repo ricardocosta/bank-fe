@@ -2,32 +2,26 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
-import { z } from "zod";
 
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { ErrorList, Field } from "#app/components/forms.tsx";
 import { Spacer } from "#app/components/spacer.tsx";
 import { StatusButton } from "#app/components/ui/status-button.tsx";
+import {
+  codeQueryParam,
+  redirectToQueryParam,
+  targetQueryParam,
+  typeQueryParam,
+  VerificationTypeSchema,
+  VerifySchema,
+} from "#app/routes/_auth+/validation.ts";
 import { validateRequest } from "#app/routes/_auth+/verify.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
 
 import type { ActionFunctionArgs } from "@remix-run/node";
 
-export const codeQueryParam = "code";
-export const targetQueryParam = "target";
-export const typeQueryParam = "type";
-export const redirectToQueryParam = "redirectTo";
-const types = ["onboarding", "reset-password", "change-email"] as const;
-const VerificationTypeSchema = z.enum(types);
-export type VerificationTypes = z.infer<typeof VerificationTypeSchema>;
-
-export const VerifySchema = z.object({
-  [codeQueryParam]: z.string().min(6).max(6),
-  [typeQueryParam]: VerificationTypeSchema,
-  [targetQueryParam]: z.string(),
-  [redirectToQueryParam]: z.string().optional(),
-});
+import type { VerificationTypes } from "#app/routes/_auth+/validation.ts";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -49,29 +43,29 @@ export default function VerifyRoute() {
     <>
       <h1 className="text-h1">Check your email</h1>
       <p className="mt-3 text-body-md text-muted-foreground">
-        {`We've sent you a code to verify your email address.`}
+        We&apos;ve sent you a code to verify your email address.
       </p>
     </>
   );
 
   const headings: Record<VerificationTypes, React.ReactNode> = {
+    "change-email": checkEmail,
     onboarding: checkEmail,
     "reset-password": checkEmail,
-    "change-email": checkEmail,
   };
 
   const [form, fields] = useForm({
-    id: "verify-form",
     constraint: getZodConstraint(VerifySchema),
+    defaultValue: {
+      code: searchParams.get(codeQueryParam),
+      redirectTo: searchParams.get(redirectToQueryParam),
+      target: searchParams.get(targetQueryParam),
+      type: type,
+    },
+    id: "verify-form",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: VerifySchema });
-    },
-    defaultValue: {
-      code: searchParams.get(codeQueryParam),
-      type: type,
-      target: searchParams.get(targetQueryParam),
-      redirectTo: searchParams.get(redirectToQueryParam),
     },
   });
 
@@ -97,8 +91,8 @@ export default function VerifyRoute() {
                 autoComplete: "one-time-code",
               }}
               labelProps={{
-                htmlFor: fields[codeQueryParam].id,
                 children: "Code",
+                htmlFor: fields[codeQueryParam].id,
               }}
             />
             <input

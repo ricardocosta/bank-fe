@@ -7,30 +7,27 @@ import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "react";
 
 const flexVariants = cva("box-border flex flex-1", {
+  defaultVariants: {
+    align: "start",
+    direction: "row",
+    gap: "medium",
+    justify: "start",
+    wrap: "nowrap",
+  },
   variants: {
-    direction: {
-      row: "flex-row",
-      column: "flex-col",
-    },
     align: {
+      // oxlint-disable-next-line eslint/sort-keys|
       start: "items-start",
       center: "items-center",
       end: "items-end",
       stretch: "items-stretch",
     },
-    justify: {
-      start: "justify-start",
-      center: "justify-center",
-      end: "justify-end",
-      between: "justify-between",
-      around: "justify-around",
-      evenly: "justify-evenly",
-    },
-    wrap: {
-      wrap: "flex-wrap",
-      nowrap: "flex-nowrap",
+    direction: {
+      column: "flex-col",
+      row: "flex-row",
     },
     gap: {
+      // oxlint-disable-next-line eslint/sort-keys
       none: "gap-0",
       tiny: "gap-0.5",
       small: "gap-1",
@@ -43,18 +40,22 @@ const flexVariants = cva("box-border flex flex-1", {
       0: "flex-grow-0",
       1: "flex-grow",
     },
-  },
-  defaultVariants: {
-    direction: "row",
-    align: "start",
-    justify: "start",
-    wrap: "nowrap",
-    gap: "medium",
+    justify: {
+      // oxlint-disable-next-line eslint/sort-keys
+      start: "justify-start",
+      center: "justify-center",
+      end: "justify-end",
+      between: "justify-between",
+      around: "justify-around",
+      evenly: "justify-evenly",
+    },
+    wrap: {
+      nowrap: "flex-nowrap",
+      wrap: "flex-wrap",
+    },
   },
 });
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface FlexProps
   extends HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof flexVariants> {

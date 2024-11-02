@@ -12,6 +12,7 @@ type Size =
   | "4xl";
 
 const options: Record<Size, string> = {
+  // oxlint-disable-next-line eslint/sort-keys
   "4xs": "h-4",
   "3xs": "h-8",
   "2xs": "h-12",
@@ -25,9 +26,9 @@ const options: Record<Size, string> = {
   "4xl": "h-44",
 };
 
-type SpacerProps = {
+interface SpacerProps {
   size: Size;
-};
+}
 
 export function Spacer({ size }: SpacerProps) {
   return <div className={options[size]} />;

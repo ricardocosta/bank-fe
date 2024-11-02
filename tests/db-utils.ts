@@ -25,11 +25,11 @@ export function createUser() {
     })
     .slice(0, 20)
     .toLowerCase()
-    .replace(/[^a-z0-9_]/g, "_");
+    .replaceAll(/[^a-z0-9_]/g, "_");
   return {
-    username,
-    name: `${firstName} ${lastName}`,
     email: `${username}@example.com`,
+    name: `${firstName} ${lastName}`,
+    username,
   };
 }
 
@@ -100,7 +100,10 @@ export async function getUserImages() {
 
   userImages = await Promise.all(
     Array.from({ length: 10 }, (_, index) =>
-      img({ filepath: `./tests/fixtures/images/user/${index}.jpg` }),
+      img({
+        altText: `alt text for image ${index}`,
+        filepath: `./tests/fixtures/images/user/${index}.jpg`,
+      }),
     ),
   );
 
@@ -116,8 +119,8 @@ export async function img({
 }) {
   return {
     altText,
-    contentType: filepath.endsWith(".png") ? "image/png" : "image/jpeg",
     blob: await fs.promises.readFile(filepath),
+    contentType: filepath.endsWith(".png") ? "image/png" : "image/jpeg",
   };
 }
 

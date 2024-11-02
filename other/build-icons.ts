@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 
 import { $ } from "execa";
@@ -19,7 +19,11 @@ const files = glob
   .sort((a, b) => a.localeCompare(b));
 
 const shouldVerboseLog = process.argv.includes("--log=verbose");
-const logVerbose = shouldVerboseLog ? console.log : () => {};
+const logVerbose = shouldVerboseLog
+  ? console.log
+  : () => {
+      // Nothing to do here
+    };
 
 if (files.length === 0) {
   console.log(`No SVG files found in ${inputDirRelative}`);

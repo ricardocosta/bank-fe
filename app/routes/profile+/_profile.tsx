@@ -18,8 +18,8 @@ export const meta: MetaFunction<typeof loader> = ({ matches }) => {
   return [
     { title: `Profile | ${displayName}` },
     {
-      name: "description",
       content: `Profile of ${displayName}`,
+      name: "description",
     },
   ];
 };
@@ -44,7 +44,7 @@ export default function ProfileRoute() {
             <div className="relative">
               <img
                 alt={userDisplayName}
-                className="h-52 w-52 rounded-full object-cover"
+                className="size-52 rounded-full object-cover"
                 src={getUserImgSrc(user.image?.id)}
               />
             </div>

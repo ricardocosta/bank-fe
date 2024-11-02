@@ -23,8 +23,8 @@ export const meta: MetaFunction<
   return [
     { title: `${displayName}'s Notes | Epic Notes` },
     {
-      name: "description",
       content: `Checkout ${displayName}'s ${noteCount} ${notesText} on Epic Notes`,
+      name: "description",
     },
   ];
 };

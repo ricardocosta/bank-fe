@@ -15,10 +15,8 @@ export function makeTimings(type: string, desc?: string) {
     [type]: [{ desc, start: performance.now() }],
   };
   Object.defineProperty(timings, "toString", {
-    value: function () {
-      return getServerTimeHeader(timings);
-    },
     enumerable: false,
+    value: () => getServerTimeHeader(timings),
   });
   return timings;
 }
@@ -30,7 +28,6 @@ function createTimer(type: string, desc?: string) {
       let timingType = timings[type];
 
       if (!timingType) {
-        // eslint-disable-next-line no-multi-assign
         timingType = timings[type] = [];
       }
       timingType.push({ desc, time: performance.now() - start });
@@ -66,18 +63,22 @@ export function getServerTimeHeader(timings?: Timings) {
   if (!timings) {
     return "";
   }
+
   return Object.entries(timings)
     .map(([key, timingInfos]) => {
       const dur = timingInfos
-        .reduce((acc, timingInfo) => {
-          const time = timingInfo.time ?? performance.now() - timingInfo.start;
-          return acc + time;
-        }, 0)
+        .reduce(
+          (total, { time, start }) =>
+            total + (time ?? performance.now() - start),
+          0,
+        )
         .toFixed(1);
+
       const desc = timingInfos
         .map((t) => t.desc)
         .filter(Boolean)
         .join(" & ");
+
       return [
         key.replaceAll(/(:| |@|=|;|,|\/|\\)/g, "_"),
         desc ? `desc=${JSON.stringify(desc)}` : null,
@@ -110,18 +111,24 @@ export function cachifiedTimingReporter<Value>(
     let getFreshValueTimer: ReturnType<typeof createTimer> | undefined;
     return (event) => {
       switch (event.name) {
-        case "getFreshValueStart":
+        case "getFreshValueStart": {
           getFreshValueTimer = createTimer(
             `getFreshValue:${key}`,
             `request forced to wait for a fresh ${key} value`,
           );
           break;
-        case "getFreshValueSuccess":
+        }
+        case "getFreshValueSuccess": {
           getFreshValueTimer?.end(timings);
           break;
-        case "done":
+        }
+        case "done": {
           cacheRetrievalTimer.end(timings);
           break;
+        }
+        default: {
+          break;
+        }
       }
     };
   };

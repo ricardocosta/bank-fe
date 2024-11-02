@@ -13,17 +13,19 @@ export { action } from "./__note-editor.server";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
+  invariantResponse(params.noteId, "Not found", { status: 404 });
+
   const note = await prisma.note.findFirst({
     select: {
-      id: true,
-      title: true,
       content: true,
+      id: true,
       images: {
         select: {
-          id: true,
           altText: true,
+          id: true,
         },
       },
+      title: true,
     },
     where: {
       id: params.noteId,

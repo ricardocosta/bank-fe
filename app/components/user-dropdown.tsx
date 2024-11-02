@@ -16,9 +16,9 @@ import { useUser } from "#app/utils/user";
 
 import type { SidebarState } from "#app/components/sidebar/types";
 
-type UserDropdownProps = {
+interface UserDropdownProps {
   mode: SidebarState;
-};
+}
 
 export function UserDropdown({ mode }: UserDropdownProps) {
   const user = useUser();
@@ -42,7 +42,7 @@ export function UserDropdown({ mode }: UserDropdownProps) {
             >
               <img
                 alt={user.name ?? user.username}
-                className="h-8 w-8 rounded-full object-cover"
+                className="size-8 rounded-full object-cover"
                 src={getUserImgSrc(user.image?.id)}
               />
               {mode === "expanded" ? user.name : null}

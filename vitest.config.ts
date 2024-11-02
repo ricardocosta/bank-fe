@@ -4,15 +4,9 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [react()],
   css: { postcss: { plugins: [] } },
+  plugins: [react()],
   test: {
-    globals: true,
-    environment: "jsdom",
-    include: ["./app/**/*.test.{ts,tsx}"],
-    setupFiles: ["./tests/setup/setup-test-env.ts"],
-    globalSetup: ["./tests/setup/global-setup.ts"],
-    restoreMocks: true,
     coverage: {
       include: ["app/**/*.{ts,tsx}"],
       reporter: [
@@ -20,5 +14,11 @@ export default defineConfig({
         ["text", { file: "coverage.txt" }],
       ],
     },
+    environment: "jsdom",
+    globalSetup: ["./tests/setup/global-setup.ts"],
+    globals: true,
+    include: ["./app/**/*.test.{ts,tsx}"],
+    restoreMocks: true,
+    setupFiles: ["./tests/setup/setup-test-env.ts"],
   },
 });

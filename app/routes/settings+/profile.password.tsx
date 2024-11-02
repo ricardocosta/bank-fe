@@ -20,24 +20,24 @@ import { PasswordSchema } from "#app/utils/user-validation.ts";
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
-import type { BreadcrumbHandle } from "./profile.tsx";
+import type { BreadcrumbHandleType } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle = {
+export const handle: BreadcrumbHandleType = {
   breadcrumb: <Icon name="dots-horizontal">Password</Icon>,
 };
 
 const ChangePasswordForm = z
   .object({
+    confirmNewPassword: PasswordSchema,
     currentPassword: PasswordSchema,
     newPassword: PasswordSchema,
-    confirmNewPassword: PasswordSchema,
   })
   .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
     if (confirmNewPassword !== newPassword) {
       ctx.addIssue({
-        path: ["confirmNewPassword"],
         code: z.ZodIssueCode.custom,
         message: "The passwords must match",
+        path: ["confirmNewPassword"],
       });
     }
   });
@@ -74,9 +74,9 @@ export async function action({ request }: ActionFunctionArgs) {
           );
           if (!user) {
             ctx.addIssue({
-              path: ["currentPassword"],
               code: z.ZodIssueCode.custom,
               message: "Incorrect password.",
+              path: ["currentPassword"],
             });
           }
         }
@@ -100,8 +100,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const { newPassword } = submission.value;
 
   await prisma.user.update({
-    select: { username: true },
-    where: { id: userId },
     data: {
       password: {
         update: {
@@ -109,14 +107,16 @@ export async function action({ request }: ActionFunctionArgs) {
         },
       },
     },
+    select: { username: true },
+    where: { id: userId },
   });
 
   return redirectWithToast(
     `/settings/profile`,
     {
-      type: "success",
-      title: "Password Changed",
       description: "Your password has been changed.",
+      title: "Password Changed",
+      type: "success",
     },
     { status: 302 },
   );
@@ -127,8 +127,8 @@ export default function ChangePasswordRoute() {
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
-    id: "password-change-form",
     constraint: getZodConstraint(ChangePasswordForm),
+    id: "password-change-form",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: ChangePasswordForm });

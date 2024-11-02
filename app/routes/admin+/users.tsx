@@ -12,9 +12,9 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 
 const UserSearchResultSchema = z.object({
   id: z.string(),
-  username: z.string(),
-  name: z.string().nullable(),
   imageId: z.string().nullable(),
+  name: z.string().nullable(),
+  username: z.string(),
 });
 
 const UserSearchResultsSchema = z.array(UserSearchResultSchema);
@@ -44,7 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const result = UserSearchResultsSchema.safeParse(rawUsers);
   if (!result.success) {
-    return json({ status: "error", error: result.error.message } as const, {
+    return json({ error: result.error.message, status: "error" } as const, {
       status: 400,
     });
   }
@@ -54,8 +54,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function UsersRoute() {
   const data = useLoaderData<typeof loader>();
   const isPending = useDelayedIsPending({
-    formMethod: "GET",
     formAction: "/users",
+    formMethod: "GET",
   });
 
   if (data.status === "error") {
@@ -70,7 +70,7 @@ export default function UsersRoute() {
       </div>
       <main>
         {data.status === "idle" ? (
-          data.users.length ? (
+          data.users.length > 0 ? (
             <ul
               className={cn(
                 "flex w-full flex-wrap items-center justify-center gap-4 delay-200",
@@ -85,7 +85,7 @@ export default function UsersRoute() {
                   >
                     <img
                       alt={user.name ?? user.username}
-                      className="h-16 w-16 rounded-full"
+                      className="size-16 rounded-full"
                       src={getUserImgSrc(user.imageId)}
                     />
                     {user.name ? (

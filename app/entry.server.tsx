@@ -1,4 +1,4 @@
-import { PassThrough } from "stream";
+import { PassThrough } from "node:stream";
 
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
@@ -34,7 +34,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
     ? "onAllReady"
     : "onShellReady";
 
-  const nonce = String(loadContext.cspNonce) ?? undefined;
+  const nonce = loadContext.cspNonce;
   return new Promise((resolve, reject) => {
     let didError = false;
     // NOTE: this timing will only include things that are rendered in the shell
@@ -58,15 +58,16 @@ export default async function handleRequest(...args: DocRequestArgs) {
           );
           pipe(body);
         },
-        onShellError: (err: unknown) => {
-          reject(err);
-        },
+        nonce,
         onError: (error: unknown) => {
           didError = true;
 
           console.error(error);
         },
-        nonce,
+        onShellError: (err: unknown) => {
+          const error = err instanceof Error ? err : new Error(String(err));
+          reject(error);
+        },
       },
     );
 

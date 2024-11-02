@@ -12,11 +12,15 @@ import type { SidebarState } from "#app/components/sidebar/types";
 // These contexts allow us to set the props on the parent menu component from a
 // child component.
 const SetShiftContext = React.createContext<Dispatch<SetStateAction<number>>>(
-  () => {},
+  () => {
+    // No content
+  },
 );
 const SetPlacementContext = React.createContext<
   Dispatch<SetStateAction<Ariakit.MenuProviderProps["placement"]>>
->(() => {});
+>(() => {
+  // No content
+});
 
 export type MenubarProps = Ariakit.MenubarProps;
 
@@ -35,7 +39,6 @@ export const Menubar = React.forwardRef<HTMLDivElement, MenubarProps>(
         <SetShiftContext.Provider value={setShift}>
           <SetPlacementContext.Provider value={setPlacement}>
             <Ariakit.MenuProvider
-              animated
               hideTimeout={250}
               placement={placement}
               showTimeout={100}

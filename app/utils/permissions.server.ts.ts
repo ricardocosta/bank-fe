@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { json } from "@remix-run/node";
 
 import { requireUserId } from "./auth.server.ts";
@@ -23,7 +24,7 @@ export async function requireUserWithPermission(
               ...permissionData,
               access: permissionData.access
                 ? { in: permissionData.access }
-                : undefined,
+                : Prisma.skip,
             },
           },
         },
@@ -34,8 +35,8 @@ export async function requireUserWithPermission(
     throw json(
       {
         error: "Unauthorized",
-        requiredPermission: permissionData,
         message: `Unauthorized: required permissions: ${permission}`,
+        requiredPermission: permissionData,
       },
       { status: 403 },
     );
@@ -53,8 +54,8 @@ export async function requireUserWithRole(request: Request, name: string) {
     throw json(
       {
         error: "Unauthorized",
-        requiredRole: name,
         message: `Unauthorized: required role: ${name}`,
+        requiredRole: name,
       },
       { status: 403 },
     );

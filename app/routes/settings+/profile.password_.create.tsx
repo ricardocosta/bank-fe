@@ -14,9 +14,9 @@ import { PasswordAndConfirmPasswordSchema } from "#app/utils/user-validation.ts"
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
-import type { BreadcrumbHandle } from "./profile.tsx";
+import type { BreadcrumbHandleType } from "./profile.tsx";
 
-export const handle: BreadcrumbHandle = {
+export const handle: BreadcrumbHandleType = {
   breadcrumb: <Icon name="dots-horizontal">Password</Icon>,
 };
 
@@ -63,8 +63,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const { password } = submission.value;
 
   await prisma.user.update({
-    select: { username: true },
-    where: { id: userId },
     data: {
       password: {
         create: {
@@ -72,6 +70,8 @@ export async function action({ request }: ActionFunctionArgs) {
         },
       },
     },
+    select: { username: true },
+    where: { id: userId },
   });
 
   return redirect(`/settings/profile`, { status: 302 });
@@ -82,8 +82,8 @@ export default function CreatePasswordRoute() {
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
-    id: "password-create-form",
     constraint: getZodConstraint(CreatePasswordForm),
+    id: "password-create-form",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: CreatePasswordForm });

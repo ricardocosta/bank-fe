@@ -6,9 +6,9 @@ import { cn } from "#app/utils/misc";
 
 import type { SidebarState } from "#app/components/sidebar/types";
 
-type NavMenuProps = {
+interface NavMenuProps {
   mode: SidebarState;
-};
+}
 
 const NAVLINK_CLASSNAME =
   "group/menu-item hover:text-sky flex flex-row items-center gap-1 rounded-e-sm border-l-2 border-l-transparent px-2 py-0.5 text-slate-300 transition-colors duration-200 ease-in-out hover:border-l-cyan-600 hover:bg-sky-950";

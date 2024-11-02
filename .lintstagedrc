@@ -1,5 +1,5 @@
 {
-  "*.{ts,mts,tsx,js,cjs,jsx}": "eslint",
+  "*.{ts,mts,tsx,js,cjs,jsx}": ["oxlint -c=./oxlintrc.json --tsconfig=./tsconfig.json", "eslint"],
   "*.{ts,mts,tsx,js,cjs,jsx,md,prisma,json,yml,html,css}": "prettier --list-different",
   "*.{ts,mts,tsx}": "bash -c tsc"
 }

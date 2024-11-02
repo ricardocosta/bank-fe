@@ -10,7 +10,7 @@ import {
   targetQueryParam,
   typeQueryParam,
   VerifySchema,
-} from "#app/routes/_auth+/verify.tsx";
+} from "#app/routes/_auth+/validation.ts";
 import { handleVerification as handleChangeEmailVerification } from "#app/routes/settings+/profile.change-email.server";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { getDomainUrl } from "#app/utils/misc.tsx";
@@ -18,9 +18,9 @@ import { generateTOTP, verifyTOTP } from "#app/utils/totp.server.ts";
 
 import type { Submission } from "@conform-to/react";
 
-import type { VerificationTypes } from "#app/routes/_auth+/verify.tsx";
+import type { VerificationTypes } from "#app/routes/_auth+/validation.ts";
 
-export type VerifyFunctionArgs = {
+export interface VerifyFunctionArgs {
   request: Request;
   submission: Submission<
     z.input<typeof VerifySchema>,
@@ -28,7 +28,7 @@ export type VerifyFunctionArgs = {
     z.output<typeof VerifySchema>
   >;
   body: FormData | URLSearchParams;
-};
+}
 
 export function getRedirectToUrl({
   request,
@@ -63,7 +63,7 @@ export async function prepareVerification({
   type: VerificationTypes;
   target: string;
 }) {
-  const verifyUrl = getRedirectToUrl({ request, type, target });
+  const verifyUrl = getRedirectToUrl({ request, target, type });
   const redirectTo = new URL(verifyUrl.toString());
 
   const { otp, ...verificationConfig } = generateTOTP({
@@ -74,16 +74,16 @@ export async function prepareVerification({
   });
 
   const verificationData = {
-    type,
     target,
+    type,
     ...verificationConfig,
     expiresAt: new Date(Date.now() + verificationConfig.period * 1000),
   };
 
   await prisma.verification.upsert({
-    where: { target_type: { target, type } },
     create: verificationData,
     update: verificationData,
+    where: { target_type: { target, type } },
   });
 
   // add the otp to the url we'll email the user.
@@ -102,11 +102,11 @@ export async function isCodeValid({
   target: string;
 }) {
   const verification = await prisma.verification.findUnique({
+    select: { algorithm: true, charSet: true, period: true, secret: true },
     where: {
-      target_type: { target, type },
       OR: [{ expiresAt: { gt: new Date() } }, { expiresAt: null }],
+      target_type: { target, type },
     },
-    select: { algorithm: true, secret: true, period: true, charSet: true },
   });
 
   if (!verification) {
@@ -130,23 +130,23 @@ export async function validateRequest(
   body: URLSearchParams | FormData,
 ) {
   const submission = await parseWithZod(body, {
+    async: true,
     schema: VerifySchema.superRefine(async (data, ctx) => {
       const codeIsValid = await isCodeValid({
         code: data[codeQueryParam],
-        type: data[typeQueryParam],
         target: data[targetQueryParam],
+        type: data[typeQueryParam],
       });
 
       if (!codeIsValid) {
         ctx.addIssue({
-          path: ["code"],
           code: z.ZodIssueCode.custom,
           message: `Invalid code`,
+          path: ["code"],
         });
         return;
       }
     }),
-    async: true,
   });
 
   if (submission.status !== "success") {
@@ -164,8 +164,8 @@ export async function validateRequest(
     await prisma.verification.delete({
       where: {
         target_type: {
-          type: submissionValue[typeQueryParam],
           target: submissionValue[targetQueryParam],
+          type: submissionValue[typeQueryParam],
         },
       },
     });
@@ -174,15 +174,18 @@ export async function validateRequest(
   switch (submissionValue[typeQueryParam]) {
     case "reset-password": {
       await deleteVerification();
-      return handleResetPasswordVerification({ request, body, submission });
+      return handleResetPasswordVerification({ body, request, submission });
     }
     case "onboarding": {
       await deleteVerification();
-      return handleOnboardingVerification({ request, body, submission });
+      return handleOnboardingVerification({ body, request, submission });
     }
     case "change-email": {
       await deleteVerification();
-      return handleChangeEmailVerification({ request, body, submission });
+      return handleChangeEmailVerification({ body, request, submission });
+    }
+    default: {
+      submissionValue[typeQueryParam] satisfies never;
     }
   }
 }

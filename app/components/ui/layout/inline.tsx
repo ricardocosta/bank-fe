@@ -1,11 +1,9 @@
 import { forwardRef } from "react";
 
-import { Flex } from ".";
+import { Flex } from "./flex";
 
-import type { FlexProps } from ".";
+import type { FlexProps } from "./flex";
 
-// Need to use interface here: https://github.com/shadcn-ui/ui/issues/120
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface InlineProps extends Omit<FlexProps, "direction"> {}
 
 export const Inline = forwardRef<HTMLDivElement, InlineProps>(

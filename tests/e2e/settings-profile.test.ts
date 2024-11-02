@@ -97,7 +97,7 @@ test("Users can change their email address", async ({ page, login }) => {
     errorMessage: "Confirmation email was not sent",
   });
   invariant(email, "Email was not sent");
-  const codeMatch = email.text.match(CODE_REGEX);
+  const codeMatch = CODE_REGEX.exec(email.text);
   const code = codeMatch?.groups?.code;
   invariant(code, "Onboarding code not found");
   await page.getByRole("textbox", { name: /code/i }).fill(code);
@@ -105,8 +105,8 @@ test("Users can change their email address", async ({ page, login }) => {
   await expect(page.getByText(/email changed/i)).toBeVisible();
 
   const updatedUser = await prisma.user.findUnique({
-    where: { id: preUpdateUser.id },
     select: { email: true },
+    where: { id: preUpdateUser.id },
   });
   invariant(updatedUser, "Updated user not found");
   expect(updatedUser.email).toBe(newEmailAddress);

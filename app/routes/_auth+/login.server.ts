@@ -79,9 +79,9 @@ export async function handleVerification({
 
     if (!session) {
       throw await redirectWithToast("/login", {
-        type: "error",
-        title: "Invalid session",
         description: "Could not find session to verify. Please try again.",
+        title: "Invalid session",
+        type: "error",
       });
     }
 

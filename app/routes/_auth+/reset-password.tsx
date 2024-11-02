@@ -58,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { password } = submission.value;
 
-  await resetUserPassword({ username: resetPasswordUsername, password });
+  await resetUserPassword({ password, username: resetPasswordUsername });
   const verifySession = await verifySessionStorage.getSession();
   return redirect("/login", {
     headers: {
@@ -77,8 +77,8 @@ export default function ResetPasswordPage() {
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
-    id: "reset-password",
     constraint: getZodConstraint(ResetPasswordSchema),
+    id: "reset-password",
     lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: ResetPasswordSchema });
@@ -104,8 +104,8 @@ export default function ResetPasswordPage() {
               autoFocus: true,
             }}
             labelProps={{
-              htmlFor: fields.password.id,
               children: "New Password",
+              htmlFor: fields.password.id,
             }}
           />
           <Field
@@ -115,8 +115,8 @@ export default function ResetPasswordPage() {
               autoComplete: "new-password",
             }}
             labelProps={{
-              htmlFor: fields.confirmPassword.id,
               children: "Confirm Password",
+              htmlFor: fields.confirmPassword.id,
             }}
           />
 

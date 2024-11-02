@@ -41,6 +41,7 @@ export function ClientHintCheck({ nonce }: { nonce: string }) {
 
   return (
     <script
+      // oxlint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{
         __html: hintsUtils.getClientHintCheckScript(),
       }}

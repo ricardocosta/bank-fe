@@ -7,17 +7,20 @@ import { getErrorMessage } from "./misc.tsx";
 describe("error-message", () => {
   it("error object returns message", () => {
     const message = faker.lorem.words(2);
-    expect(getErrorMessage(new Error(message))).toBe(message);
+    expect(getErrorMessage({ error: new Error(message) })).toBe(message);
   });
 
   it("string returns itself", () => {
     const message = faker.lorem.words(2);
-    expect(getErrorMessage(message)).toBe(message);
+    expect(getErrorMessage({ error: message })).toBe(message);
   });
 
   it("undefined falls back to Unknown", () => {
-    consoleError.mockImplementation(() => {});
-    expect(getErrorMessage(undefined)).toBe("Unknown Error");
+    consoleError.mockImplementation(() => {
+      // Nothing to do here
+    });
+    expect(getErrorMessage({ error: undefined })).toBe("Unknown Error");
+
     expect(consoleError).toHaveBeenCalledWith(
       "Unable to get error message for error",
       undefined,

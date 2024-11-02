@@ -2,10 +2,10 @@ import "dotenv/config";
 import "./db-setup.ts";
 import "#app/utils/env.server.ts";
 
-// we need these to be imported first 👆
-
 import { installGlobals } from "@remix-run/node";
 import { cleanup } from "@testing-library/react";
+
+// we need these to be imported first 👆
 
 import { server } from "#tests/mocks/index.ts";
 

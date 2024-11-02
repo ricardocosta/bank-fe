@@ -6,9 +6,9 @@ import type { MetaMatches } from "@remix-run/react/dist/routeModules";
 
 import type { loader as rootLoader } from "#app/root";
 
-type RouteLoaders = {
+interface RouteLoaders {
   root: typeof rootLoader;
-};
+}
 
 export function routeLoaderData<K extends keyof RouteLoaders>(
   matches: MetaMatches,

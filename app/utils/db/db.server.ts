@@ -8,6 +8,7 @@ import chalk from "chalk";
 // Feel free to change this log threshold to something that makes sense for you
 const LOG_THRESHOLD = 20;
 const LOG_COLORS_MULTIPLIERS = {
+  // oxlint-disable-next-line sort-keys
   green: 1.1,
   blue: 1.2,
   yellow: 1.3,
@@ -20,9 +21,9 @@ export type LogColors = keyof typeof LOG_COLORS_MULTIPLIERS;
 export const prisma = remember("prisma", () => {
   const client = new PrismaClient({
     log: [
-      { level: "query", emit: "event" },
-      { level: "error", emit: "stdout" },
-      { level: "warn", emit: "stdout" },
+      { emit: "event", level: "query" },
+      { emit: "stdout", level: "error" },
+      { emit: "stdout", level: "warn" },
     ],
   });
 
@@ -37,8 +38,12 @@ export const prisma = remember("prisma", () => {
     console.info(`prisma:query (${dur}): ${e.query} | ${e.params}`);
   });
 
+  // We are not awaiting for the connection to be established
+  // nor the query to be executed.
+  // We need a way to remember async functions for that to be put in place.
+  // https://github.com/epicweb-dev/remember/pull/3
   void client.$connect();
-  client.$executeRaw`SELECT 1;`;
+  void client.$executeRaw`SELECT 1;`;
   return client;
 });
 

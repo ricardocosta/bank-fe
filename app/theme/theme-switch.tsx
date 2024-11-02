@@ -11,7 +11,7 @@ import { $routeId } from "remix-routes";
 import { Button } from "#app/components/ui/button";
 import { Input } from "#app/components/ui/input";
 import { ThemeSwitchSchema } from "#app/theme/schema";
-import { useOptimisticThemeMode } from "#app/theme/useOptimisticThemeMode";
+import { useOptimisticThemeMode } from "#app/theme/use-optimistic-theme-mode.ts";
 
 import { Icon } from "../components/ui/icon";
 
@@ -33,22 +33,12 @@ export const ThemeSwitch = () => {
 
   const mode = optimisticMode ?? data.requestInfo.userPrefs.theme ?? "system";
 
-  let nextMode: Theme;
-  switch (mode) {
-    case "system":
-      nextMode = "light";
-      break;
-    case "light":
-      nextMode = "dark";
-      break;
-    case "dark":
-      nextMode = "system";
-      break;
-  }
+  const nextMode: Theme =
+    mode === "system" ? "light" : mode === "light" ? "dark" : "system";
 
   const [form, fields] = useForm({
-    id: "theme-switch",
     constraint: getZodConstraint(ThemeSwitchSchema),
+    id: "theme-switch",
     lastResult: actionData?.result,
 
     onValidate({ formData }) {
@@ -57,13 +47,13 @@ export const ThemeSwitch = () => {
   });
 
   const modeInfo: Record<Theme, { icon: IconName; label: string }> = {
-    light: {
-      icon: "sun",
-      label: "Use Light theme",
-    },
     dark: {
       icon: "moon",
       label: "Use Dark theme",
+    },
+    light: {
+      icon: "sun",
+      label: "Use Light theme",
     },
     system: {
       icon: "laptop",

@@ -9,20 +9,22 @@ import { test as base, createUser, expect } from "#tests/playwright-utils.ts";
 const URL_REGEX = /(?<url>https?:\/\/[^\s$.?#].[^\s]*)/;
 const CODE_REGEX = /Here's your verification code: (?<code>[\d\w]+)/;
 function extractUrl(text: string) {
-  const match = text.match(URL_REGEX);
+  const match = URL_REGEX.exec(text);
   return match?.groups?.url;
 }
 
 const test = base.extend<{
-  getOnboardingData(): {
+  getOnboardingData(this: void): {
     username: string;
     name: string;
     email: string;
     password: string;
   };
 }>({
-  getOnboardingData: async ({}, use) => {
+  getOnboardingData: async (_params, use) => {
     const userData = createUser();
+
+    // oxlint-disable-next-line react/rules-of-hooks
     await use(() => {
       const onboardingData = {
         ...userData,
@@ -55,7 +57,7 @@ test("onboarding with link", async ({ page, getOnboardingData }) => {
 
   await page.getByRole("button", { name: /submit/i }).click();
   await expect(
-    page.getByRole("button", { name: /submit/i, disabled: true }),
+    page.getByRole("button", { disabled: true, name: /submit/i }),
   ).toBeVisible();
   await expect(page.getByText(/check your email/i)).toBeVisible();
 
@@ -115,7 +117,7 @@ test("onboarding with a short code", async ({ page, getOnboardingData }) => {
 
   await page.getByRole("button", { name: /submit/i }).click();
   await expect(
-    page.getByRole("button", { name: /submit/i, disabled: true }),
+    page.getByRole("button", { disabled: true, name: /submit/i }),
   ).toBeVisible();
   await expect(page.getByText(/check your email/i)).toBeVisible();
 
@@ -124,7 +126,7 @@ test("onboarding with a short code", async ({ page, getOnboardingData }) => {
   expect(email.to).toBe(onboardingData.email.toLowerCase());
   expect(email.from).toBe("hello@epicstack.dev");
   expect(email.subject).toMatch(/welcome/i);
-  const codeMatch = email.text.match(CODE_REGEX);
+  const codeMatch = CODE_REGEX.exec(email.text);
   const code = codeMatch?.groups?.code;
   invariant(code, "Onboarding code not found");
   await page.getByRole("textbox", { name: /code/i }).fill(code);
@@ -161,7 +163,7 @@ test("reset password with a link", async ({ page, insertNewUser }) => {
   await page.getByRole("textbox", { name: /username/i }).fill(user.username);
   await page.getByRole("button", { name: /recover password/i }).click();
   await expect(
-    page.getByRole("button", { name: /recover password/i, disabled: true }),
+    page.getByRole("button", { disabled: true, name: /recover password/i }),
   ).toBeVisible();
   await expect(page.getByText(/check your email/i)).toBeVisible();
 
@@ -188,7 +190,7 @@ test("reset password with a link", async ({ page, insertNewUser }) => {
 
   await page.getByRole("button", { name: /reset password/i }).click();
   await expect(
-    page.getByRole("button", { name: /reset password/i, disabled: true }),
+    page.getByRole("button", { disabled: true, name: /reset password/i }),
   ).toBeVisible();
 
   await expect(page).toHaveURL("/login");
@@ -219,7 +221,7 @@ test("reset password with a short code", async ({ page, insertNewUser }) => {
   await page.getByRole("textbox", { name: /username/i }).fill(user.username);
   await page.getByRole("button", { name: /recover password/i }).click();
   await expect(
-    page.getByRole("button", { name: /recover password/i, disabled: true }),
+    page.getByRole("button", { disabled: true, name: /recover password/i }),
   ).toBeVisible();
   await expect(page.getByText(/check your email/i)).toBeVisible();
 
@@ -228,7 +230,7 @@ test("reset password with a short code", async ({ page, insertNewUser }) => {
   expect(email.subject).toMatch(/password reset/i);
   expect(email.to).toBe(user.email);
   expect(email.from).toBe("hello@epicstack.dev");
-  const codeMatch = email.text.match(CODE_REGEX);
+  const codeMatch = CODE_REGEX.exec(email.text);
   const code = codeMatch?.groups?.code;
   invariant(code, "Reset Password code not found");
   await page.getByRole("textbox", { name: /code/i }).fill(code);

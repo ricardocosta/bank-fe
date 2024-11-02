@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 
 import {
   cachified as baseCachified,
@@ -57,24 +57,24 @@ const lru = remember(
 );
 
 export const lruCache = {
+  delete: (key) => lru.delete(key),
+  get: (key) => lru.get(key),
   name: "app-memory-cache",
   set: (key, value) => {
     const ttl = totalTtl(value?.metadata);
     lru.set(key, value, {
-      ttl: ttl === Infinity ? undefined : ttl,
       start: value?.metadata?.createdTime,
+      ttl: ttl === Number.POSITIVE_INFINITY ? undefined : ttl,
     });
     return value;
   },
-  get: (key) => lru.get(key),
-  delete: (key) => lru.delete(key),
 } satisfies Cache;
 
 const cacheEntrySchema = z.object({
   metadata: z.object({
     createdTime: z.number(),
-    ttl: z.number().nullable().optional(),
     swr: z.number().nullable().optional(),
+    ttl: z.number().nullable().optional(),
   }),
   value: z.unknown(),
 });
@@ -85,11 +85,14 @@ const cacheQueryResultSchema = z.object({
 });
 
 export const cache: Cache = {
-  name: "SQLite cache",
+  delete(key) {
+    cacheDb.prepare("DELETE FROM cache WHERE key = ?").run(key);
+  },
   get(key) {
     const result = cacheDb
       .prepare("SELECT value, metadata FROM cache WHERE key = ?")
       .get(key);
+
     const parseResult = cacheQueryResultSchema.safeParse(result);
     if (!parseResult.success) {
       return null;
@@ -108,6 +111,7 @@ export const cache: Cache = {
     }
     return { metadata, value };
   },
+  name: "SQLite cache",
   set(key, entry) {
     cacheDb
       .prepare(
@@ -115,32 +119,29 @@ export const cache: Cache = {
       )
       .run({
         key,
-        value: JSON.stringify(entry.value),
         metadata: JSON.stringify(entry.metadata),
+        value: JSON.stringify(entry.value),
       });
-  },
-  delete(key) {
-    cacheDb.prepare("DELETE FROM cache WHERE key = ?").run(key);
   },
 };
 
 export function getAllCacheKeys(limit: number) {
   return {
+    lru: [...lru.keys()],
     sqlite: cacheDb
       .prepare("SELECT key FROM cache LIMIT ?")
       .all(limit)
       .map((row) => (row as { key: string }).key),
-    lru: [...lru.keys()],
   };
 }
 
 export function searchCacheKeys(search: string, limit: number) {
   return {
+    lru: [...lru.keys()].filter((key) => key.includes(search)),
     sqlite: cacheDb
       .prepare("SELECT key FROM cache WHERE key LIKE ? LIMIT ?")
       .all(`%${search}%`, limit)
       .map((row) => (row as { key: string }).key),
-    lru: [...lru.keys()].filter((key) => key.includes(search)),
   };
 }
 

@@ -26,26 +26,26 @@ export async function action({ request }: ActionFunctionArgs) {
 
   checkHoneypot(formData);
   const submission = await parseWithZod(formData, {
+    async: true,
     schema: ForgotPasswordSchema.superRefine(async (data, ctx) => {
       const user = await prisma.user.findFirst({
+        select: { id: true },
         where: {
           OR: [
             { email: data.usernameOrEmail },
             { username: data.usernameOrEmail },
           ],
         },
-        select: { id: true },
       });
       if (!user) {
         ctx.addIssue({
-          path: ["usernameOrEmail"],
           code: z.ZodIssueCode.custom,
           message: "No user exists with this username or email",
+          path: ["usernameOrEmail"],
         });
         return;
       }
     }),
-    async: true,
   });
 
   if (submission.status !== "success") {
@@ -60,37 +60,37 @@ export async function action({ request }: ActionFunctionArgs) {
   const { usernameOrEmail } = submission.value;
 
   const user = await prisma.user.findFirstOrThrow({
-    where: { OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }] },
     select: { email: true, username: true },
+    where: { OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }] },
   });
 
   const { verifyUrl, redirectTo, otp } = await prepareVerification({
     period: 10 * 60,
     request,
-    type: "reset-password",
     target: usernameOrEmail,
+    type: "reset-password",
   });
 
   const response = await sendEmail({
-    to: user.email,
-    subject: `Epic Notes Password Reset`,
     react: (
       <ForgotPasswordEmail onboardingUrl={verifyUrl.toString()} otp={otp} />
     ),
+    subject: `Epic Notes Password Reset`,
+    to: user.email,
   });
 
   if (response.status === "success") {
     return redirect(redirectTo.toString());
-  } else {
-    return json(
-      {
-        result: submission.reply({ formErrors: [response.error.message] }),
-      },
-      {
-        status: 500,
-      },
-    );
   }
+
+  return json(
+    {
+      result: submission.reply({ formErrors: [response.error.message] }),
+    },
+    {
+      status: 500,
+    },
+  );
 }
 
 function ForgotPasswordEmail({
@@ -108,7 +108,7 @@ function ForgotPasswordEmail({
         </h1>
         <p>
           <E.Text>
-            {`Here's your verification code:`} <strong>{otp}</strong>
+            Here&apos;s your verification code: <strong>{otp}</strong>
           </E.Text>
         </p>
         <p>
@@ -128,8 +128,8 @@ export default function ForgotPasswordRoute() {
   const forgotPassword = useFetcher<typeof action>();
 
   const [form, fields] = useForm({
-    id: "forgot-password-form",
     constraint: getZodConstraint(ForgotPasswordSchema),
+    id: "forgot-password-form",
     lastResult: forgotPassword.data?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: ForgotPasswordSchema });
@@ -143,7 +143,7 @@ export default function ForgotPasswordRoute() {
         <div className="text-center">
           <h1 className="text-h1">Forgot Password</h1>
           <p className="mt-3 text-body-md text-muted-foreground">
-            {`No worries, we'll send you reset instructions.`}
+            No worries, we&apos;ll send you reset instructions.
           </p>
         </div>
         <div className="mx-auto mt-16 min-w-[368px] max-w-sm">
@@ -157,8 +157,8 @@ export default function ForgotPasswordRoute() {
                   ...getInputProps(fields.usernameOrEmail, { type: "text" }),
                 }}
                 labelProps={{
-                  htmlFor: fields.usernameOrEmail.id,
                   children: "Username or Email",
+                  htmlFor: fields.usernameOrEmail.id,
                 }}
               />
             </div>

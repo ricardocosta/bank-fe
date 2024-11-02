@@ -16,10 +16,11 @@ export function getNoteImgSrc(imageId: string) {
   return `/resources/note-images/${imageId}`;
 }
 
-export function getErrorMessage(error: unknown) {
+export function getErrorMessage({ error }: { error: unknown }) {
   if (typeof error === "string") {
     return error;
   }
+
   if (
     error &&
     typeof error === "object" &&
@@ -28,6 +29,7 @@ export function getErrorMessage(error: unknown) {
   ) {
     return error.message;
   }
+
   console.error("Unable to get error message for error", error);
   return "Unknown Error";
 }
@@ -49,16 +51,16 @@ function formatColors() {
 
 const customTwMerge = extendTailwindMerge({
   extend: {
-    theme: {
-      colors: formatColors(),
-      borderRadius: Object.keys(extendedTheme.borderRadius),
-    },
     classGroups: {
       "font-size": [
         {
           text: Object.keys(extendedTheme.fontSize),
         },
       ],
+    },
+    theme: {
+      borderRadius: Object.keys(extendedTheme.borderRadius),
+      colors: formatColors(),
     },
   },
 });
@@ -86,9 +88,9 @@ export function getReferrerRoute(request: Request) {
   const domain = getDomainUrl(request);
   if (referrer?.startsWith(domain)) {
     return referrer.slice(domain.length);
-  } else {
-    return "/";
   }
+
+  return "/";
 }
 
 /**
@@ -201,7 +203,11 @@ export function useDelayedIsPending({
 function callAll<Args extends unknown[]>(
   ...fns: Array<((...args: Args) => unknown) | undefined>
 ) {
-  return (...args: Args) => fns.forEach((fn) => fn?.(...args));
+  return (...args: Args) => {
+    for (const fn of fns) {
+      fn?.(...args);
+    }
+  };
 }
 
 /**
@@ -293,10 +299,10 @@ export async function downloadFile(url: string, retries = 0) {
     }
     const contentType = response.headers.get("content-type") ?? "image/jpg";
     const blob = Buffer.from(await response.arrayBuffer());
-    return { contentType, blob };
-  } catch (e) {
+    return { blob, contentType };
+  } catch (error) {
     if (retries > MAX_RETRIES) {
-      throw e;
+      throw error;
     }
     return downloadFile(url, retries + 1);
   }

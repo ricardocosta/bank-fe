@@ -1,16 +1,16 @@
 import { Links, Meta, Scripts, ScrollRestoration } from "@remix-run/react";
 
-import { useTheme } from "#app/theme/useTheme";
+import { useTheme } from "#app/theme/use-theme.ts";
 import { ClientHintCheck } from "#app/utils/client-hints.tsx";
 
 import type { Theme } from "#app/theme/types";
 
-type DocumentProps = {
+interface DocumentProps {
   children: React.ReactNode;
   nonce: string;
   theme?: Theme;
   env?: Record<string, string>;
-};
+}
 
 export const Document = ({ children, nonce, env = {} }: DocumentProps) => {
   const theme = useTheme();
@@ -27,6 +27,7 @@ export const Document = ({ children, nonce, env = {} }: DocumentProps) => {
       <body>
         {children}
         <script
+          // oxlint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify(env)}`,
           }}
