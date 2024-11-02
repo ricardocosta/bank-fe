@@ -2,15 +2,15 @@ import { parseWithZod } from "@conform-to/zod";
 import { json } from "@remix-run/node";
 import { z } from "zod";
 
-import { handleVerification as handleOnboardingVerification } from "#app/routes/_auth+/onboarding.server";
-import { handleVerification as handleResetPasswordVerification } from "#app/routes/_auth+/reset-password.server";
 import {
   codeQueryParam,
   redirectToQueryParam,
   targetQueryParam,
   typeQueryParam,
   VerifySchema,
-} from "#app/routes/_auth+/validation.ts";
+} from "#app/routes/_auth+/_validation.ts";
+import { handleVerification as handleOnboardingVerification } from "#app/routes/_auth+/onboarding.server";
+import { handleVerification as handleResetPasswordVerification } from "#app/routes/_auth+/reset-password.server";
 import { handleVerification as handleChangeEmailVerification } from "#app/routes/settings+/profile.change-email.server";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { getDomainUrl } from "#app/utils/misc.tsx";
@@ -18,7 +18,7 @@ import { generateTOTP, verifyTOTP } from "#app/utils/totp.server.ts";
 
 import type { Submission } from "@conform-to/react";
 
-import type { VerificationTypes } from "#app/routes/_auth+/validation.ts";
+import type { VerificationTypes } from "#app/routes/_auth+/_validation.ts";
 
 export interface VerifyFunctionArgs {
   request: Request;

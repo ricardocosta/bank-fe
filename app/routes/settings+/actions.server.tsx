@@ -3,11 +3,11 @@ import { json, redirect } from "@remix-run/node";
 import { z } from "zod";
 
 import { prepareVerification } from "#app/routes/_auth+/verify.server";
+import { ChangeEmailSchema } from "#app/routes/settings+/_validation.ts";
 import {
   EmailChangeEmail,
   newEmailAddressSessionKey,
 } from "#app/routes/settings+/profile.change-email.server.tsx";
-import { ChangeEmailSchema } from "#app/routes/settings+/validation.ts";
 import { prisma } from "#app/utils/db/db.server.ts";
 import { sendEmail } from "#app/utils/email.server.ts";
 import { verifySessionStorage } from "#app/utils/verification.server.ts";
