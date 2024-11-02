@@ -14,14 +14,14 @@ import {
   typeQueryParam,
   VerificationTypeSchema,
   VerifySchema,
-} from "#app/routes/_auth+/validation.ts";
+} from "#app/routes/_auth+/_validation.ts";
 import { validateRequest } from "#app/routes/_auth+/verify.server.ts";
 import { checkHoneypot } from "#app/utils/honeypot.server.ts";
 import { useIsPending } from "#app/utils/misc.tsx";
 
 import type { ActionFunctionArgs } from "@remix-run/node";
 
-import type { VerificationTypes } from "#app/routes/_auth+/validation.ts";
+import type { VerificationTypes } from "#app/routes/_auth+/_validation.ts";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
