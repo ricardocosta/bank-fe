@@ -36,6 +36,7 @@
     "lint": "pnpm run lint:oxlint && pnpm run lint:eslint",
     "lint:oxlint": "oxlint -c=./oxlintrc.json --tsconfig=./tsconfig.json",
     "lint:eslint": "eslint .",
+    "routes": "remix routes",
     "setup": "pnpm run build && prisma generate && prisma migrate deploy && prisma db seed && playwright install",
     "start": "cross-env NODE_ENV=production node .",
     "start:mocks": "cross-env NODE_ENV=production MOCKS=true tsx .",
