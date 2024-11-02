@@ -78,31 +78,14 @@ export default function ProfileRoute() {
           ) : null}
           <div className="mt-10 flex gap-4">
             {isLoggedInUser ? (
-              <>
-                <Button
-                  render={
-                    <Link prefetch="intent" to="notes">
-                      My notes
-                    </Link>
-                  }
-                />
-                <Button
-                  render={
-                    <Link prefetch="intent" to="/settings/profile">
-                      Edit profile
-                    </Link>
-                  }
-                />
-              </>
-            ) : (
               <Button
                 render={
-                  <Link prefetch="intent" to="notes">
-                    {`${userDisplayName}'s notes`}
+                  <Link prefetch="intent" to="/settings/profile">
+                    Edit profile
                   </Link>
                 }
               />
-            )}
+            ) : null}
           </div>
         </div>
       </div>

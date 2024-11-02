@@ -72,13 +72,6 @@ export default function ProfileRoute() {
           <div className="mt-10 flex gap-4">
             <Button
               render={
-                <Link prefetch="intent" to="notes">
-                  My notes
-                </Link>
-              }
-            />
-            <Button
-              render={
                 <Link prefetch="intent" to="/settings/profile">
                   Edit profile
                 </Link>

@@ -44,9 +44,6 @@ describe("username", () => {
     expect(
       await screen.findByRole("img", { name: user.name! }),
     ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("link", { name: `${user.name}'s notes` }),
-    ).toBeInTheDocument();
   });
 
   it("the user profile when logged in as self", async () => {
@@ -107,9 +104,6 @@ describe("username", () => {
     ).toBeInTheDocument();
     expect(
       await screen.findByRole("button", { name: /logout/i }),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("link", { name: /my notes/i }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole("link", { name: /edit profile/i }),
