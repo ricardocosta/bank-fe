@@ -74,8 +74,7 @@ app.use(
   morgan("tiny", {
     skip: (req, res) =>
       res.statusCode === constants.HTTP_STATUS_OK &&
-      (req.url?.startsWith("/resources/note-images") ||
-        req.url?.startsWith("/resources/user-images")),
+      req.url?.startsWith("/resources/user-images"),
   }),
 );
 
@@ -177,7 +176,8 @@ async function getBuild() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const build = viteDevServer
     ? viteDevServer.ssrLoadModule("virtual:remix/server-build")
-    : await import("#build/server/index.js");
+    : // @ts-expect-error This file is only available after building
+      await import("#build/server/index.js");
 
   // not sure how to make this happy 🤷‍♂️
   return build as unknown as ServerBuild;

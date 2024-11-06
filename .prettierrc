@@ -1,0 +1,32 @@
+{
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^~/",
+    "",
+    "^#app",
+    "",
+    "^#other",
+    "",
+    "^#tests",
+    "",
+    "^#",
+    "",
+    "^[./]",
+    "",
+    "<TYPES>",
+    "",
+    "<TYPES>^[#]",
+    "",
+    "<TYPES>^[./]"
+  ],
+  "jsonRecursiveSort": true,
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-prisma",
+    "prettier-plugin-sort-json"
+  ],
+  "proseWrap": "always"
+}
