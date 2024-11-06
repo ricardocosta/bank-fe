@@ -38,7 +38,7 @@ export default function ProfileRoute() {
     <div className="container mb-48 mt-36 flex flex-col items-center justify-center">
       <Spacer size="4xs" />
 
-      <div className="container flex flex-col items-center rounded-3xl bg-muted p-12">
+      <div className="bg-muted container flex flex-col items-center rounded-3xl p-12">
         <div className="relative w-52">
           <div className="absolute -top-40">
             <div className="relative">
@@ -55,9 +55,9 @@ export default function ProfileRoute() {
 
         <div className="flex flex-col items-center">
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <h1 className="text-center text-h2">{userDisplayName}</h1>
+            <h1 className="text-h2 text-center">{userDisplayName}</h1>
           </div>
-          <p className="mt-2 text-center text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-center">
             Joined {formatISO9075(parseISO(user.createdAt))}
           </p>
 

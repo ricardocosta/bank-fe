@@ -23,7 +23,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           id={id}
           {...props}
         />
-        <span className="self-center text-body-xs text-muted-foreground">
+        <span className="text-body-xs text-muted-foreground self-center">
           {label}
         </span>
       </label>

@@ -84,7 +84,7 @@ export const ThemeSwitch = () => {
         variant="ghost"
       >
         <Icon
-          className="fill-slate-800 ring-0 ring-offset-frame"
+          className="ring-offset-frame fill-slate-800 ring-0"
           name={modeInfo[mode].icon}
         />
       </Button>

@@ -29,7 +29,7 @@ export const StatusButton = React.forwardRef<
   });
   const companion = {
     error: (
-      <div className="inline-flex size-6 items-center justify-center rounded-full bg-destructive">
+      <div className="bg-destructive inline-flex size-6 items-center justify-center rounded-full">
         <Icon className="text-destructive-foreground" name="cross-1" />
       </div>
     ),

@@ -142,7 +142,7 @@ export default function ForgotPasswordRoute() {
       <div className="flex flex-col justify-center">
         <div className="text-center">
           <h1 className="text-h1">Forgot Password</h1>
-          <p className="mt-3 text-body-md text-muted-foreground">
+          <p className="text-body-md text-muted-foreground mt-3">
             No worries, we&apos;ll send you reset instructions.
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function ForgotPasswordRoute() {
             </div>
           </forgotPassword.Form>
           <Link
-            className="mt-11 text-center text-body-sm font-bold"
+            className="text-body-sm mt-11 text-center font-bold"
             to="/login"
           >
             Back to Login

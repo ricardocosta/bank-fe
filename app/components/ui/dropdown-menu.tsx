@@ -73,7 +73,7 @@ const DropdownMenuCheckboxItem = forwardRef<
       )}
       {...props}
     >
-      <MenuItemCheck className="inline size-[1em] self-center text-body-md" />
+      <MenuItemCheck className="text-body-md inline size-[1em] self-center" />
       {children}
     </MenuItemCheckbox>
   );
@@ -91,7 +91,7 @@ const DropdownMenuRadioItem = forwardRef<HTMLDivElement, MenuItemRadioProps>(
         )}
         {...props}
       >
-        <MenuItemCheck className="inline size-[1em] self-center text-body-md" />
+        <MenuItemCheck className="text-body-md inline size-[1em] self-center" />
         {children}
       </MenuItemRadio>
     );

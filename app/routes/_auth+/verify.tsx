@@ -42,7 +42,7 @@ export default function VerifyRoute() {
   const checkEmail = (
     <>
       <h1 className="text-h1">Check your email</h1>
-      <p className="mt-3 text-body-md text-muted-foreground">
+      <p className="text-body-md text-muted-foreground mt-3">
         We&apos;ve sent you a code to verify your email address.
       </p>
     </>

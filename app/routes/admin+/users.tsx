@@ -82,7 +82,7 @@ export default function UsersRoute() {
               {data.users.map((user) => (
                 <li key={user.id}>
                   <Link
-                    className="flex h-36 w-44 flex-col items-center justify-center rounded-lg bg-muted px-5 py-3"
+                    className="bg-muted flex h-36 w-44 flex-col items-center justify-center rounded-lg px-5 py-3"
                     to={user.username}
                   >
                     <img
@@ -91,11 +91,11 @@ export default function UsersRoute() {
                       src={getUserImgSrc(user.imageId)}
                     />
                     {user.name ? (
-                      <span className="w-full truncate text-center text-body-md">
+                      <span className="text-body-md w-full truncate text-center">
                         {user.name}
                       </span>
                     ) : null}
-                    <span className="w-full overflow-hidden text-ellipsis text-center text-body-sm text-muted-foreground">
+                    <span className="text-body-sm text-muted-foreground w-full overflow-hidden text-ellipsis text-center">
                       {user.username}
                     </span>
                   </Link>
