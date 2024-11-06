@@ -1,12 +1,13 @@
 import * as React from "react";
 import { useSpinDelay } from "spin-delay";
 
+import { cn } from "~/styles/classname.ts";
+
 import {
   TooltipAnchor,
   TooltipContent,
   TooltipProvider,
 } from "#app/components/ui/tooltip.tsx";
-import { cn } from "#app/utils/misc.tsx";
 
 import { Button } from "./button.tsx";
 import { Icon } from "./icon.tsx";

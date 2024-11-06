@@ -1,7 +1,7 @@
 import { Checkbox as AriakitCheckbox } from "@ariakit/react";
 import * as React from "react";
 
-import { cn } from "#app/utils/misc.tsx";
+import { cn } from "~/styles/classname.ts";
 
 import type { CheckboxProps as AriakitCheckboxProps } from "@ariakit/react";
 

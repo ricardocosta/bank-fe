@@ -1,7 +1,7 @@
 import * as Ariakit from "@ariakit/react";
 import * as React from "react";
 
-import { cn } from "#app/utils/misc";
+import { cn } from "~/styles/classname.ts";
 
 import type { IconName } from "@/icon-name";
 import type { Dispatch, SetStateAction } from "react";

@@ -10,7 +10,7 @@ import {
 } from "@ariakit/react";
 import { forwardRef } from "react";
 
-import { cn } from "#app/utils/misc.tsx";
+import { cn } from "~/styles/classname.ts";
 
 import type {
   MenuProps as MenuContentProps,

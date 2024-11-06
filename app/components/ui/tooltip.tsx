@@ -5,7 +5,7 @@ import {
   TooltipProvider,
 } from "@ariakit/react";
 
-import { cn } from "#app/utils/misc.tsx";
+import { cn } from "~/styles/classname.ts";
 
 import type { TooltipProps } from "@ariakit/react";
 

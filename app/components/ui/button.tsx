@@ -2,7 +2,7 @@ import { Role } from "@ariakit/react";
 import { cva } from "class-variance-authority";
 import * as React from "react";
 
-import { cn } from "#app/utils/misc.tsx";
+import { cn } from "~/styles/classname.ts";
 
 import type { RoleProps } from "@ariakit/react";
 import type { VariantProps } from "class-variance-authority";

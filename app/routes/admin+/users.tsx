@@ -2,11 +2,13 @@ import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 
+import { cn } from "~/styles/classname.ts";
+
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { ErrorList } from "#app/components/forms.tsx";
 import { SearchBar } from "#app/components/search-bar.tsx";
 import { prisma } from "#app/utils/db/db.server";
-import { cn, getUserImgSrc, useDelayedIsPending } from "#app/utils/misc.tsx";
+import { getUserImgSrc, useDelayedIsPending } from "#app/utils/misc.tsx";
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
 

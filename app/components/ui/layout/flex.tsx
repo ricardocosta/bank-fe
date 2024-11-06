@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 import { forwardRef } from "react";
 
-import { cn } from "#app/utils/misc";
+import { cn } from "~/styles/classname.ts";
 
 import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "react";

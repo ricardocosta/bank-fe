@@ -1,4 +1,4 @@
-import { cn } from "#app/utils/misc.tsx";
+import { cn } from "~/styles/classname.ts";
 
 import href from "./icons/sprite.svg";
 
