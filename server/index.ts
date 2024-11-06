@@ -63,6 +63,12 @@ if (viteDevServer) {
   app.use(expressStatic("build/client", { maxAge: "1h" }));
 }
 
+app.use(
+  "/fonts",
+  // Can aggressively cache fonts as they don't change often
+  express.static("public/fonts", { immutable: true, maxAge: "1d" }),
+);
+
 app.get(["/img/*", "/favicons/*"], (_req, res) => {
   // if we made it past the expressStatic for these, then we're missing something.
   // So we'll just send a 404 and won't bother calling other middleware.

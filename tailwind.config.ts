@@ -1,6 +1,8 @@
 import animatePlugin from "tailwindcss-animate";
 
-import { extendedTheme } from "./app/utils/extended-theme.ts";
+// Cannot use ~/styles in this imports because
+// postCSS won't be able to resolve the TS path aliases.
+import { extendedTheme } from "./app/styles/theme-config.ts";
 
 import type { Config } from "tailwindcss";
 
@@ -9,13 +11,8 @@ export default {
   darkMode: "class",
   plugins: [animatePlugin],
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+    extend: {
+      ...extendedTheme,
     },
-    extend: extendedTheme,
   },
 } satisfies Config;

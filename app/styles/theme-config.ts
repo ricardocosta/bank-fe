@@ -1,3 +1,8 @@
+// Cannot use ~/styles in these imports because
+// postCSS won't be able to resolve the TS path aliases.
+import { ASPARAGUS } from "./colors/asparagus";
+import { GREY_ASPARAGUS } from "./colors/grey-asparagus";
+
 import type { Config } from "tailwindcss";
 
 export const extendedTheme = {
@@ -14,6 +19,7 @@ export const extendedTheme = {
       DEFAULT: "hsl(var(--accent))",
       foreground: "hsl(var(--accent-foreground))",
     },
+    asparagus: ASPARAGUS,
     background: "var(--background)",
     border: "hsl(var(--border))",
     card: {
@@ -29,6 +35,7 @@ export const extendedTheme = {
       destructive: "hsl(var(--foreground-destructive))",
     },
     frame: "var(--frame)",
+    greyAsparatus: GREY_ASPARAGUS,
     input: {
       DEFAULT: "hsl(var(--input))",
       invalid: "hsl(var(--input-invalid))",
@@ -53,6 +60,10 @@ export const extendedTheme = {
       DEFAULT: "var(--secondary)",
       foreground: "hsl(var(--secondary-foreground))",
     },
+  },
+  fontFamily: {
+    heading: ["var(--font-heading)"],
+    sans: ["var(--font-sans)"],
   },
   fontSize: {
     // oxlint-disable-next-line eslint/sort-keys
