@@ -182,7 +182,8 @@ async function getBuild() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const build = viteDevServer
     ? viteDevServer.ssrLoadModule("virtual:remix/server-build")
-    : // @ts-expect-error This file is only available after building
+    : // oxlint-disable-next-line typescript/prefer-ts-expect-error ban-ts-comment
+      // @ts-ignore This file is only available after building
       await import("#build/server/index.js");
 
   // not sure how to make this happy 🤷‍♂️

@@ -27,6 +27,7 @@ module.exports = {
       plugins: ["@typescript-eslint"],
       rules: {
         "@typescript-eslint/array-type": "off", // Already checked by oxlint
+        "@typescript-eslint/ban-ts-comment": "off", // Already checked by oxlint
         "@typescript-eslint/consistent-type-exports": "error", // Needs typechecking
         // Replaces oxlint usage of deprecated no-empty-interface
         "@typescript-eslint/no-empty-object-type": [
