@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  node_version: 20
+  node_version: 22
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   lint:
-    name: ⬣ ESLint
+    name: ⬣ Lint
     runs-on: ubuntu-22.04
     steps:
       - name: ⬇️ Checkout repo
@@ -66,7 +66,7 @@ jobs:
         run: pnpm run lint
 
   format:
-    name: 💅 Prettier
+    name: 💅 Format
     runs-on: ubuntu-22.04
     steps:
       - name: ⬇️ Checkout repo
@@ -104,7 +104,7 @@ jobs:
       - name: 🏗 Build
         run: pnpm run build
 
-      - name: 💅 Prettier
+      - name: 💅 Format
         run: pnpm run format:ci
 
   typecheck:

@@ -2,7 +2,7 @@ import { useNavigation } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import { useSpinDelay } from "spin-delay";
 
-import { cn } from "#app/utils/misc.tsx";
+import { cn } from "~/styles/classname.ts";
 
 import { Icon } from "./ui/icon.tsx";
 
@@ -59,7 +59,7 @@ function EpicProgress() {
         <div className="absolute flex items-center justify-center">
           <Icon
             aria-hidden
-            className="m-1 animate-spin text-foreground"
+            className="text-foreground m-1 animate-spin"
             name="update"
             size="md"
           />

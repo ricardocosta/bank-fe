@@ -1,12 +1,13 @@
 import * as React from "react";
 import { useSpinDelay } from "spin-delay";
 
+import { cn } from "~/styles/classname.ts";
+
 import {
   TooltipAnchor,
   TooltipContent,
   TooltipProvider,
 } from "#app/components/ui/tooltip.tsx";
-import { cn } from "#app/utils/misc.tsx";
 
 import { Button } from "./button.tsx";
 import { Icon } from "./icon.tsx";
@@ -28,7 +29,7 @@ export const StatusButton = React.forwardRef<
   });
   const companion = {
     error: (
-      <div className="inline-flex size-6 items-center justify-center rounded-full bg-destructive">
+      <div className="bg-destructive inline-flex size-6 items-center justify-center rounded-full">
         <Icon className="text-destructive-foreground" name="cross-1" />
       </div>
     ),

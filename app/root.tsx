@@ -3,6 +3,9 @@ import { useLoaderData } from "@remix-run/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { namedAction } from "remix-utils/named-action";
 
+import fontStyles from "~/styles/fonts.css?url";
+import globalStyles from "~/styles/global.css?url";
+
 import {
   getSidebarState,
   toggleSidebarAction,
@@ -19,7 +22,6 @@ import { getTheme, switchThemeAction } from "#app/theme/theme.server.ts";
 import { GeneralErrorBoundary } from "./components/error-boundary.tsx";
 import { EpicProgress } from "./components/progress-bar.tsx";
 import { href as iconsHref } from "./components/ui/icon.tsx";
-import tailwindStyleSheetUrl from "./styles/tailwind.css?url";
 import { getUserId, logout } from "./utils/auth.server.ts";
 import { getHints } from "./utils/client-hints.tsx";
 import { prisma } from "./utils/db/db.server.ts";
@@ -43,6 +45,8 @@ export const links: LinksFunction = () => {
   return [
     // Preload svg sprite as a resource to avoid render blocking
     { as: "image", href: iconsHref, rel: "preload" },
+    { as: "style", href: fontStyles, rel: "preload" },
+    { as: "style", href: globalStyles, rel: "preload" },
     { href: "/favicons/mask-icon.svg", rel: "mask-icon" },
     {
       href: "/favicons/favicon-32x32.png",
@@ -55,9 +59,10 @@ export const links: LinksFunction = () => {
       href: "/site.webmanifest",
       rel: "manifest",
     } as const, // necessary to make typescript happy
-    //These should match the css preloads above to avoid css as render blocking resource
+    // These should match the css preloads above to avoid css as render blocking resource
     { href: "/favicons/favicon.svg", rel: "icon", type: "image/svg+xml" },
-    { href: tailwindStyleSheetUrl, rel: "stylesheet" },
+    { href: fontStyles, rel: "stylesheet" },
+    { href: globalStyles, rel: "stylesheet" },
   ].filter(Boolean);
 };
 

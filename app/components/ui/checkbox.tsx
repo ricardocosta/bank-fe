@@ -1,7 +1,7 @@
 import { Checkbox as AriakitCheckbox } from "@ariakit/react";
 import * as React from "react";
 
-import { cn } from "#app/utils/misc.tsx";
+import { cn } from "~/styles/classname.ts";
 
 import type { CheckboxProps as AriakitCheckboxProps } from "@ariakit/react";
 
@@ -23,7 +23,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           id={id}
           {...props}
         />
-        <span className="self-center text-body-xs text-muted-foreground">
+        <span className="text-body-xs text-muted-foreground self-center">
           {label}
         </span>
       </label>

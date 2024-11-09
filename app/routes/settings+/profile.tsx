@@ -3,11 +3,12 @@ import { json } from "@remix-run/node";
 import { Link, Outlet, useMatches } from "@remix-run/react";
 import { z } from "zod";
 
+import { cn } from "~/styles/classname.ts";
+
 import { Spacer } from "#app/components/spacer.tsx";
 import { Icon } from "#app/components/ui/icon.tsx";
 import { requireUserId } from "#app/utils/auth.server.ts";
 import { prisma } from "#app/utils/db/db.server";
-import { cn } from "#app/utils/misc.tsx";
 import { useUser } from "#app/utils/user.ts";
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -76,7 +77,7 @@ export default function EditUserProfile() {
         </ul>
       </div>
       <Spacer size="xs" />
-      <main className="mx-auto bg-muted px-6 py-8 md:container md:rounded-3xl">
+      <main className="bg-muted mx-auto px-6 py-8 md:container md:rounded-3xl">
         <Outlet />
       </main>
     </div>

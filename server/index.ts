@@ -63,6 +63,12 @@ if (viteDevServer) {
   app.use(expressStatic("build/client", { maxAge: "1h" }));
 }
 
+app.use(
+  "/fonts",
+  // Can aggressively cache fonts as they don't change often
+  express.static("public/fonts", { immutable: true, maxAge: "1d" }),
+);
+
 app.get(["/img/*", "/favicons/*"], (_req, res) => {
   // if we made it past the expressStatic for these, then we're missing something.
   // So we'll just send a 404 and won't bother calling other middleware.
@@ -74,8 +80,7 @@ app.use(
   morgan("tiny", {
     skip: (req, res) =>
       res.statusCode === constants.HTTP_STATUS_OK &&
-      (req.url?.startsWith("/resources/note-images") ||
-        req.url?.startsWith("/resources/user-images")),
+      req.url?.startsWith("/resources/user-images"),
   }),
 );
 
@@ -177,7 +182,9 @@ async function getBuild() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const build = viteDevServer
     ? viteDevServer.ssrLoadModule("virtual:remix/server-build")
-    : await import("#build/server/index.js");
+    : // oxlint-disable-next-line typescript/prefer-ts-expect-error ban-ts-comment
+      // @ts-ignore This file is only available after building
+      await import("#build/server/index.js");
 
   // not sure how to make this happy 🤷‍♂️
   return build as unknown as ServerBuild;

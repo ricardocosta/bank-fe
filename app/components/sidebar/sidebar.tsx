@@ -10,6 +10,8 @@ import {
 import { forwardRef } from "react";
 import { $path, $routeId } from "remix-routes";
 
+import { cn } from "~/styles/classname.ts";
+
 import { NavMenu } from "#app/components/nav";
 import { SidebarToggleSchema } from "#app/components/sidebar/schema";
 import { useOptimisticSidebarState } from "#app/components/sidebar/use-optimistic-sidebar-state.ts";
@@ -19,7 +21,6 @@ import { Input } from "#app/components/ui/input";
 import { Flex, Stack } from "#app/components/ui/layout";
 import { UserDropdown } from "#app/components/user-dropdown";
 import { ThemeSwitch } from "#app/theme/theme-switch";
-import { cn } from "#app/utils/misc";
 
 import type { HTMLAttributes } from "react";
 

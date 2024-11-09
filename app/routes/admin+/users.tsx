@@ -2,11 +2,13 @@ import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 
+import { cn } from "~/styles/classname.ts";
+
 import { GeneralErrorBoundary } from "#app/components/error-boundary.tsx";
 import { ErrorList } from "#app/components/forms.tsx";
 import { SearchBar } from "#app/components/search-bar.tsx";
 import { prisma } from "#app/utils/db/db.server";
-import { cn, getUserImgSrc, useDelayedIsPending } from "#app/utils/misc.tsx";
+import { getUserImgSrc, useDelayedIsPending } from "#app/utils/misc.tsx";
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
@@ -80,7 +82,7 @@ export default function UsersRoute() {
               {data.users.map((user) => (
                 <li key={user.id}>
                   <Link
-                    className="flex h-36 w-44 flex-col items-center justify-center rounded-lg bg-muted px-5 py-3"
+                    className="bg-muted flex h-36 w-44 flex-col items-center justify-center rounded-lg px-5 py-3"
                     to={user.username}
                   >
                     <img
@@ -89,11 +91,11 @@ export default function UsersRoute() {
                       src={getUserImgSrc(user.imageId)}
                     />
                     {user.name ? (
-                      <span className="w-full truncate text-center text-body-md">
+                      <span className="text-body-md w-full truncate text-center">
                         {user.name}
                       </span>
                     ) : null}
-                    <span className="w-full overflow-hidden text-ellipsis text-center text-body-sm text-muted-foreground">
+                    <span className="text-body-sm text-muted-foreground w-full overflow-hidden text-ellipsis text-center">
                       {user.username}
                     </span>
                   </Link>

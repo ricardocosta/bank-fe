@@ -1,8 +1,9 @@
 import { NavLink } from "@remix-run/react";
 import { $path } from "remix-routes";
 
+import { cn } from "~/styles/classname.ts";
+
 import { Icon } from "#app/components/ui/icon";
-import { cn } from "#app/utils/misc";
 
 import type { SidebarState } from "#app/components/sidebar/types";
 
