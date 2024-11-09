@@ -33,7 +33,7 @@
   :root {
     --font-sans: "Nunito Sans", sans-serif;
     --font-heading: "Simplifica", sans-serif;
-    /* --font-mono: here if you got it... */
+    --font-mono: "Menlo", sans-serif;
 
     /* prefixed with foreground because it should look good on the background */
     --foreground-destructive: 345 82.7% 40.8%;

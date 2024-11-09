@@ -63,6 +63,7 @@ export const extendedTheme = {
   },
   fontFamily: {
     heading: ["var(--font-heading)"],
+    mono: ["var(--font-mono)"],
     sans: ["var(--font-sans)"],
   },
   fontSize: {
