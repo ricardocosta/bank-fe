@@ -1,5 +1,5 @@
-import { cva } from "class-variance-authority";
 import { forwardRef } from "react";
+import { tv } from "tailwind-variants";
 
 import { cn } from "~/styles/classname.ts";
 
@@ -15,7 +15,8 @@ const headingStyles = {
   h6: "text-h6",
 };
 
-const headingVariants = cva("font-heading font-bold", {
+const headingVariants = tv({
+  base: "font-heading font-bold",
   defaultVariants: {
     variant: "h1",
   },

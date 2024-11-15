@@ -1,5 +1,5 @@
-import { cva } from "class-variance-authority";
 import { forwardRef } from "react";
+import { tv } from "tailwind-variants";
 
 import { Box } from "~/components/ui/layout/box.tsx";
 import { cn } from "~/styles/classname.ts";
@@ -7,7 +7,8 @@ import { cn } from "~/styles/classname.ts";
 import type { BoxProps } from "~/components/ui/layout/box.tsx";
 import type { VariantProps } from "class-variance-authority";
 
-const monospaceVariants = cva("font-mono", {
+const monospaceVariants = tv({
+  base: "font-mono",
   defaultVariants: {
     size: "md",
     weight: "regular",

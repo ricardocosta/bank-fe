@@ -1,4 +1,5 @@
 import animatePlugin from "tailwindcss-animate";
+import reactAriaComponentsPlugin from "tailwindcss-react-aria-components";
 
 // Cannot use ~/styles in this imports because
 // postCSS won't be able to resolve the TS path aliases.
@@ -9,7 +10,7 @@ import type { Config } from "tailwindcss";
 export default {
   content: ["./app/**/*.{ts,tsx,jsx,js}"],
   darkMode: "class",
-  plugins: [animatePlugin],
+  plugins: [reactAriaComponentsPlugin, animatePlugin],
   theme: {
     extend: {
       ...extendedTheme,
