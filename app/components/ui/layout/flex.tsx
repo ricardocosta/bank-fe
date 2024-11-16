@@ -1,12 +1,13 @@
-import { cva } from "class-variance-authority";
 import { forwardRef } from "react";
+import { tv } from "tailwind-variants";
 
 import { cn } from "~/styles/classname.ts";
 
 import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "react";
 
-const flexVariants = cva("box-border flex flex-1", {
+const flexVariants = tv({
+  base: "box-border flex flex-1",
   defaultVariants: {
     align: "start",
     direction: "row",
@@ -16,7 +17,7 @@ const flexVariants = cva("box-border flex flex-1", {
   },
   variants: {
     align: {
-      // oxlint-disable-next-line eslint/sort-keys|
+      // oxlint-disable-next-line eslint/sort-keys
       start: "items-start",
       center: "items-center",
       end: "items-end",
