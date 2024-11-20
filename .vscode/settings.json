@@ -20,5 +20,8 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "workbench.editorAssociations": {
     "*.db": "sqlite-viewer.view"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
   }
 }
